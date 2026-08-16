@@ -74,14 +74,19 @@ SCAFFOLD="$(mktemp -d)/site"
 
 bridgetown new "$SCAFFOLD" --templates=erb
 
-# copia tudo, inclusive arquivos ocultos como .gitignore e .ruby-version
-cp -a "$SCAFFOLD/." "$REPO/"
+# copia tudo, inclusive ocultos como .gitignore e .ruby-version, MENOS o .git
+rsync -a --exclude='.git' "$SCAFFOLD/" "$REPO/"
 
 cd "$REPO"
 ```
 
-O scaffold não cria `.git`, então não há risco de sobrescrever o histórico do
-repositório.
+**`bridgetown new` roda `git init` no diretório gerado**, então o scaffold *tem*
+um `.git`. Copiá-lo com `cp -a` sobrescreveria o `.git` do repositório — e, num
+worktree, o `.git` é um arquivo-ponteiro cuja perda desconecta a árvore inteira.
+O `--exclude='.git'` não é zelo excessivo: sem ele o repositório quebra.
+
+Depois de copiar, acrescente `.superpowers/` ao `.gitignore` que veio do
+scaffold — é diretório de trabalho da orquestração e não deve ser versionado.
 
 Confira que chegaram: `config/initializers.rb`, `Rakefile`, `Gemfile`,
 `package.json`, `plugins/site_builder.rb`, `src/_layouts/default.erb` e
