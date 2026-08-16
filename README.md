@@ -1,69 +1,73 @@
-# Bridgetown Website README
+# viniciuscole.dev
 
-Welcome to your new Bridgetown website! You can update this README file to provide additional context and setup information for yourself or other contributors.
+Site pessoal, gerado com [Bridgetown](https://www.bridgetownrb.com) e publicado
+no Cloudflare Pages.
 
-## Table of Contents
+## Pré-requisitos
 
-- [Bridgetown Website README](#bridgetown-website-readme)
-  - [Table of Contents](#table-of-contents)
-  - [Prerequisites](#prerequisites)
-  - [Install](#install)
-  - [Development](#development)
-    - [Commands](#commands)
-  - [Deployment](#deployment)
-  - [Contributing](#contributing)
+- Ruby 3.4.9 (veja `.ruby-version`)
+- Node 22 (veja `.nvmrc`) — obrigatório: o `esbuild.config.js` usa
+  `fs.globSync`, disponível apenas a partir do Node 22. Com Node 20 o
+  frontend não compila e o site publica com `MISSING_ESBUILD_ASSET` no lugar
+  do CSS e do JavaScript.
 
-## Prerequisites
+## Rodar localmente
 
-- [Ruby](https://www.ruby-lang.org/en/downloads/)
-  - `>= 3.3`
-- [Bridgetown gem](https://gems.bridgetownrb.com/)
-  - `gem install bridgetown -N`
-- [Node](https://nodejs.org)
-  - `>= 22`
+    bundle install
+    npm install
+    bin/bridgetown start
 
-## Install
+## Verificar antes de publicar
 
-```sh
-cd bridgetown-site-folder
-bundle install && npm install
-```
-> Learn more: [Bridgetown Getting Started Documentation](https://www.bridgetownrb.com/docs/).
+    bundle exec rake check
 
-## Development
+Constrói o frontend com esbuild, constrói o site, roda a suíte de testes
+(minitest) e por fim verifica links internos e imagens no HTML gerado com
+html-proofer.
 
-To start your site in development mode, run `bin/bridgetown start` and navigate to [localhost:4000](https://localhost:4000/)!
+## Adicionar um projeto
 
-Check out [plugins](https://www.bridgetownrb.com/plugins/) if you're looking to add functionality or a theme to your site.
+Crie dois arquivos Markdown: `src/_projects/<slug>.en.md` e
+`src/_projects/<slug>.pt.md`. Os dois idiomas são obrigatórios — a suíte
+reprova um projeto que exista em apenas um.
 
-### Commands
+Campos obrigatórios no front matter: `title`, `locale`, `slug`, `summary`,
+`tech`.
 
-```sh
-# running locally
-bin/bridgetown start
+Campos opcionais: `year`, `featured`, `order`, `repo`, `demo`.
 
-# build & deploy to production
-bin/bridgetown deploy
+Para embutir uma demo, defina `demo.type` com um dos tipos registrados em
+`plugins/builders/demo_helper.rb` (`DEMO_TYPES`) e crie o partial
+correspondente em `src/_partials/demos/`, por exemplo `_jsdos.erb` para o
+tipo `jsdos`. Um `demo.type` desconhecido, ausente, ou com front matter mal
+formado (ex.: `demo: jsdos` em vez de `demo:\n  type: jsdos`) nunca derruba o
+build: o helper degrada para o partial `demos/none`.
 
-# load the site up within a Ruby console (IRB)
-bin/bridgetown console
-```
+## Configuração
 
-> Learn more: [Bridgetown CLI Documentation](https://www.bridgetownrb.com/docs/command-line-usage)
+Toda a configuração do site vive em `config/initializers.rb`. O Bridgetown 2
+não usa `bridgetown.config.yml` — não crie esse arquivo.
 
-## Deployment
+Duas armadilhas de permalink aprendidas neste projeto, na prática:
 
-You can deploy Bridgetown sites on hosts like statichost.eu and Render as well as traditional web servers by simply building and copying the output folder to your HTML root.
+- A coleção `projects`, em `config/initializers.rb`, precisa manter
+  `permalink "simple"`. Uma string de permalink customizada ignora o prefixo
+  de idioma e faz as duas traduções (`.en.md` e `.pt.md`) gravarem no mesmo
+  arquivo de saída, uma sobrescrevendo a outra silenciosamente.
+- Nenhuma página deve usar `permalink: /` literal no front matter. No
+  Bridgetown 2.2.2 isso faz `relative_url` resolver para `"//"` em vez de
+  `"/"`, quebrando todo link de volta para essa página. Para a home, deixe o
+  permalink padrão da coleção `pages` (`/:locale/:path/`) resolver sozinho —
+  ele já produz `/` corretamente.
 
-> Read the [Bridgetown Deployment Documentation](https://www.bridgetownrb.com/docs/deployment) for more information.
+## CI e deploy
 
-## Contributing
+Todo push na branch `main` builda o site e o publica no Cloudflare Pages
+(projeto `viniciuscole-dev`, modo Direct Upload); todo pull request roda
+apenas a suíte de verificação, sem publicar. Veja
+`.github/workflows/ci.yml`.
 
-If repo is on GitHub:
-
-1. Fork it
-2. Clone the fork using `git clone` to your local development machine.
-3. Create your feature branch (`git checkout -b my-new-feature`)
-4. Commit your changes (`git commit -am 'Add some feature'`)
-5. Push to the branch (`git push origin my-new-feature`)
-6. Create a new Pull Request
+Para o deploy funcionar, o repositório no GitHub precisa ter os segredos
+`CLOUDFLARE_API_TOKEN` (permissão `Cloudflare Pages: Edit`) e
+`CLOUDFLARE_ACCOUNT_ID`, cadastrados em **Settings → Secrets and variables →
+Actions**.
