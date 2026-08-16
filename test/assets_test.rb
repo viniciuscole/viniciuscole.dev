@@ -21,6 +21,30 @@ class AssetsTest < Minitest::Test
     end
   end
 
+  # Se o frontend nao foi compilado (ex.: esbuild falhou, ou rake check nao
+  # rodou frontend:build antes de bin/bridgetown build), Bridgetown emite o
+  # placeholder "MISSING_ESBUILD_ASSET" em vez de um caminho real de asset.
+  # Isso publicaria um site sem CSS e sem JS silenciosamente.
+  def test_pages_reference_the_compiled_frontend_assets
+    Dir.glob(OUTPUT.join("**/*.html")).each do |path|
+      body = File.read(path)
+
+      refute_includes body, "MISSING_ESBUILD_ASSET",
+        "#{path}: referencia a um asset de frontend que nao foi compilado"
+
+      stylesheet = body[/<link rel="stylesheet" href="([^"]+)"/, 1]
+      script = body[/<script src="([^"]+)"/, 1]
+
+      assert stylesheet, "#{path}: nenhuma folha de estilo referenciada"
+      assert script, "#{path}: nenhum script referenciado"
+
+      assert_match %r{\A/_bridgetown/static/}, stylesheet,
+        "#{path}: folha de estilo nao aponta para /_bridgetown/static/: #{stylesheet}"
+      assert_match %r{\A/_bridgetown/static/}, script,
+        "#{path}: script nao aponta para /_bridgetown/static/: #{script}"
+    end
+  end
+
   private
 
   # Links de navegacao para fora sao permitidos; o que nao pode e a pagina

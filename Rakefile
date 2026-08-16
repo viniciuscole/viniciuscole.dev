@@ -58,6 +58,7 @@ end
 
 desc "Constroi o site e roda todas as verificacoes"
 task :check do
+  Rake::Task["frontend:build"].invoke
   sh "bin/bridgetown build"
   Rake::Task["minitest"].invoke
 end
