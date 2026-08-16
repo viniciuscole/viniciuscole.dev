@@ -1,0 +1,17 @@
+<article class="project-card">
+  <h3>
+    <a href="<%= project.relative_url %>"><%= project.data.title %></a>
+  </h3>
+
+  <p class="project-card-summary"><%= project.data.summary %></p>
+
+  <ul class="tech-list">
+    <% Array(project.data.tech).each do |tech| %>
+      <li><%= tech %></li>
+    <% end %>
+  </ul>
+
+  <% if project.data.year %>
+    <p class="project-card-year"><%= project.data.year %></p>
+  <% end %>
+</article>

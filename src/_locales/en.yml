@@ -10,3 +10,11 @@ en:
   locale:
     en: "English"
     pt: "Português"
+  home:
+    intro: "I build software. Some of it runs right here on this page."
+    featured: "Featured projects"
+    latest_posts: "Latest posts"
+    contact: "Get in touch"
+  projects:
+    title: "Projects"
+    intro: "Things I have built, and things I am still building."

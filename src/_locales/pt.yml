@@ -10,3 +10,11 @@ pt:
   locale:
     en: "English"
     pt: "Português"
+  home:
+    intro: "Eu construo software. Parte dele roda aqui mesmo nesta página."
+    featured: "Projetos em destaque"
+    latest_posts: "Últimos posts"
+    contact: "Fale comigo"
+  projects:
+    title: "Projetos"
+    intro: "Coisas que eu construí, e coisas que ainda estou construindo."
