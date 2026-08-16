@@ -22,6 +22,15 @@ class HomeTest < Minitest::Test
     assert_includes page_body("index.html"), "Tic-Tac-Toe in x86 Assembly"
   end
 
+  def test_pt_home_features_the_flagged_project
+    assert_includes page_body("pt/index.html"), "Jogo da Velha em Assembly x86"
+  end
+
+  def test_home_does_not_leak_the_other_locale
+    refute_includes page_body("index.html"), "Jogo da Velha"
+    refute_includes page_body("pt/index.html"), "Tic-Tac-Toe in x86"
+  end
+
   def test_project_card_links_to_the_project_page
     assert_includes page_body("projects/index.html"), 'href="/projects/tic-tac-toe/"'
   end

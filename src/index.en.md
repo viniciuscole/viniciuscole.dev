@@ -2,6 +2,14 @@
 layout: page
 title: Vinicius Cole
 locale: en
+# Sem `permalink:` de proposito. Um valor literal "/" faz o
+# PermalinkProcessor do Bridgetown 2.2.2 resolver `relative_url` para "//"
+# em vez de "/" (a divisao de "/" por "/" produz uma lista de segmentos
+# vazia, e a normalizacao de "/index/" para "/" nunca dispara), quebrando
+# todo link de volta para a home em ingles. A resolucao padrao da colecao
+# `pages` (`/:locale/:path/`) ja produz "/" corretamente aqui, entao nao
+# adicione `permalink: /` de volta. Ver task-6-report.md para o
+# rastreamento completo do bug.
 ---
 
 <section class="hero">
@@ -13,12 +21,5 @@ locale: en
 <section class="featured">
   <h2><%= t("home.featured") %></h2>
 
-  <div class="project-grid">
-    <% collections.projects.resources
-         .select { |p| p.data.locale.to_s == resource.data.locale.to_s && p.data.featured }
-         .sort_by { |p| p.data.order || 999 }
-         .each do |project| %>
-      <%= render "project_card", project: project %>
-    <% end %>
-  </div>
+  <%= render "project_grid", featured_only: true %>
 </section>

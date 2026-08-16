@@ -1,0 +1,8 @@
+<div class="project-grid">
+  <% collections.projects.resources
+       .select { |p| p.data.locale.to_s == resource.data.locale.to_s && (!featured_only || p.data.featured) }
+       .sort_by { |p| p.data.order || 999 }
+       .each do |project| %>
+    <%= render "project_card", project: project %>
+  <% end %>
+</div>

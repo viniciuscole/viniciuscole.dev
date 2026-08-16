@@ -14,12 +14,5 @@ permalink: /pt/
 <section class="featured">
   <h2><%= t("home.featured") %></h2>
 
-  <div class="project-grid">
-    <% collections.projects.resources
-         .select { |p| p.data.locale.to_s == resource.data.locale.to_s && p.data.featured }
-         .sort_by { |p| p.data.order || 999 }
-         .each do |project| %>
-      <%= render "project_card", project: project %>
-    <% end %>
-  </div>
+  <%= render "project_grid", featured_only: true %>
 </section>
