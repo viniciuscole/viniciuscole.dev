@@ -6,15 +6,25 @@ class Builders::DemoHelper < SiteBuilder
 
   def build
     helper :demo_partial_for do |resource|
-      type = resource.data.dig(:demo, :type) || "none"
+      Builders::DemoHelper.partial_for(resource)
+    end
+  end
 
-      if DEMO_TYPES.include?(type)
-        "demos/#{type}"
-      else
-        Bridgetown.logger.warn "Demo",
-          "tipo desconhecido #{type.inspect} em #{resource.relative_path}, usando 'none'"
-        "demos/none"
-      end
+  # Determina o partial de demo para um resource. Front matter malformado
+  # nunca pode derrubar o build: `demo` pode estar ausente, pode ser um mapa
+  # sem `type`, ou pode ser um valor escalar (ex.: `demo: jsdos` em vez de
+  # `demo:\n  type: jsdos`) em vez do mapa aninhado esperado. Em qualquer um
+  # desses casos o resultado degrada para o placeholder "none".
+  def self.partial_for(resource)
+    demo = resource.data[:demo]
+    type = (demo.is_a?(Hash) ? demo[:type] : nil) || "none"
+
+    if DEMO_TYPES.include?(type)
+      "demos/#{type}"
+    else
+      Bridgetown.logger.warn "Demo",
+        "tipo desconhecido #{type.inspect} em #{resource.relative_path}, usando 'none'"
+      "demos/none"
     end
   end
 end

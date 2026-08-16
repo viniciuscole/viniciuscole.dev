@@ -1,9 +1,24 @@
 require "test_helper"
 
+# Builders::DemoHelper.partial_for e testado diretamente (sem passar por um
+# build completo), entao o plugin precisa ser carregado neste processo.
+# `class Builders::DemoHelper` (forma compacta) exige que o modulo `Builders`
+# ja exista; em produção quem cria esse modulo e o autoload do Zeitwerk, que
+# so roda quando um Bridgetown::Site sobe. Fora desse boot, pre-declaramos o
+# modulo vazio para o require funcionar.
+require "bridgetown"
+require ROOT.join("plugins/site_builder")
+module Builders; end unless defined?(Builders)
+require ROOT.join("plugins/builders/demo_helper")
+
 class DemoDispatcherTest < Minitest::Test
   include OutputHelpers
 
   ALLOWED_TYPES = %w[none jsdos].freeze
+
+  # Resource minimo o bastante para exercitar Builders::DemoHelper.partial_for
+  # sem precisar de uma colecao ou de um build completo.
+  FakeResource = Struct.new(:data, :relative_path)
 
   def test_project_without_demo_renders_the_placeholder
     body = page_body("projects/tic-tac-toe/index.html")
@@ -27,5 +42,26 @@ class DemoDispatcherTest < Minitest::Test
       partial = ROOT.join("src/_partials/demos/_#{type}.erb")
       assert partial.file?, "falta o partial src/_partials/demos/_#{type}.erb"
     end
+  end
+
+  # Front matter malformado (demo escrito como valor escalar em vez do mapa
+  # aninhado esperado, ex.: `demo: jsdos` em vez de `demo:\n  type: jsdos`)
+  # nao pode derrubar o build. Sem a guarda em Builders::DemoHelper.partial_for
+  # este teste levanta TypeError, porque String nao responde a `dig`/`[]` do
+  # jeito que um Hash aninhado responde.
+  def test_scalar_demo_front_matter_degrades_to_none_without_raising
+    resource = FakeResource.new({ demo: "jsdos" }, "_projects/broken.md")
+
+    assert_equal "demos/none", Builders::DemoHelper.partial_for(resource)
+  end
+
+  # Tipo declarado mas fora de DEMO_TYPES tambem degrada para "none" (com
+  # aviso no log, verificado manualmente no relatorio da tarefa). Sem este
+  # teste, um refator futuro poderia trocar o fallback silenciosamente e o
+  # suite continuaria verde.
+  def test_unknown_demo_type_degrades_to_none
+    resource = FakeResource.new({ demo: { type: "atari" } }, "_projects/broken.md")
+
+    assert_equal "demos/none", Builders::DemoHelper.partial_for(resource)
   end
 end
