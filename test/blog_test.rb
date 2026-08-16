@@ -19,4 +19,13 @@ class BlogTest < Minitest::Test
     refute_includes body, "Porting DOS assembly to the browser"
     assert_includes body, "Nenhum post por aqui ainda"
   end
+
+  def test_post_page_has_semantic_structure
+    # Task 8 (estilo) escreve CSS mirando `.post time` e `.post-body`; sem
+    # esses elementos no markup essas regras nao teriam alvo.
+    body = page_body("2026/08/16/porting-dos-assembly-to-the-browser/index.html")
+    assert_includes body, '<article class="post">'
+    assert_includes body, '<time datetime="2026-08-16">'
+    assert_includes body, '<div class="post-body">'
+  end
 end
