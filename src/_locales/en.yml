@@ -18,3 +18,7 @@ en:
   projects:
     title: "Projects"
     intro: "Things I have built, and things I am still building."
+  blog:
+    title: "Blog"
+    intro: "Notes on things I build."
+    empty: "Nothing here yet"

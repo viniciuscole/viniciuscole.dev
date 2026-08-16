@@ -1,0 +1,18 @@
+<% posts = collections.posts.resources
+     .select { |p| p.data.locale.to_s == resource.data.locale.to_s }
+     .sort_by { |p| p.data.date }.reverse %>
+
+<% if posts.empty? %>
+  <p class="empty-state"><%= t("blog.empty") %></p>
+<% else %>
+  <ul class="post-list">
+    <% posts.each do |post| %>
+      <li>
+        <a href="<%= post.relative_url %>"><%= post.data.title %></a>
+        <time datetime="<%= post.data.date.strftime("%Y-%m-%d") %>">
+          <%= post.data.date.strftime("%Y-%m-%d") %>
+        </time>
+      </li>
+    <% end %>
+  </ul>
+<% end %>

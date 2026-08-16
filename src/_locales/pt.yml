@@ -18,3 +18,7 @@ pt:
   projects:
     title: "Projetos"
     intro: "Coisas que eu construí, e coisas que ainda estou construindo."
+  blog:
+    title: "Blog"
+    intro: "Notas sobre as coisas que eu construo."
+    empty: "Nenhum post por aqui ainda"
