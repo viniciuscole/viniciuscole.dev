@@ -70,13 +70,17 @@ Fase 1; a Fase 2 decidirá como consumir o fonte para gerar o executável.
 
 ```
 viniciuscole.dev/
-├── bridgetown.config.yml       # locales, coleções, permalinks
-├── config/initializers.rb
+├── config/initializers.rb      # locales, coleções, permalinks (NÃO existe
+│                               # bridgetown.config.yml no Bridgetown 2)
 ├── Gemfile
+├── Rakefile
 ├── package.json                # esbuild (bundler de assets do Bridgetown)
 ├── .ruby-version               # 3.4.9
 ├── plugins/
-│   └── demo_helper.rb          # tipos de demo permitidos + resolução
+│   ├── site_builder.rb         # gerado pelo scaffold
+│   └── builders/
+│       └── demo_helper.rb      # tipos de demo permitidos + resolução
+├── test/                       # suíte executada por `rake check`
 ├── frontend/
 │   ├── javascript/index.js     # JS mínimo: alternador de tema
 │   └── styles/
@@ -142,18 +146,26 @@ Lê `resource.data.demo.type` e delega ao partial correspondente. Adicionar um
 tipo de demo no futuro é criar `demos/_<tipo>.erb` e registrá-lo na lista de
 tipos permitidos, sem tocar em `project.erb` nem em nenhum outro arquivo.
 
-A lista de tipos permitidos e a resolução vivem num helper Ruby,
-`plugins/demo_helper.rb`, que expõe `demo_partial_for(resource)`:
+A lista de tipos permitidos e a resolução vivem num builder Ruby,
+`plugins/builders/demo_helper.rb`, que registra o helper
+`demo_partial_for(resource)` no padrão de builders do Bridgetown 2:
 
 ```ruby
-DEMO_TYPES = %w[none jsdos].freeze
+class Builders::DemoHelper < SiteBuilder
+  DEMO_TYPES = %w[none jsdos].freeze
 
-def demo_partial_for(resource)
-  type = resource.data.dig(:demo, :type) || "none"
-  return "demos/#{type}" if DEMO_TYPES.include?(type)
-
-  Bridgetown.logger.warn "Demo", "tipo desconhecido #{type.inspect} em #{resource.relative_path}"
-  "demos/none"
+  def build
+    helper :demo_partial_for do |resource|
+      type = resource.data.dig(:demo, :type) || "none"
+      if DEMO_TYPES.include?(type)
+        "demos/#{type}"
+      else
+        Bridgetown.logger.warn "Demo",
+          "tipo desconhecido #{type.inspect} em #{resource.relative_path}"
+        "demos/none"
+      end
+    end
+  end
 end
 ```
 
@@ -205,11 +217,32 @@ Campos opcionais: `year`, `featured` (padrão `false`), `order` (padrão `999`),
 
 ### Internacionalização
 
-```yaml
-available_locales: [en, pt]
-default_locale: en
-prefix_default_locale: false
+Configuração em `config/initializers.rb`, na DSL do Bridgetown 2:
+
+```ruby
+Bridgetown.configure do |config|
+  template_engine "erb"
+
+  available_locales [:en, :pt]
+  default_locale :en
+  prefix_default_locale false
+
+  collections do
+    projects do
+      output true
+      permalink "simple"   # ver aviso abaixo — não trocar por string custom
+    end
+  end
+end
 ```
+
+**Armadilha verificada na prática, não trocar:** um permalink em string
+customizada (`"/projects/:slug/"`) **ignora o prefixo de locale** e faz as duas
+traduções gravarem no mesmo caminho — a última vence e a outra desaparece do
+site, sem erro nem aviso no build. `permalink "pretty"` preserva os locales mas
+injeta data na URL (`/projects/2026/08/16/tic-tac-toe/`). Apenas
+`permalink "simple"` entrega o que queremos: `/projects/tic-tac-toe/` e
+`/pt/projects/tic-tac-toe/`.
 
 Rotas resultantes:
 
@@ -264,7 +297,11 @@ Segredos necessários no repositório: `CLOUDFLARE_API_TOKEN` e
 
 ## Testes
 
-Proporcionais ao risco real do projeto, executados por `rake test`:
+Proporcionais ao risco real do projeto, executados por **`rake check`**.
+
+> O nome não é `rake test` de propósito: o Rakefile gerado pelo Bridgetown já
+> define `test` como "construir o site no ambiente de teste", que não roda teste
+> nenhum. Sobrescrever essa tarefa confundiria quem conhece Bridgetown.
 
 1. **Build limpo** — `bin/bridgetown build` termina com código 0.
 2. **Paridade de locales** — o conjunto de chaves de `en.yml` e `pt.yml` é
@@ -300,7 +337,7 @@ retrô parece intencional, e não um tema aplicado por cima de tudo.
 - Home, listagem de projetos, página do tic-tac-toe e blog funcionando nos dois
   idiomas, com alternador correto
 - Adicionar um projeto novo requer apenas dois arquivos Markdown
-- `rake test` verde, deploy automático a partir da `main`
+- `rake check` verde, deploy automático a partir da `main`
 
 ## Anexo — verificação técnica já realizada (2026-08-16)
 
@@ -319,3 +356,20 @@ Registro do que foi comprovado na prática, para a Fase 2 não repetir o trabalh
 - Ainda **não** foi verificado: se o executável roda corretamente sob DOSBox e
   como se comporta o modo de vídeo VGA 12h dentro do js-dos. Essa é a primeira
   tarefa da Fase 2.
+
+E do Bridgetown 2.2.2, verificado num scaffold descartável:
+
+- O scaffold **não gera `bridgetown.config.yml`**; toda a configuração vive em
+  `config/initializers.rb` na DSL `Bridgetown.configure`.
+- `available_locales` / `default_locale` / `prefix_default_locale` funcionam:
+  o build produz `output/index.html` e `output/pt/index.html`, com
+  `<html lang="en">` e `<html lang="pt">` preenchidos automaticamente.
+- O helper `t("chave")` resolve corretamente por locale nos dois idiomas.
+- Coleção customizada com `permalink "simple"` gera
+  `output/projects/tic-tac-toe/index.html` e
+  `output/pt/projects/tic-tac-toe/index.html`, cada um com o conteúdo do idioma
+  certo. As alternativas foram testadas e reprovadas (ver seção de i18n).
+- O Rakefile do scaffold já ocupa o nome `test` com um build; por isso a suíte
+  se chama `check`.
+- Sintaxe de renderização confirmada: `<%= render "partial", chave: valor %>`
+  para partials e `<%= render Componente.new(...) %>` para componentes Ruby.
