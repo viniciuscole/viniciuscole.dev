@@ -1067,12 +1067,18 @@ os projetos em português.
 
 Substitua `src/index.en.md` inteiro por:
 
+> **Não coloque `permalink: /` aqui.** Um permalink literal `/` faz o
+> `relative_url` do recurso virar `"//"` no Bridgetown 2.2.2, e todo link para a
+> home em inglês — inclusive o do alternador de idioma na home em português —
+> sai quebrado. Sem permalink explícito, a resolução padrão já entrega `/`
+> corretamente. O `permalink: /pt/` da versão em português, por outro lado,
+> funciona normalmente e deve ficar.
+
 ```markdown
 ---
 layout: page
 title: Vinicius Cole
 locale: en
-permalink: /
 ---
 
 <section class="hero">
