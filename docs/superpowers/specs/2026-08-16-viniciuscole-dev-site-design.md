@@ -265,7 +265,10 @@ sufixo de locale.
 **Regra de paridade:** todo **projeto** existe obrigatoriamente nos dois idiomas
 — a listagem de projetos precisa estar completa em ambos. Um **post**, por outro
 lado, pode existir em um só idioma; isso é esperado, e o alternador de idioma
-trata o caso apontando para a listagem do blog naquele idioma.
+trata o caso apontando para a home daquele idioma — mesmo comportamento descrito
+na tabela de tratamento de erros, e o mais defensável: a home existe sempre, em
+qualquer idioma, enquanto uma listagem específica pode não fazer sentido para o
+recurso de origem.
 
 ## Fluxo de build e deploy
 
