@@ -1,0 +1,41 @@
+:root {
+  /* acentos derivados da paleta VGA de 16 cores, o elo com o projeto em assembly */
+  --vga-green: #00aa00;
+  --vga-cyan: #00aaaa;
+  --vga-amber: #aa5500;
+
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --space: 1rem;
+  --measure: 68ch;
+  --radius: 4px;
+}
+
+:root,
+:root[data-theme="light"] {
+  --bg: #fbfbf9;
+  --fg: #16161a;
+  --muted: #5c5c66;
+  --accent: var(--vga-green);
+  --border: #e0e0d8;
+}
+
+:root[data-theme="dark"] {
+  --bg: #0f1115;
+  --fg: #e8e8e3;
+  --muted: #9a9aa4;
+  --accent: #33cc33;
+  --border: #262a33;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1115;
+    --fg: #e8e8e3;
+    --muted: #9a9aa4;
+    --accent: #33cc33;
+    --border: #262a33;
+  }
+}

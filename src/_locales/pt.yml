@@ -7,6 +7,7 @@ pt:
     projects: "Projetos"
     blog: "Blog"
     language: "Idioma"
+    theme: "Alternar tema"
   locale:
     en: "English"
     pt: "Português"

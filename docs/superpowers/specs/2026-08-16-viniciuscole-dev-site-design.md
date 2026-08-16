@@ -318,9 +318,12 @@ Proporcionais ao risco real do projeto, executados por **`rake check`**.
 
 Base moderna e limpa, com acentos retrô contidos:
 
-- **Tipografia** — corpo na pilha de fontes do sistema (zero bytes baixados);
-  títulos e detalhes em monoespaçada auto-hospedada (JetBrains Mono, licença
-  OFL). Sem requisições a terceiros.
+- **Tipografia** — corpo e títulos nas pilhas de fontes do sistema, zero bytes
+  baixados: sem-serifa no corpo, monoespaçada (`ui-monospace` e equivalentes)
+  nos títulos e detalhes. Nenhum arquivo de fonte no repositório e nenhuma
+  requisição a terceiros — a regra de zero requisições externas passa a valer
+  por construção, não por configuração. Auto-hospedar uma fonte como a JetBrains
+  Mono continua possível depois: é um `@font-face` e um `.woff2`, num arquivo só.
 - **Cores** — tokens em CSS custom properties. Acentos derivados da paleta VGA
   de 16 cores, o elo visual com o projeto em assembly.
 - **Tema** — respeita `prefers-color-scheme`, com alternador manual persistido
