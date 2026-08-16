@@ -56,9 +56,24 @@ Rake::TestTask.new(:minitest) do |t|
   t.warning = false
 end
 
+desc "Verifica links internos e imagens no HTML gerado"
+task :proof do
+  require "html_proofer"
+
+  HTMLProofer.check_directory(
+    "output",
+    disable_external: true,          # links externos nao devem quebrar o build
+    check_img_http: true,
+    enforce_https: false,
+    allow_missing_href: false,
+    ignore_missing_alt: false
+  ).run
+end
+
 desc "Constroi o site e roda todas as verificacoes"
 task :check do
   Rake::Task["frontend:build"].invoke
   sh "bin/bridgetown build"
   Rake::Task["minitest"].invoke
+  Rake::Task["proof"].invoke
 end
