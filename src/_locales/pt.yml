@@ -1,0 +1,12 @@
+pt:
+  site:
+    title: "Vinicius Cole"
+    tagline: "Desenvolvedor de software"
+  nav:
+    home: "Início"
+    projects: "Projetos"
+    blog: "Blog"
+    language: "Idioma"
+  locale:
+    en: "English"
+    pt: "Português"

@@ -21,6 +21,10 @@ Bridgetown.configure do |config|
   # Available options are `erb` (default), `serbea`, or `liquid`
   template_engine "erb"
 
+  available_locales [:en, :pt]
+  default_locale :en
+  prefix_default_locale false
+
   # Other options you might want to investigate:
 
   # See list of timezone values here:
