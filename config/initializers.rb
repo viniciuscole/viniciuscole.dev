@@ -25,6 +25,16 @@ Bridgetown.configure do |config|
   default_locale :en
   prefix_default_locale false
 
+  collections do
+    projects do
+      output true
+      # ATENCAO: nao troque por uma string customizada de permalink.
+      # Uma string custom ignora o prefixo de locale e faz en e pt gravarem
+      # no mesmo arquivo, uma sobrescrevendo a outra em silencio.
+      permalink "simple"
+    end
+  end
+
   # Other options you might want to investigate:
 
   # See list of timezone values here:
