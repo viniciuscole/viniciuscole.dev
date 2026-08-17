@@ -37,6 +37,32 @@ namespace :frontend do
   end
 end
 
+namespace :jsdos do
+  desc "Copia o js-dos do node_modules para src/vendor, servido da nossa origem"
+  task :vendor do
+    require "fileutils"
+
+    origem = "node_modules/js-dos/dist"
+    destino = "src/vendor/js-dos"
+
+    unless Dir.exist?(origem)
+      raise "js-dos nao encontrado em #{origem}. Rode `npm install` primeiro."
+    end
+
+    FileUtils.rm_rf(destino)
+    FileUtils.mkdir_p("#{destino}/emulators")
+
+    FileUtils.cp("#{origem}/js-dos.js", destino)
+    FileUtils.cp("#{origem}/js-dos.css", destino)
+
+    # Apenas o backend dosbox. O wdosbox-x tem 7,5 MB e serve para Windows 9x
+    # e 3Dfx, nada que este jogo use.
+    %w[wdosbox.js wdosbox.wasm].each do |arquivo|
+      FileUtils.cp("#{origem}/emulators/#{arquivo}", "#{destino}/emulators/#{arquivo}")
+    end
+  end
+end
+
 #
 # Add your own Rake tasks here! You can use `environment` as a prerequisite
 # in order to write automations or other commands requiring a loaded site.
@@ -76,6 +102,7 @@ end
 # falso exatamente na hora em que se mais precisa de vermelho.
 desc "Constroi o site e roda todas as verificacoes"
 task :check => :clean do
+  Rake::Task["jsdos:vendor"].invoke
   Rake::Task["frontend:build"].invoke
   sh "bin/bridgetown build"
   Rake::Task["minitest"].invoke
