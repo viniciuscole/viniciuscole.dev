@@ -1,5 +1,4 @@
 ---
-layout: project
 title: Tic-Tac-Toe in x86 Assembly
 locale: en
 slug: tic-tac-toe

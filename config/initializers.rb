@@ -35,6 +35,18 @@ Bridgetown.configure do |config|
     end
   end
 
+  # O README promete que adicionar um projeto e escrever dois arquivos
+  # Markdown com cinco campos de front matter (title, locale, slug, summary,
+  # tech). Sem este default, `layout` seria um sexto campo obrigatorio nao
+  # documentado — e esquece-lo renderiza a pagina sem <html>, sem header,
+  # sem footer e sem CSS, silenciosamente.
+  defaults [
+    {
+      "scope"  => { "collection" => "projects" },
+      "values" => { "layout" => "project" },
+    },
+  ]
+
   # Other options you might want to investigate:
 
   # See list of timezone values here:

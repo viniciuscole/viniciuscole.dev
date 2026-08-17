@@ -1,5 +1,4 @@
 ---
-layout: project
 title: Jogo da Velha em Assembly x86
 locale: pt
 slug: tic-tac-toe
