@@ -63,6 +63,30 @@ namespace :jsdos do
   end
 end
 
+namespace :game do
+  desc "Reconstroi o bundle do jogo a partir do fonte em assembly (exige Docker)"
+  task :build do
+    require "fileutils"
+    require "tmpdir"
+
+    repositorio = "https://github.com/viniciuscole/tic-tac-toe-assembly"
+    destino = File.expand_path("src/demos/tic-tac-toe")
+    receita = File.expand_path("build/game")
+
+    FileUtils.mkdir_p(destino)
+
+    Dir.mktmpdir do |tmp|
+      sh "git clone --depth 1 #{repositorio} #{tmp}/assembly"
+      sh "docker build -t viniciuscole-game-build #{receita}"
+      sh "docker run --rm " \
+         "-v #{tmp}/assembly:/src:ro " \
+         "-v #{receita}:/conf:ro " \
+         "-v #{destino}:/out " \
+         "viniciuscole-game-build"
+    end
+  end
+end
+
 #
 # Add your own Rake tasks here! You can use `environment` as a prerequisite
 # in order to write automations or other commands requiring a loaded site.
