@@ -1,7 +1,15 @@
 ---
 layout: default
 ---
+<%#
+  Layout de pagina simples: o <h1> vem do `title` do front matter.
 
+  Serve as paginas cujo titulo e o mesmo texto no <title> e no cabecalho —
+  hoje 404 e 500. As paginas bilingues (home, listagem de projetos, blog)
+  usam `layout: default` e escrevem o proprio <h1> a partir de uma chave
+  `t()`, porque a traducao do cabecalho mora em src/_locales/*.yml, nao no
+  front matter. Renderizar os dois produzia o titulo duas vezes.
+%>
 <h1><%= data.title %></h1>
 
 <%= yield %>

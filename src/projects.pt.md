@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: default
 title: Projetos
 locale: pt
 permalink: /pt/projects/

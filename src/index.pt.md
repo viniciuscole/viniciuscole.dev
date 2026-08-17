@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: default
 title: Vinicius Cole
 locale: pt
 permalink: /pt/

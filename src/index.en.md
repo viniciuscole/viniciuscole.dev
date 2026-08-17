@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: default
 title: Vinicius Cole
 locale: en
 # Sem `permalink:` de proposito. Um valor literal "/" faz o
