@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="<%= resource.data.locale %>">
+  <head>
+    <%= render "head", title: data.title, resource: resource %>
+  </head>
+  <body class="<%= data.layout %> <%= data.page_class %>">
+    <%= render "header", resource: resource %>
+
+    <main>
+      <%= yield %>
+    </main>
+
+    <%= render "footer" %>
+  </body>
+</html>

@@ -1,0 +1,33 @@
+en:
+  site:
+    title: "Vinicius Cole"
+    tagline: "Software developer"
+    description: "Personal site of Vinicius Cole, a software developer, with the projects he builds — starting with a tic-tac-toe game written in 16-bit x86 assembly for DOS."
+  nav:
+    main: "Main"
+    home: "Home"
+    projects: "Projects"
+    blog: "Blog"
+    language: "Language"
+    theme: "Toggle theme"
+  locale:
+    en: "English"
+    pt: "Português"
+  home:
+    intro: "I build software. Some of it runs right here on this page."
+    featured: "Featured projects"
+    latest_posts: "Latest posts"
+  projects:
+    title: "Projects"
+    intro: "Things I have built, and things I am still building."
+  blog:
+    title: "Blog"
+    intro: "Notes on things I build."
+    empty: "Nothing here yet"
+  errors:
+    not_found:
+      title: "Page not found"
+      body: "The page you asked for is not here. It may have moved, or never existed."
+    server_error:
+      title: "Internal server error"
+      body: "Something went wrong on our side. Try again in a moment."

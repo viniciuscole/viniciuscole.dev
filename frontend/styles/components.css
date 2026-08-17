@@ -1,0 +1,122 @@
+.site-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space);
+  flex-wrap: wrap;
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: var(--space);
+  border-bottom: 1px solid var(--border);
+}
+
+.site-title {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--fg);
+}
+
+.site-nav { display: flex; gap: var(--space); margin-left: auto; }
+.locale-switcher { display: flex; gap: 0.5rem; font-family: var(--font-mono); font-size: 0.875rem; }
+
+.hero .tagline { color: var(--muted); font-family: var(--font-mono); margin-top: 0; }
+.hero .intro { max-width: 46ch; }
+
+/* Seccoes da home e cabecalho das listagens: mesmo respiro entre blocos. */
+.featured,
+.latest-posts { margin-top: calc(var(--space) * 3); }
+
+.featured h2,
+.latest-posts h2 { margin-bottom: var(--space); }
+
+.page-intro { color: var(--muted); margin-top: 0; margin-bottom: calc(var(--space) * 2); }
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: calc(var(--space) * 1.5);
+}
+
+.project-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space);
+}
+
+.project-card h3 { margin-top: 0; }
+.project-card-summary { color: var(--muted); }
+.project-card-year { color: var(--muted); font-family: var(--font-mono); font-size: 0.8125rem; }
+
+.tech-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+}
+
+.tech-list li {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.125rem 0.5rem;
+  color: var(--muted);
+}
+
+/* Pagina de projeto: o cabecalho e o cartao de visita do projeto, e o resumo
+   e o repositorio precisam ler como parte dele, nao como texto solto. */
+.project-header {
+  padding-bottom: var(--space);
+  margin-bottom: calc(var(--space) * 2);
+  border-bottom: 1px solid var(--border);
+}
+
+.project-header h1 { margin-bottom: 0.5rem; }
+
+.project-summary {
+  color: var(--muted);
+  font-size: 1.0625rem;
+  margin-top: 0;
+  max-width: 52ch;
+}
+
+.repo-link {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  word-break: break-all;
+}
+
+.post-body,
+.project-body { margin-top: calc(var(--space) * 2); }
+
+.post-body > :first-child,
+.project-body > :first-child { margin-top: 0; }
+
+.post-list { list-style: none; padding: 0; }
+.post-list li { display: flex; justify-content: space-between; gap: var(--space); padding: 0.5rem 0; border-bottom: 1px solid var(--border); }
+.post-list time, .post time { color: var(--muted); font-family: var(--font-mono); font-size: 0.875rem; }
+
+.empty-state { color: var(--muted); font-style: italic; }
+
+.site-footer {
+  max-width: var(--measure);
+  margin: calc(var(--space) * 4) auto 0;
+  padding: var(--space);
+  border-top: 1px solid var(--border);
+}
+
+.contact-links { display: flex; gap: var(--space); list-style: none; padding: 0; font-family: var(--font-mono); }
+.copyright { color: var(--muted); font-size: 0.875rem; }
+
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--fg);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  padding: 0.125rem 0.5rem;
+}

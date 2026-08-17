@@ -1,0 +1,27 @@
+---
+layout: default
+---
+<article class="project">
+  <header class="project-header">
+    <h1><%= data.title %></h1>
+    <p class="project-summary"><%= data.summary %></p>
+
+    <ul class="tech-list">
+      <% Array(data.tech).each do |tech| %>
+        <li><%= tech %></li>
+      <% end %>
+    </ul>
+
+    <% if data.repo %>
+      <a class="repo-link" href="<%= data.repo %>">
+        <%= data.repo.sub("https://", "") %>
+      </a>
+    <% end %>
+  </header>
+
+  <%= render demo_partial_for(resource) %>
+
+  <div class="project-body">
+    <%= yield %>
+  </div>
+</article>
