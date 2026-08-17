@@ -70,8 +70,12 @@ task :proof do
   ).run
 end
 
+# Depende de :clean de proposito. Sem limpar o output/, uma pagina renomeada
+# ou removida deixa o arquivo antigo para tras: `assert_page` acha o arquivo
+# velho e o html-proofer checa HTML que o build atual nao produz mais — verde
+# falso exatamente na hora em que se mais precisa de vermelho.
 desc "Constroi o site e roda todas as verificacoes"
-task :check do
+task :check => :clean do
   Rake::Task["frontend:build"].invoke
   sh "bin/bridgetown build"
   Rake::Task["minitest"].invoke

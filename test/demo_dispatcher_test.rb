@@ -14,7 +14,13 @@ require ROOT.join("plugins/builders/demo_helper")
 class DemoDispatcherTest < Minitest::Test
   include OutputHelpers
 
-  ALLOWED_TYPES = %w[none jsdos].freeze
+  # A lista de tipos e do plugin, nao do teste: duplicar aqui deixaria o teste
+  # verde depois de alguem registrar um tipo novo sem criar o partial.
+  ALLOWED_TYPES = Builders::DemoHelper::DEMO_TYPES
+
+  # Tipos ja registrados que ainda nao tem partial. `jsdos` chega na Fase 2 —
+  # esvaziar esta lista faz parte de fecha-la.
+  PENDING_TYPES = %w[jsdos].freeze
 
   # Resource minimo o bastante para exercitar Builders::DemoHelper.partial_for
   # sem precisar de uma colecao ou de um build completo.
@@ -36,9 +42,8 @@ class DemoDispatcherTest < Minitest::Test
     end
   end
 
-  def test_every_allowed_type_except_jsdos_has_a_partial
-    # jsdos chega na Fase 2; os demais precisam existir agora
-    (ALLOWED_TYPES - ["jsdos"]).each do |type|
+  def test_every_allowed_type_has_a_partial_unless_it_is_still_pending
+    (ALLOWED_TYPES - PENDING_TYPES).each do |type|
       partial = ROOT.join("src/_partials/demos/_#{type}.erb")
       assert partial.file?, "falta o partial src/_partials/demos/_#{type}.erb"
     end
