@@ -1,11 +1,11 @@
 ---
 permalink: /404.html
-layout: default
+layout: page
+title: "404"
 locale: en
+noindex: true
 ---
 
-<h1>404</h1>
+<h2><%= t("errors.not_found.title") %></h2>
 
-<h2>Page Not Found :(</h2>
-
-<p>The requested page could not be found.</p>
+<p><%= t("errors.not_found.body") %></p>

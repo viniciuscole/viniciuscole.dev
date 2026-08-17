@@ -3,6 +3,7 @@ en:
     title: "Vinicius Cole"
     tagline: "Software developer"
   nav:
+    main: "Main"
     home: "Home"
     projects: "Projects"
     blog: "Blog"
@@ -15,7 +16,6 @@ en:
     intro: "I build software. Some of it runs right here on this page."
     featured: "Featured projects"
     latest_posts: "Latest posts"
-    contact: "Get in touch"
   projects:
     title: "Projects"
     intro: "Things I have built, and things I am still building."
@@ -23,3 +23,10 @@ en:
     title: "Blog"
     intro: "Notes on things I build."
     empty: "Nothing here yet"
+  errors:
+    not_found:
+      title: "Page not found"
+      body: "The page you asked for is not here. It may have moved, or never existed."
+    server_error:
+      title: "Internal server error"
+      body: "Something went wrong on our side. Try again in a moment."

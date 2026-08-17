@@ -3,7 +3,7 @@
     <%= t("site.title") %>
   </a>
 
-  <nav class="site-nav" aria-label="<%= t("nav.home") %>">
+  <nav class="site-nav" aria-label="<%= t("nav.main") %>">
     <a href="<%= locale_home_url(resource.data.locale) %>"><%= t("nav.home") %></a>
     <a href="<%= relative_url("#{locale_prefix(resource.data.locale)}projects/") %>"><%= t("nav.projects") %></a>
     <a href="<%= relative_url("#{locale_prefix(resource.data.locale)}blog/") %>"><%= t("nav.blog") %></a>

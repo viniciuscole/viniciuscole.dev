@@ -3,6 +3,7 @@ pt:
     title: "Vinicius Cole"
     tagline: "Desenvolvedor de software"
   nav:
+    main: "Principal"
     home: "Início"
     projects: "Projetos"
     blog: "Blog"
@@ -15,7 +16,6 @@ pt:
     intro: "Eu construo software. Parte dele roda aqui mesmo nesta página."
     featured: "Projetos em destaque"
     latest_posts: "Últimos posts"
-    contact: "Fale comigo"
   projects:
     title: "Projetos"
     intro: "Coisas que eu construí, e coisas que ainda estou construindo."
@@ -23,3 +23,10 @@ pt:
     title: "Blog"
     intro: "Notas sobre as coisas que eu construo."
     empty: "Nenhum post por aqui ainda"
+  errors:
+    not_found:
+      title: "Página não encontrada"
+      body: "A página que você pediu não está aqui. Ela pode ter mudado de lugar, ou nunca ter existido."
+    server_error:
+      title: "Erro interno do servidor"
+      body: "Alguma coisa deu errado do nosso lado. Tente de novo daqui a pouco."

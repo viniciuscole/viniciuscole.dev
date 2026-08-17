@@ -54,9 +54,31 @@ class LayoutTest < Minitest::Test
     assert_includes page_body("pt/index.html"), "Início"
   end
 
+  # O footer e o unico canal de contato do site. Um erro de digitacao em
+  # src/_data/site_links.yml publicaria em silencio, entao os tres links sao
+  # verificados, nao so o do GitHub.
   def test_footer_shows_the_contact_links
     body = page_body("index.html")
-    assert_includes body, "https://github.com/viniciuscole"
+    assert_includes body, 'href="https://github.com/viniciuscole"'
+    assert_includes body, 'href="https://www.linkedin.com/in/viniciuscole"'
+    assert_includes body, 'href="mailto:vinicius.amorim@v360.io"'
+  end
+
+  # aria-label da navegacao principal: rotula-la com t("nav.home") fazia o
+  # leitor de tela anunciar "navegacao Home" para a nav do site inteiro.
+  def test_main_navigation_landmark_has_its_own_label
+    assert_includes page_body("index.html"), '<nav class="site-nav" aria-label="Main">'
+    assert_includes page_body("pt/index.html"), '<nav class="site-nav" aria-label="Principal">'
+  end
+
+  # As paginas de erro tambem passam pelo t(): nenhuma string de interface
+  # cravada em ingles no template.
+  def test_error_pages_take_their_text_from_the_locale_tables
+    body = page_body("404.html")
+    assert_includes body, "Page not found"
+    refute_includes body, "Page Not Found :("
+
+    assert_includes page_body("500.html"), "Internal server error"
   end
 
   # Ruling 1: 404.html/500.html nao tem front matter `locale`. Antes do
