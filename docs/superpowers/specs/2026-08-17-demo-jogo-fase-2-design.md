@@ -212,18 +212,33 @@ Componente separado do player, com uma responsabilidade: traduzir cliques em
 teclas. Grade 3×3 para a posição, botões para X, círculo, reiniciar (`c`) e sair
 (`s`). Uma jogada é a sequência `X` + linha + coluna + Enter.
 
-**Risco conhecido e não resolvido nesta spec:** a API exata do js-dos 8.4.1 para
-injetar teclas não foi verificada. A documentação do player **não descreve
-nenhum método de teclado**; a pista é o `CommandInterface` entregue pelo evento
-`ci-ready`. A primeira tarefa da implementação verifica qual mecanismo funciona —
-esse `CommandInterface` ou eventos de teclado sintéticos despachados ao canvas —
-e registra o resultado antes de o componente ser construído. Não inventar a API:
-descobrir e comprovar.
+**A API existe e foi localizada no código distribuído do js-dos 8.4.1**, apesar
+de a documentação do player não descrevê-la. O `CommandInterface`, entregue pelo
+evento `ci-ready`, expõe:
 
-Se nenhum dos dois funcionar, o teclado na tela é impossível como desenhado, e a
-decisão volta para o dono do projeto entre as alternativas já discutidas (aviso
-no celular ou vídeo). Descobrir isso na primeira tarefa, e não na última, é o
-ponto de colocá-la primeiro.
+```js
+ci.simulateKeyPress(codigo, ...)   // pressiona e solta; aceita varios codigos
+ci.sendKeyEvent(codigo, pressionado)  // controle manual de pressionar/soltar
+```
+
+Os códigos de tecla são as constantes `KBD_*` do js-dos. Letras e dígitos usam o
+valor ASCII maiúsculo; teclas especiais usam códigos próprios acima de 256. Os
+que esta demo precisa, extraídos do bundle:
+
+| Tecla | Código |
+|---|---|
+| `1` `2` `3` | 49, 50, 51 |
+| `X` | 88 |
+| `C` (círculo) | 67 |
+| `S` (sair) | 83 |
+| Enter | 257 |
+
+Uma jogada é `simulateKeyPress(88, 49, 49)` seguido de `simulateKeyPress(257)` —
+`X`, linha 1, coluna 1, Enter.
+
+O que continua sem verificação automatizada é o comportamento em tempo de
+execução, pelo mesmo motivo dos demais: falta navegador headless. A verificação é
+manual, e a implementação deve fazê-la antes de dar a tarefa por concluída.
 
 ### Fluxo de build
 
