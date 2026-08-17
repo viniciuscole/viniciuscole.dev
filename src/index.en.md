@@ -23,3 +23,9 @@ locale: en
 
   <%= render "project_grid", featured_only: true %>
 </section>
+
+<section class="latest-posts">
+  <h2><%= t("home.latest_posts") %></h2>
+
+  <%= render "post_list", limit: 3 %>
+</section>

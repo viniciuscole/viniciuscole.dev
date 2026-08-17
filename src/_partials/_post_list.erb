@@ -1,6 +1,11 @@
+<%# Local opcional `limit`: a home mostra so os posts recentes, o blog mostra
+    tudo. Sem `limit` a listagem e completa. %>
+<% max = defined?(limit) ? limit : nil %>
+
 <% posts = collections.posts.resources
      .select { |p| p.data.locale.to_s == resource.data.locale.to_s }
      .sort_by { |p| p.data.date }.reverse %>
+<% posts = posts.first(max) if max %>
 
 <% if posts.empty? %>
   <p class="empty-state"><%= t("blog.empty") %></p>
