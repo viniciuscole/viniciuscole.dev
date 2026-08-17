@@ -8,7 +8,7 @@ RUN apt-get update -qq && \
         nasm curl ca-certificates xz-utils zip git && \
     rm -rf /var/lib/apt/lists/*
 
-RUN curl -sSL -o /tmp/ow.tar.xz \
+RUN curl -fsSL -o /tmp/ow.tar.xz \
       https://github.com/open-watcom/open-watcom-v2/releases/download/Current-build/ow-snapshot.tar.xz && \
     mkdir -p /opt/ow && \
     tar xJf /tmp/ow.tar.xz -C /opt/ow ./binl64/wlink && \

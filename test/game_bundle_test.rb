@@ -6,6 +6,14 @@ class GameBundleTest < Minitest::Test
 
   BUNDLE = "demos/tic-tac-toe/vca.jsdos".freeze
 
+  # O tamanho exato e a trava de reprodutibilidade desta receita. O toolchain
+  # nao e fixado por versao — nem o Open Watcom, nem o clone do assembly — entao
+  # e este numero que denuncia qualquer deriva.
+  #
+  # Se voce mudou o assembly de proposito, atualize a constante junto: essa
+  # atualizacao consciente e o ponto do teste, nao um obstaculo.
+  TAMANHO_ESPERADO = 3_244
+
   def test_bundle_is_versioned_in_the_repository
     assert ROOT.join("src", BUNDLE).file?,
       "faltou src/#{BUNDLE} — rode `rake game:build`"
@@ -27,8 +35,9 @@ class GameBundleTest < Minitest::Test
 
     assert_equal "MZ", conteudo[0, 2],
       "VCA.EXE nao comeca com a assinatura MZ de executavel DOS"
-    assert conteudo.bytesize > 3_000,
-      "VCA.EXE tem #{conteudo.bytesize} bytes; o esperado passa de 3 KB"
+    assert_equal TAMANHO_ESPERADO, conteudo.bytesize,
+      "VCA.EXE tem #{conteudo.bytesize} bytes, esperava #{TAMANHO_ESPERADO}. " \
+      "Ou o toolchain mudou, ou o assembly mudou — investigue antes de ajustar o numero."
   end
 
   def test_the_dosbox_config_runs_the_game_on_startup
