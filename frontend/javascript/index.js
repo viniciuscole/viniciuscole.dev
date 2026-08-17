@@ -6,14 +6,15 @@ import components from "$components/**/*.{js,jsx,js.rb,css}"
 
 const STORAGE_KEY = "theme"
 
-function applyTheme(theme) {
-  document.documentElement.setAttribute("data-theme", theme)
-  localStorage.setItem(STORAGE_KEY, theme)
-}
-
-function currentTheme() {
-  const stored = localStorage.getItem(STORAGE_KEY)
-  if (stored) return stored
+// O tema salvo ja foi aplicado antes do primeiro paint pelo script inline de
+// src/_partials/_head.erb. Aqui so tratamos o clique.
+//
+// Persistir e consequencia do clique, nunca do carregamento: gravar no load
+// congelaria para sempre o `prefers-color-scheme` do primeiro acesso, e quem
+// trocasse o tema do sistema depois ficaria preso ao antigo.
+function activeTheme() {
+  const chosen = document.documentElement.getAttribute("data-theme")
+  if (chosen) return chosen
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
 }
 
@@ -21,9 +22,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const button = document.querySelector(".theme-toggle")
   if (!button) return
 
-  applyTheme(currentTheme())
-
   button.addEventListener("click", () => {
-    applyTheme(currentTheme() === "dark" ? "light" : "dark")
+    const next = activeTheme() === "dark" ? "light" : "dark"
+    document.documentElement.setAttribute("data-theme", next)
+    try {
+      localStorage.setItem(STORAGE_KEY, next)
+    } catch (e) {
+      // modo privativo/armazenamento bloqueado: o tema vale para esta pagina
+    }
   })
 })

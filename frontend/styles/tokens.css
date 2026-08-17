@@ -6,7 +6,10 @@
 
   --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* Sem nome de fonte que nao hospedamos: quem tivesse a JetBrains Mono
+     instalada veria um site diferente do de todo mundo. Auto-hospedar
+     continua possivel depois (um @font-face e um .woff2). */
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --space: 1rem;
   --measure: 68ch;
@@ -18,7 +21,10 @@
   --bg: #fbfbf9;
   --fg: #16161a;
   --muted: #5c5c66;
-  --accent: var(--vga-green);
+  /* --vga-green puro (#00aa00) sobre --bg da 3.00:1, abaixo do AA de 4.5:1
+     exigido pela spec. Este e o mesmo verde escurecido: 5.57:1. O token cru
+     da paleta VGA fica preservado acima, documentando a origem da cor. */
+  --accent: #007700;
   --border: #e0e0d8;
 }
 
