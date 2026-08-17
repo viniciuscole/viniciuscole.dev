@@ -11,8 +11,9 @@
 # For technical reasons, this file is *NOT* reloaded automatically when you use
 # `bin/bridgetown start`. If you change this file, please restart the server process.
 #
-# For reloadable site metadata like title, SEO description, social media
-# handles, etc., take a look at `src/_data/site_metadata.yml`
+# Titulo, tagline e descricao do site nao ficam num arquivo de dados: sao
+# chaves de locale (`site.*`) em src/_locales/{en,pt}.yml, para que a pagina
+# em portugues nao publique metadados em ingles.
 
 Bridgetown.configure do |config|
   # The base hostname & protocol for your site, e.g. https://example.com
