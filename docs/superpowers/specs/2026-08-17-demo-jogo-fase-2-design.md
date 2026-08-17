@@ -161,6 +161,41 @@ demo:
   bundle: /demos/tic-tac-toe/vca.jsdos
 ```
 
+### Configuração do js-dos
+
+O player é instanciado com estas opções, e cada uma tem motivo:
+
+```js
+Dos(elemento, {
+  url: bundleDoProjeto,          // vem do front matter
+  pathPrefix: "/vendor/js-dos/emulators/",
+  backend: "dosbox",
+  kiosk: true,
+  imageRendering: "pixelated",
+  autoStart: true,
+})
+```
+
+**`pathPrefix` é obrigatório, e esquecê-lo é uma falha silenciosa.** O padrão do
+js-dos é `https://v8.js-dos.com/latest/emulators/` — a CDN do projeto. Sem
+sobrescrever, o emulador baixa o WebAssembly de um terceiro, furando a regra de
+zero requisições externas que a Fase 1 estabeleceu.
+
+**E o teste de requisições externas da Fase 1 não pegaria isso**, porque ele
+varre atributos `src` e `href` do HTML gerado, enquanto essa requisição nasce em
+tempo de execução dentro do JavaScript. Por isso a Fase 2 acrescenta uma
+verificação própria: o JavaScript publicado não pode conter nenhuma URL apontando
+para fora da nossa origem. É uma checagem de conteúdo, não de marcação.
+
+**`kiosk: true`** esconde a interface própria do js-dos — barra lateral, botões e
+marca dele. Sem isso, a página exibe controles de terceiro com estilo alheio ao
+site, que é justamente o que se quer evitar: quem enquadra o jogo é a nossa
+moldura. A implementação deve confirmar quanto do `js-dos.css` (118 KB) ainda é
+necessário em modo kiosk e servir só o que for.
+
+**`imageRendering: "pixelated"`** preserva os pixels quadrados do VGA. Suavizar
+borraria justamente o que dá identidade ao projeto.
+
 ### Carregamento sob clique
 
 `frontend/javascript/jsdos-player.js` não faz nada até o clique. No clique:
@@ -178,10 +213,17 @@ teclas. Grade 3×3 para a posição, botões para X, círculo, reiniciar (`c`) e
 (`s`). Uma jogada é a sequência `X` + linha + coluna + Enter.
 
 **Risco conhecido e não resolvido nesta spec:** a API exata do js-dos 8.4.1 para
-injetar teclas não foi verificada. A primeira tarefa da implementação verifica
-qual mecanismo funciona — a interface de comandos do próprio js-dos, ou eventos
-de teclado sintéticos despachados ao canvas — e o resultado é registrado antes
-de o componente ser construído. Não inventar a API: descobrir e comprovar.
+injetar teclas não foi verificada. A documentação do player **não descreve
+nenhum método de teclado**; a pista é o `CommandInterface` entregue pelo evento
+`ci-ready`. A primeira tarefa da implementação verifica qual mecanismo funciona —
+esse `CommandInterface` ou eventos de teclado sintéticos despachados ao canvas —
+e registra o resultado antes de o componente ser construído. Não inventar a API:
+descobrir e comprovar.
+
+Se nenhum dos dois funcionar, o teclado na tela é impossível como desenhado, e a
+decisão volta para o dono do projeto entre as alternativas já discutidas (aviso
+no celular ou vídeo). Descobrir isso na primeira tarefa, e não na última, é o
+ponto de colocá-la primeiro.
 
 ### Fluxo de build
 
@@ -221,7 +263,13 @@ minitest e html-proofer.
    `wdosbox.wasm` presentes em `output/vendor/js-dos/`, e o bundle em
    `output/demos/`.
 4. **Zero requisições a terceiros continua valendo** — o teste da Fase 1 segue
-   verde com o emulador na página; nada aponta para CDN.
+   verde com o emulador na página.
+5. **Nenhuma URL externa no JavaScript publicado** — verificação nova, porque a
+   da Fase 1 é cega para isso: ela lê atributos do HTML, e o `pathPrefix` padrão
+   do js-dos dispara a requisição de dentro do JS em tempo de execução. O teste
+   varre o JavaScript gerado por URLs fora da nossa origem e reprova se achar.
+   Sem ele, o site poderia baixar 1,4 MB de WebAssembly de uma CDN de terceiro
+   com a suíte inteira verde.
 5. **Textos traduzidos** — botão de iniciar, painel de comandos, rótulos do
    teclado e mensagens de erro têm chave nos dois arquivos de locale, e o teste
    de paridade da Fase 1 continua verde.
@@ -243,6 +291,13 @@ A página do jogo é a única do site que vai fundo no retrô, usando os tokens 
 que a Fase 1 já definiu: moldura de monitor, fósforo, leve vinheta. O restante
 do site permanece moderno e limpo, o que faz o CRT parecer intencional em vez de
 tema aplicado por cima de tudo.
+
+**Quem enquadra o jogo é o site, não o js-dos.** O modo kiosk esconde a interface
+do emulador para que a única coisa vinda dele seja a tela do jogo. Isso separa
+três camadas que não devem se misturar: a página é nossa e segue o design do
+site; a moldura é nossa e é onde mora o retrô; e a tela de 640×480 é do seu
+assembly, renderizando os pixels que ele mesmo desenha. Essa última não deve
+parecer "do site" — se parecesse, o projeto teria perdido a graça.
 
 O emulador mantém a proporção do modo VGA 12h (640×480, 4:3). Em telas
 estreitas, o teclado na tela fica abaixo do emulador; em telas largas, ao lado.
