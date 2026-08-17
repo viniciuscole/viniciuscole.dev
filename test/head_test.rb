@@ -47,6 +47,40 @@ class HeadTest < Minitest::Test
     end
   end
 
+  # Titulo, tagline e descricao do site vinham de src/_data/site_metadata.yml,
+  # que e um arquivo so, sem idioma: a home em portugues saia com
+  # <title>Vinicius Cole: Software developer</title> e og:description em
+  # ingles. Num site cujo proposito e ser bilingue, essa e a primeira coisa que
+  # se ve ao compartilhar a URL /pt/.
+  def test_site_metadata_is_localized_per_page
+    en = page_body("index.html")
+    pt = page_body("pt/index.html")
+
+    en_title = en[%r{<title>(.*?)</title>}m, 1]
+    pt_title = pt[%r{<title>(.*?)</title>}m, 1]
+    en_description = en[/<meta property="og:description" content="([^"]*)"/, 1]
+    pt_description = pt[/<meta property="og:description" content="([^"]*)"/, 1]
+
+    assert_equal "Vinicius Cole: Software developer", en_title
+    assert_equal "Vinicius Cole: Desenvolvedor de software", pt_title
+    refute_equal en_title, pt_title, "a home em pt reaproveita o <title> em ingles"
+
+    assert_includes pt_description, "Site pessoal do Vinicius Cole"
+    refute_equal en_description, pt_description,
+      "a home em pt reaproveita a og:description em ingles"
+
+    # a description da <meta name="description"> segue a mesma fonte
+    assert_equal pt_description, pt[/<meta name="description" content="([^"]*)"/, 1]
+  end
+
+  def test_project_pages_describe_themselves_in_their_own_language
+    pt = page_body("pt/projects/tic-tac-toe/index.html")
+
+    assert_includes pt, "Jogo da Velha em Assembly x86 | Vinicius Cole"
+    assert_includes pt[/<meta property="og:description" content="([^"]*)"/, 1],
+      "jogo da velha escrito em assembly"
+  end
+
   def test_open_graph_description_of_a_project_is_the_project_summary
     body = page_body("projects/tic-tac-toe/index.html")
 

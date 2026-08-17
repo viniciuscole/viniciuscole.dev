@@ -2,6 +2,7 @@ pt:
   site:
     title: "Vinicius Cole"
     tagline: "Desenvolvedor de software"
+    description: "Site pessoal do Vinicius Cole, desenvolvedor de software, com as coisas que ele constrói — a começar por um jogo da velha em assembly x86 de 16 bits, escrito para DOS."
   nav:
     main: "Principal"
     home: "Início"

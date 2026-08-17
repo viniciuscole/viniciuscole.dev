@@ -2,6 +2,7 @@ en:
   site:
     title: "Vinicius Cole"
     tagline: "Software developer"
+    description: "Personal site of Vinicius Cole, a software developer, with the projects he builds — starting with a tic-tac-toe game written in 16-bit x86 assembly for DOS."
   nav:
     main: "Main"
     home: "Home"

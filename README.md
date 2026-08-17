@@ -60,9 +60,14 @@ nos **dois** arquivos de `src/_locales/` (`en.yml` e `pt.yml`). Um teste de
 paridade reprova o CI quando os conjuntos de chaves divergem. Isso vale
 também para as páginas de erro (`src/404.html`, `src/500.html`).
 
-`src/_data/site_metadata.yml` guarda título, tagline e descrição do site,
-usados no `<title>`, na `meta description` e no Open Graph. Os links de
-contato ficam em `src/_data/site_links.yml`, fonte única do footer.
+Título, tagline e descrição do site também são chaves de locale
+(`site.title`, `site.tagline`, `site.description`), e é delas que saem o
+`<title>`, a `meta description` e as tags Open Graph. Não existe
+`site_metadata.yml`: um arquivo só, sem idioma, publicaria a página em
+português com título e descrição em inglês.
+
+Os links de contato ficam em `src/_data/site_links.yml`, fonte única do
+footer.
 
 `config/initializers.rb` ainda tem `url ""` porque o domínio não foi
 registrado. Enquanto estiver vazio, `canonical` e `og:url` saem como caminhos

@@ -2,21 +2,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <%
   # --- titulo --------------------------------------------------------------
+  # Titulo, tagline e descricao do site vem de src/_locales/*.yml pelo t(),
+  # como toda string de interface. Vindo de src/_data/site_metadata.yml (que
+  # e um arquivo so, sem idioma) a pagina em portugues saia com <title> e
+  # og:description em ingles — num site cujo proposito e ser bilingue.
   page_title = strip_html(strip_newlines(title.to_s)).strip
-  site_title = metadata.title.to_s
+  site_title = t("site.title").to_s
   full_title =
     if page_title.empty? || page_title == site_title
-      "#{site_title}: #{metadata.tagline}"
+      "#{site_title}: #{t("site.tagline")}"
     else
       "#{page_title} | #{site_title}"
     end
 
   # --- descricao -----------------------------------------------------------
-  # Um projeto ou post descreve a si mesmo melhor do que a descricao do site.
+  # Um projeto ou post descreve a si mesmo melhor do que a descricao do site,
+  # e ja vem no idioma da propria traducao.
   own_description = [resource.data.summary, resource.data.description]
     .map { |d| strip_html(strip_newlines(d.to_s)).strip }
     .find { |d| !d.empty? }
-  page_description = own_description || strip_html(strip_newlines(metadata.description.to_s)).strip
+  page_description = own_description || strip_html(strip_newlines(t("site.description").to_s)).strip
 
   # --- URLs ----------------------------------------------------------------
   # `url` em config/initializers.rb ainda e "" (o dominio nao foi registrado).
