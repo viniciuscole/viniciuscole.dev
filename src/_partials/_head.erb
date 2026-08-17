@@ -1,9 +1,80 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<% resource_title = strip_html(strip_newlines(title)) %>
-<title><% if resource_title != "Index" %><%= resource_title %> | <%= metadata.title %><% else %><%= metadata.title %>: <%= metadata.tagline %><% end %></title>
+<%
+  # --- titulo --------------------------------------------------------------
+  page_title = strip_html(strip_newlines(title.to_s)).strip
+  site_title = metadata.title.to_s
+  full_title =
+    if page_title.empty? || page_title == site_title
+      "#{site_title}: #{metadata.tagline}"
+    else
+      "#{page_title} | #{site_title}"
+    end
 
-<meta name="description" content="<%= metadata.description %>" />
+  # --- descricao -----------------------------------------------------------
+  # Um projeto ou post descreve a si mesmo melhor do que a descricao do site.
+  own_description = [resource.data.summary, resource.data.description]
+    .map { |d| strip_html(strip_newlines(d.to_s)).strip }
+    .find { |d| !d.empty? }
+  page_description = own_description || strip_html(strip_newlines(metadata.description.to_s)).strip
+
+  # --- URLs ----------------------------------------------------------------
+  # `url` em config/initializers.rb ainda e "" (o dominio nao foi registrado).
+  # Enquanto estiver vazio, emitimos caminhos relativos: canonical e og:url
+  # relativos sao resolvidos contra a propria pagina, entao continuam
+  # corretos, e viram absolutos sozinhos no dia em que `url` for preenchido.
+  # O que nao pode e emitir "https:///projects/" no meio-termo.
+  site_url = site.config.url.to_s.chomp("/")
+  absolute = ->(path) { site_url.empty? ? path : "#{site_url}#{path}" }
+  canonical_url = absolute.call(resource.relative_url)
+
+  # --- idioma --------------------------------------------------------------
+  # all_locales inclui o proprio recurso; o alternate e so o irmao.
+  locale = resource.data.locale.to_s
+  locale = site.config.default_locale.to_s if locale.empty?
+  siblings = resource.all_locales.reject { |r| r.data.locale.to_s == locale }
+  # Open Graph espera language_TERRITORY, nao so o codigo de idioma.
+  og_locale = ->(code) { { "en" => "en_US", "pt" => "pt_BR" }.fetch(code.to_s, code.to_s) }
+
+  og_type = %w[posts projects].include?(resource.collection&.label.to_s) ? "article" : "website"
+%>
+<title><%= full_title %></title>
+
+<meta name="description" content="<%= page_description %>" />
+<% if resource.data.noindex %>
+<meta name="robots" content="noindex" />
+<% end %>
+
+<link rel="canonical" href="<%= canonical_url %>" />
+<% siblings.each do |sibling| %>
+<link rel="alternate" hreflang="<%= sibling.data.locale %>" href="<%= absolute.call(sibling.relative_url) %>" />
+<% end %>
+
+<meta property="og:site_name" content="<%= site_title %>" />
+<meta property="og:title" content="<%= full_title %>" />
+<meta property="og:description" content="<%= page_description %>" />
+<meta property="og:type" content="<%= og_type %>" />
+<meta property="og:url" content="<%= canonical_url %>" />
+<meta property="og:locale" content="<%= og_locale.call(locale) %>" />
+<% siblings.each do |sibling| %>
+<meta property="og:locale:alternate" content="<%= og_locale.call(sibling.data.locale) %>" />
+<% end %>
+
+<link rel="icon" href="<%= relative_url "favicon.svg" %>" type="image/svg+xml" />
+
+<%# Bloqueante e inline de proposito: aplica o tema salvo antes do primeiro
+    paint. O bundle e `defer`, entao aplicar o tema la deixaria um flash
+    branco em quem escolheu dark num sistema light. Inline e mesma origem,
+    nao viola a regra de zero requisicoes externas. Sem valor salvo nada e
+    escrito, e o `prefers-color-scheme` do CSS continua no comando. %>
+<script>
+  (function () {
+    try {
+      var theme = localStorage.getItem("theme");
+      if (theme) document.documentElement.setAttribute("data-theme", theme);
+    } catch (e) {}
+  })();
+</script>
 
 <link rel="stylesheet" href="<%= asset_path :css %>" />
 <script src="<%= asset_path :js %>" defer></script>

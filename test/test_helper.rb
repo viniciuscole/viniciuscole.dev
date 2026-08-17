@@ -23,4 +23,12 @@ module OutputHelpers
     assert_page(path)
     output(path).read
   end
+
+  # Todas as paginas HTML geradas, para as verificacoes que valem para o site
+  # inteiro (nenhuma pagina fica de fora quando uma nova e criada).
+  def html_pages
+    pages = Dir.glob(OUTPUT.join("**/*.html")).sort
+    refute_empty pages, "nenhum HTML em output/ — o site nao foi construido"
+    pages
+  end
 end
