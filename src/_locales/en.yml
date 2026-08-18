@@ -31,3 +31,16 @@ en:
     server_error:
       title: "Internal server error"
       body: "Something went wrong on our side. Try again in a moment."
+  demo:
+    label: "Playable demo"
+    start: "Play the game"
+    weight: "Loads a DOS emulator, about 1.7 MB."
+    failed: "The emulator could not load. You can still get the game from the repository."
+    missing_bundle: "This demo has no bundle configured."
+    license: "Emulated with js-dos and DOSBox, both GPL-2.0."
+    commands:
+      title: "Commands"
+      x: "plays X on row 1, column 1"
+      c: "plays the circle on row 2, column 2"
+      restart: "starts a new game"
+      quit: "quits and restores the video mode"

@@ -18,17 +18,24 @@ class DemoDispatcherTest < Minitest::Test
   # verde depois de alguem registrar um tipo novo sem criar o partial.
   ALLOWED_TYPES = Builders::DemoHelper::DEMO_TYPES
 
-  # Tipos ja registrados que ainda nao tem partial. `jsdos` chega na Fase 2 —
-  # esvaziar esta lista faz parte de fecha-la.
-  PENDING_TYPES = %w[jsdos].freeze
+  # Tipos ja registrados que ainda nao tem partial. Vazia desde a Task 3 da
+  # Fase 2, que criou src/_partials/demos/_jsdos.erb.
+  PENDING_TYPES = %w[].freeze
 
   # Resource minimo o bastante para exercitar Builders::DemoHelper.partial_for
   # sem precisar de uma colecao ou de um build completo.
   FakeResource = Struct.new(:data, :relative_path)
 
+  # Antes da Task 3 da Fase 2 este teste verificava a pagina real de
+  # tic-tac-toe, o unico projeto do site, que ainda nao tinha demo. Agora que
+  # tic-tac-toe usa `demo: jsdos`, nao sobra nenhum projeto real sem demo para
+  # observar o placeholder de ponta a ponta — entao o teste passa a exercitar
+  # Builders::DemoHelper.partial_for diretamente, do mesmo jeito que os outros
+  # testes de degradacao deste arquivo.
   def test_project_without_demo_renders_the_placeholder
-    body = page_body("projects/tic-tac-toe/index.html")
-    assert_includes body, 'class="demo demo-none"'
+    resource = FakeResource.new({}, "_projects/sem-demo.md")
+
+    assert_equal "demos/none", Builders::DemoHelper.partial_for(resource)
   end
 
   def test_every_declared_demo_type_is_allowed

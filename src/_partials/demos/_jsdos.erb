@@ -1,0 +1,40 @@
+<% bundle = resource.data.dig(:demo, :bundle).to_s %>
+<section class="demo demo-jsdos"
+         data-jsdos
+         data-bundle="<%= bundle %>"
+         data-path-prefix="/vendor/js-dos/emulators/"
+         aria-label="<%= t("demo.label") %>">
+
+  <% if bundle.empty? %>
+    <p class="demo-error"><%= t("demo.missing_bundle") %></p>
+  <% else %>
+    <div class="demo-frame" data-jsdos-frame>
+      <button class="demo-start" type="button" data-jsdos-start>
+        <%= t("demo.start") %>
+      </button>
+      <p class="demo-weight"><%= t("demo.weight") %></p>
+    </div>
+
+    <div class="demo-screen" data-jsdos-screen hidden></div>
+
+    <p class="demo-error" data-jsdos-error hidden>
+      <%= t("demo.failed") %>
+      <a href="<%= resource.data.repo %>"><%= resource.data.repo.to_s.sub("https://", "") %></a>
+    </p>
+  <% end %>
+
+  <div class="demo-instructions">
+    <h2><%= t("demo.commands.title") %></h2>
+    <ul>
+      <li><code>X11</code> — <%= t("demo.commands.x") %></li>
+      <li><code>C22</code> — <%= t("demo.commands.c") %></li>
+      <li><code>c</code> — <%= t("demo.commands.restart") %></li>
+      <li><code>s</code> — <%= t("demo.commands.quit") %></li>
+    </ul>
+  </div>
+
+  <p class="demo-license">
+    <%= t("demo.license") %>
+    <a href="https://github.com/caiiiycuk/js-dos">js-dos</a>
+  </p>
+</section>
