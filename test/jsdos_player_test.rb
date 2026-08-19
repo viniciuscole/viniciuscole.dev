@@ -51,4 +51,18 @@ class JsdosPlayerTest < Minitest::Test
         "#{File.basename(arquivo)} referencia URL externa: #{externas.uniq.first(3).join(', ')}"
     end
   end
+
+  # O player injetava o js-dos.css no <head> no clique. Como ele abre com o
+  # Preflight do Tailwind e vinha depois da nossa folha, o clique em Jogar
+  # reestilizava o site inteiro. O modo kiosk nao precisa dele: as regras que
+  # a arvore do js-dos usa estao em crt.css, escopadas em .demo-screen.
+  def test_the_player_does_not_inject_a_third_party_stylesheet
+    fonte = ROOT.join("frontend/javascript/jsdos-player.js").read
+           .lines.map { |linha| linha.sub(%r{//.*$}, "") }.join
+
+    refute_match(/\.css/, fonte,
+      "o player nao deveria carregar folha de estilo do js-dos")
+    refute_match(/rel\s*=\s*"stylesheet"/, fonte,
+      "o player nao deveria anexar <link rel=stylesheet> nenhum")
+  end
 end

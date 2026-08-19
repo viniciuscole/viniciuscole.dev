@@ -1,11 +1,17 @@
 // Carrega o emulador js-dos sob demanda. Nada e baixado ate o visitante
-// clicar: sao cerca de 1,7 MB, e quem so veio ler sobre o projeto nao paga
+// clicar: sao cerca de 2,1 MB, e quem so veio ler sobre o projeto nao paga
 // essa conta.
 
 import { montarTeclado } from "./jsdos-keypad.js"
 
 const SCRIPT = "/vendor/js-dos/js-dos.js"
-const ESTILOS = "/vendor/js-dos/js-dos.css"
+
+// O js-dos.css nao e carregado. Ele abre com o Preflight do Tailwind e com a
+// base do daisyUI, e como este arquivo o anexava ao <head> no clique — depois
+// da nossa folha e com a mesma especificidade — um clique em Jogar achatava
+// todo titulo do site e tirava cor e sublinhado de todo link. As poucas regras
+// que a arvore do modo kiosk usa vivem em frontend/styles/crt.css, escopadas
+// em .demo-screen.
 
 // Repete o valor de data-path-prefix (Task 3) como fallback hardcoded. O
 // js-dos.Dos() aponta por padrao para a CDN dele; se o atributo do DOM vier
@@ -19,11 +25,6 @@ function carregarUmaVez() {
   if (carregamento) return carregamento
 
   carregamento = new Promise((resolve, reject) => {
-    const estilos = document.createElement("link")
-    estilos.rel = "stylesheet"
-    estilos.href = ESTILOS
-    document.head.appendChild(estilos)
-
     const script = document.createElement("script")
     script.src = SCRIPT
     script.onload = resolve

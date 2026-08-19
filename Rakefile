@@ -53,7 +53,14 @@ namespace :jsdos do
     FileUtils.mkdir_p("#{destino}/emulators")
 
     FileUtils.cp("#{origem}/js-dos.js", destino)
-    FileUtils.cp("#{origem}/js-dos.css", destino)
+
+    # O js-dos.css NAO e copiado de proposito. Sao 118 KB que abrem com o
+    # Preflight do Tailwind (`h1..h6{font-size:inherit}`, `a{color:inherit;
+    # text-decoration:inherit}`, `*{border-width:0}`) e com a base do daisyUI
+    # (`:root,[data-theme]{background-color;color}`). Servido depois da nossa
+    # folha, com a mesma especificidade, ele reestilizava o site inteiro no
+    # clique em Jogar. As poucas regras que a arvore do modo kiosk usa estao
+    # em frontend/styles/crt.css, escopadas em .demo-screen.
 
     # Tudo que o js-dos busca em tempo de execucao a partir do pathPrefix,
     # lido no fonte dele:

@@ -34,7 +34,7 @@ pt:
   demo:
     label: "Demo jogável"
     start: "Jogar"
-    weight: "Carrega um emulador de DOS, cerca de 2,2 MB."
+    weight: "Carrega um emulador de DOS, cerca de 2,1 MB."
     failed: "O emulador não carregou. Você ainda pode pegar o jogo no repositório."
     missing_bundle: "Esta demo não tem bundle configurado."
     license: "Emulado com js-dos e DOSBox, ambos GPL-2.0."

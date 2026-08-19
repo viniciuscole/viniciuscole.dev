@@ -50,10 +50,87 @@
 
 .demo-weight { margin: 0; }
 
+.demo-screen {
+  /* Bloco de contencao da arvore do js-dos, que se posiciona em absolute
+     dentro dela. Tambem ancora a vinheta la embaixo. */
+  position: relative;
+  /* Qualquer texto que o js-dos desenhe aqui (carregando, erro dele) cai
+     sobre o preto do CRT. */
+  color: #ddd;
+}
+
 .demo-screen canvas {
   image-rendering: pixelated;    /* pixels quadrados, como no VGA */
   width: 100%;
   height: 100%;
+}
+
+/* --- O que o js-dos precisa de CSS, e so isso --------------------------
+   O js-dos monta a arvore dele dentro de .demo-screen usando classes
+   utilitarias do Tailwind/daisyUI, e sem elas a arvore colapsa: o
+   dimensionamento do canvas (js-dos.js, funcao que faz
+   `e.parentElement.getBoundingClientRect()` e depois escreve style.width e
+   style.height em px) le a caixa do pai, que sem `h-full`/`flex-grow`
+   mediria zero.
+
+   O js-dos.css que traz essas classes tem 118 KB e abre com o Preflight do
+   Tailwind inteiro — `*,:before,:after{border-width:0}`, `html{font-family:
+   ui-sans-serif...}`, `h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:
+   inherit}`, `a{color:inherit;text-decoration:inherit}` — seguido da base do
+   daisyUI, que inclui `:root,[data-theme]{background-color;color}` e
+   `:root{color-scheme:light}`. O player injetava isso no <head> no clique,
+   depois da nossa folha e com a mesma especificidade: um clique em Jogar
+   achatava todo titulo do site, tirava cor e sublinhado de todo link e ainda
+   casava com o [data-theme] que o nosso proprio tema usa.
+
+   Entao ele nao e mais servido. As classes abaixo sao as que a arvore do modo
+   kiosk realmente usa, lidas do js-dos.js, escopadas na tela do emulador. */
+.demo-screen .absolute { position: absolute; }
+.demo-screen .relative { position: relative; }
+.demo-screen .w-full { width: 100%; }
+.demo-screen .h-full { height: 100%; }
+.demo-screen .w-2 { width: 0.5rem; }
+.demo-screen .flex { display: flex; }
+.demo-screen .flex-row { flex-direction: row; }
+.demo-screen .flex-col { flex-direction: column; }
+.demo-screen .flex-grow { flex-grow: 1; }
+.demo-screen .flex-shrink-0 { flex-shrink: 0; }
+.demo-screen .items-start { align-items: flex-start; }
+.demo-screen .items-center { align-items: center; }
+.demo-screen .justify-start { justify-content: flex-start; }
+.demo-screen .justify-center { justify-content: center; }
+.demo-screen .overflow-auto { overflow: auto; }
+.demo-screen .overflow-hidden { overflow: hidden; }
+.demo-screen .bg-black { background-color: #000; }
+.demo-screen .m-auto { margin: auto; }
+.demo-screen .mt-2 { margin-top: 0.5rem; }
+.demo-screen .mt-8 { margin-top: 2rem; }
+.demo-screen .px-8 { padding: 0 2rem; }
+.demo-screen .text-center { text-align: center; }
+.demo-screen .text-sm { font-size: 0.875rem; }
+.demo-screen .text-2xl { font-size: 1.25rem; }
+
+/* A imagem de fundo do js-dos nao e usada aqui (nao passamos `background`),
+   mas o elemento existe: fica inerte. */
+.demo-screen .background-image { pointer-events: none; }
+
+.demo-screen .emulator-mouse-overlay { position: absolute; inset: 0; }
+
+.demo-screen .emulator-canvas {
+  image-rendering: pixelated;
+  touch-action: none;            /* tocar a tela nao rola a pagina */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Ancora a raiz do js-dos na moldura. Vem depois de .relative de proposito:
+   o elemento tem a classe `relative` e as duas regras empatam em
+   especificidade, entao quem vem por ultimo vence. Com inset a altura da
+   arvore inteira passa a ser definida, sem depender de porcentagem resolvida
+   contra o aspect-ratio do pai. */
+.demo-screen > [data-theme] {
+  position: absolute;
+  inset: 0;
 }
 
 .demo-error {
@@ -155,8 +232,6 @@
     pointer-events: none;
     position: absolute;
   }
-
-  .demo-screen { position: relative; }
 }
 
 @media (min-width: 60rem) {

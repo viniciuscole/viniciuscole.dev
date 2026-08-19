@@ -34,7 +34,7 @@ en:
   demo:
     label: "Playable demo"
     start: "Play the game"
-    weight: "Loads a DOS emulator, about 2.2 MB."
+    weight: "Loads a DOS emulator, about 2.1 MB."
     failed: "The emulator could not load. You can still get the game from the repository."
     missing_bundle: "This demo has no bundle configured."
     license: "Emulated with js-dos and DOSBox, both GPL-2.0."

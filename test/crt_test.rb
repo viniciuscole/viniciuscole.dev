@@ -125,4 +125,30 @@ class CrtTest < Minitest::Test
     assert_match(/color:\s*var\(--crt-warn/, demo_error,
       ".demo-error deveria usar --crt-warn (com fallback para --vga-amber)")
   end
+
+  # Estas classes sao do js-dos, nao nossas: elas vem no HTML que ele monta
+  # dentro de .demo-screen. Como o js-dos.css deixou de ser servido (118 KB
+  # que comecam com o Preflight do Tailwind), sao estas regras que seguram o
+  # layout — e o canvas e dimensionado em JS a partir de
+  # parentElement.getBoundingClientRect(), entao sem elas a caixa mede zero.
+  def test_the_kiosk_layout_rules_the_emulator_needs_are_here
+    %w[.absolute .relative .w-full .h-full .flex .flex-col .flex-row
+       .flex-grow .overflow-hidden .bg-black].each do |classe|
+      assert_match(/\.demo-screen\s+#{Regexp.escape(classe)}\b/, css,
+        "falta a regra escopada para #{classe}, usada pela arvore do js-dos " \
+        "em modo kiosk; sem ela o canvas nao tem caixa para medir")
+    end
+  end
+
+  # A raiz do js-dos se posiciona em absolute dentro da moldura.
+  def test_the_screen_is_a_containing_block_outside_any_media_query
+    fora_de_media = css.split("@media").first
+    blocos = fora_de_media.scan(/\.demo-screen\s*\{(.*?)\}/m).flatten
+    refute_empty blocos, "nao encontrei nenhuma regra de .demo-screen"
+
+    assert blocos.any? { |bloco| bloco =~ /position:\s*relative/ },
+      ".demo-screen precisa ser containing block sempre — a arvore do js-dos " \
+      "se posiciona em absolute dentro dela. Estava so dentro do bloco de " \
+      "prefers-reduced-motion, que nem todo visitante ativa."
+  end
 end
