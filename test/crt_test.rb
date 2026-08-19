@@ -170,4 +170,16 @@ class CrtTest < Minitest::Test
     assert_match(/\[hidden\][^{]*\{[^}]*display:\s*none\s*!important/, publicado,
       "a regra existe no fonte mas nao chegou ao CSS publicado")
   end
+
+  # No grid de duas colunas, sem grid-column a mensagem de erro se
+  # auto-posicionava onde sobrasse espaco — do lado do teclado, por exemplo.
+  def test_the_error_message_spans_the_whole_grid
+    grid = css[/@media \(min-width: 60rem\)(.*)\z/m, 1]
+    refute_nil grid, "nao encontrei o bloco do grid largo"
+
+    regra = grid[/\.demo-error[^{]*\{([^}]*)\}/, 1]
+    refute_nil regra, ".demo-error nao tem regra no grid largo"
+    assert_match(/grid-column:\s*1\s*\/\s*-1/, regra,
+      "a mensagem de erro precisa ocupar a largura toda, como a licenca")
+  end
 end

@@ -152,4 +152,32 @@ class JsdosVendorTest < Minitest::Test
       end
     end
   end
+
+  # `rake deploy` e a task padrao: `rake` sem argumento publica o site. Ela
+  # nao chamava jsdos:vendor, entao publicaria uma pagina de jogo sem
+  # emulador nenhum. O CI usa `rake check`, que vendoriza — por isso a
+  # producao estava salva por acidente, nao por desenho.
+  def test_deploy_vendors_the_emulator_too
+    rakefile = ROOT.join("Rakefile").read
+    prerequisitos = rakefile[/task\s+:deploy\s*=>\s*\[([^\]]*)\]/, 1]
+    refute_nil prerequisitos, "nao encontrei a task deploy"
+
+    assert_includes prerequisitos, "jsdos:vendor",
+      "rake deploy (a task padrao) publicaria o site sem o emulador"
+  end
+
+  # Os .map nao sao vendorizados (1,4 MB somados). Deixar o comentario que
+  # aponta para eles so rende um 404 para quem abre o devtools.
+  def test_no_vendored_script_points_at_a_source_map_we_do_not_ship
+    Dir.glob(OUTPUT.join("vendor/js-dos/**/*.js")).each do |arquivo|
+      conteudo = File.read(arquivo)
+      mapa = conteudo[/sourceMappingURL=(\S+)/, 1]
+      next if mapa.nil?
+
+      caminho = Pathname.new(arquivo).dirname.join(mapa)
+      assert caminho.file?,
+        "#{File.basename(arquivo)} aponta para #{mapa}, que nao e publicado: " \
+        "404 no devtools de quem visita"
+    end
+  end
 end

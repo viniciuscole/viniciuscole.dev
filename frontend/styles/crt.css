@@ -246,5 +246,9 @@
   .demo-screen { grid-column: 1; }
   .demo-keypad,
   .demo-instructions { grid-column: 2; }
+  /* A mensagem de erro ocupa a largura toda, como a licenca. Sem isto ela se
+     auto-posicionava onde sobrasse espaco no grid — do lado do teclado, por
+     exemplo. */
+  .demo-error,
   .demo-license { grid-column: 1 / -1; }
 }

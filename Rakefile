@@ -9,7 +9,7 @@ task default: :deploy
 # Standard set of tasks, which you can customize if you wish:
 #
 desc "Build the Bridgetown site for deployment"
-task :deploy => [:clean, "frontend:build"] do
+task :deploy => [:clean, "jsdos:vendor", "frontend:build"] do
   Bridgetown::Commands::Build.start
 end
 
@@ -83,6 +83,14 @@ namespace :jsdos do
     %w[emulators.js wdosbox.js wdosbox.wasm wlibzip.js wlibzip.wasm].each do |arquivo|
       FileUtils.cp("#{origem}/emulators/#{arquivo}", "#{destino}/emulators/#{arquivo}")
     end
+
+    # Os .map tem 1,4 MB somados e nao sao vendorizados. Sem tirar o
+    # comentario, quem abre o devtools na pagina do jogo leva um 404 por
+    # arquivo.
+    %W[#{destino}/js-dos.js #{destino}/emulators/emulators.js].each do |arquivo|
+      conteudo = File.read(arquivo)
+      File.write(arquivo, conteudo.sub(%r{\n?//# sourceMappingURL=\S+\s*\z}, "\n"))
+    end
   end
 end
 
@@ -101,7 +109,10 @@ namespace :game do
     Dir.mktmpdir do |tmp|
       sh "git clone --depth 1 #{repositorio} #{tmp}/assembly"
       sh "docker build -t viniciuscole-game-build #{receita}"
+      # Sem --user o container escreve o vca.jsdos como root dentro do
+      # repositorio, e a proxima reconstrucao precisa de sudo.
       sh "docker run --rm " \
+         "--user #{Process.uid}:#{Process.gid} " \
          "-v #{tmp}/assembly:/src:ro " \
          "-v #{receita}:/conf:ro " \
          "-v #{destino}:/out " \
