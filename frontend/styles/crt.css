@@ -1,0 +1,153 @@
+/* Tratamento CRT, restrito a pagina do jogo. O resto do site permanece
+   moderno e limpo — e isso que faz o retro parecer intencional. */
+
+.demo-jsdos {
+  --crt-phosphor: var(--vga-green);
+  margin: calc(var(--space) * 2) 0;
+}
+
+.demo-frame,
+.demo-screen {
+  aspect-ratio: 4 / 3;           /* a proporcao do modo VGA 12h, 640x480 */
+  width: 100%;
+  background: #000;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.9);
+}
+
+.demo-frame {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.demo-start {
+  background: transparent;
+  border: 1px solid var(--crt-phosphor);
+  border-radius: var(--radius);
+  color: var(--crt-phosphor);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  padding: 0.5rem 1.25rem;
+}
+
+.demo-start:hover,
+.demo-start:focus-visible {
+  background: var(--crt-phosphor);
+  color: #000;
+}
+
+.demo-weight,
+.demo-license {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+}
+
+.demo-weight { margin: 0; }
+
+.demo-screen canvas {
+  image-rendering: pixelated;    /* pixels quadrados, como no VGA */
+  width: 100%;
+  height: 100%;
+}
+
+.demo-error {
+  border: 1px solid var(--vga-amber);
+  border-radius: var(--radius);
+  color: var(--vga-amber);
+  font-family: var(--font-mono);
+  padding: var(--space);
+}
+
+.demo-instructions ul {
+  list-style: none;
+  padding: 0;
+}
+
+.demo-instructions li {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  padding: 0.125rem 0;
+}
+
+.demo-instructions code {
+  color: var(--crt-phosphor);
+}
+
+.demo-keypad {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-top: var(--space);
+  padding: var(--space);
+}
+
+.keypad-grid {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(3, minmax(3rem, 5rem));
+}
+
+.keypad-marks,
+.keypad-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.demo-keypad button {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--fg);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  min-height: 2.75rem;           /* alvo de toque confortavel no celular */
+  padding: 0.5rem;
+}
+
+.demo-keypad button:hover,
+.demo-keypad button:focus-visible {
+  border-color: var(--crt-phosphor);
+  color: var(--crt-phosphor);
+}
+
+.demo-keypad button[aria-pressed="true"] {
+  background: var(--crt-phosphor);
+  border-color: var(--crt-phosphor);
+  color: #000;
+}
+
+/* A vinheta e o unico efeito puramente decorativo; some para quem pede
+   menos movimento ou prefere menos ruido visual. */
+@media (prefers-reduced-motion: no-preference) {
+  .demo-screen::after {
+    background: radial-gradient(ellipse at center,
+                transparent 60%, rgba(0, 0, 0, 0.35) 100%);
+    content: "";
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+  }
+
+  .demo-screen { position: relative; }
+}
+
+@media (min-width: 60rem) {
+  .demo-jsdos {
+    align-items: start;
+    display: grid;
+    gap: calc(var(--space) * 1.5);
+    grid-template-columns: 3fr 2fr;
+  }
+
+  .demo-frame,
+  .demo-screen { grid-column: 1; }
+  .demo-keypad,
+  .demo-instructions { grid-column: 2; }
+  .demo-license { grid-column: 1 / -1; }
+}
