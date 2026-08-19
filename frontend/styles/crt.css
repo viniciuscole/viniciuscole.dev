@@ -41,6 +41,14 @@
   color: #000;
 }
 
+/* O botao nasce desligado no HTML e so o player o liga. Quem esta sem
+   JavaScript ve que ele nao esta valendo, e o <noscript> ao lado diz onde
+   pegar o jogo. */
+.demo-start:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .demo-weight,
 .demo-license {
   color: var(--muted);
@@ -105,9 +113,11 @@
 .demo-screen .m-auto { margin: auto; }
 .demo-screen .mt-2 { margin-top: 0.5rem; }
 .demo-screen .mt-8 { margin-top: 2rem; }
-.demo-screen .px-8 { padding: 0 2rem; }
+.demo-screen .px-8 { padding-left: 2rem; padding-right: 2rem; }
 .demo-screen .text-center { text-align: center; }
 .demo-screen .text-sm { font-size: 0.875rem; }
+/* Menor que o 1.5rem do Tailwind de proposito: o texto do js-dos aparece
+   dentro de uma moldura de 4:3, nao numa tela cheia. */
 .demo-screen .text-2xl { font-size: 1.25rem; }
 
 /* A imagem de fundo do js-dos nao e usada aqui (nao passamos `background`),
