@@ -5,6 +5,7 @@ class JsdosVendorTest < Minitest::Test
 
   VENDOR_FILES = %w[
     vendor/js-dos/js-dos.js
+    vendor/js-dos/LICENSE.txt
     vendor/js-dos/emulators/emulators.js
     vendor/js-dos/emulators/wdosbox.js
     vendor/js-dos/emulators/wdosbox.wasm
@@ -64,5 +65,20 @@ class JsdosVendorTest < Minitest::Test
     refute output("vendor/js-dos/js-dos.css").exist?,
       "js-dos.css voltou a ser publicado; sao 118 KB de reset global que o " \
       "modo kiosk nao precisa (as regras usadas estao em crt.css)"
+  end
+
+  # Servir o wdosbox.wasm da nossa origem e distribuir uma obra GPL-2.0. O
+  # pacote npm nao traz o texto da licenca, entao ele e versionado aqui e
+  # publicado junto dos binarios que cobre — nao adianta o aviso na pagina se
+  # o texto nao acompanha os arquivos.
+  def test_the_gpl_text_travels_with_the_binaries
+    licenca = output("vendor/js-dos/LICENSE.txt")
+    assert licenca.file?, "o texto da GPL-2.0 nao foi publicado com o emulador"
+
+    conteudo = licenca.read
+    assert_includes conteudo, "GNU GENERAL PUBLIC LICENSE",
+      "o arquivo publicado nao e o texto da licenca"
+    assert_includes conteudo, "Version 2, June 1991",
+      "o js-dos e o DOSBox sao GPL-2.0; o texto publicado precisa ser o da v2"
   end
 end

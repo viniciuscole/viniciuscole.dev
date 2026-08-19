@@ -37,7 +37,9 @@ pt:
     weight: "Carrega um emulador de DOS, cerca de 2,1 MB."
     failed: "O emulador não carregou. Você ainda pode pegar o jogo no repositório."
     missing_bundle: "Esta demo não tem bundle configurado."
+    noscript: "Esta demo precisa de JavaScript. O jogo em si está no repositório:"
     license: "Emulado com js-dos e DOSBox, ambos GPL-2.0."
+    license_text: "texto da licença"
     commands:
       title: "Comandos"
       x: "joga X na linha 1, coluna 1"

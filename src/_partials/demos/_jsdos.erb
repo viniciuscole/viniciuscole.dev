@@ -9,10 +9,18 @@
     <p class="demo-error"><%= t("demo.missing_bundle") %></p>
   <% else %>
     <div class="demo-frame" data-jsdos-frame>
-      <button class="demo-start" type="button" data-jsdos-start>
+      <%# Nasce desligado: sem JavaScript o clique nao faz nada, e o player
+          liga o botao quando esta pronto para atender. %>
+      <button class="demo-start" type="button" data-jsdos-start disabled>
         <%= t("demo.start") %>
       </button>
       <p class="demo-weight"><%= t("demo.weight") %></p>
+      <noscript>
+        <p class="demo-weight">
+          <%= t("demo.noscript") %>
+          <a href="<%= resource.data.repo %>"><%= resource.data.repo.to_s.sub("https://", "") %></a>
+        </p>
+      </noscript>
     </div>
 
     <div class="demo-screen" data-jsdos-screen hidden></div>
@@ -21,7 +29,6 @@
       <%= t("demo.failed") %>
       <a href="<%= resource.data.repo %>"><%= resource.data.repo.to_s.sub("https://", "") %></a>
     </p>
-  <% end %>
 
     <div class="demo-keypad" data-jsdos-keypad hidden>
       <h2><%= t("demo.keypad.title") %></h2>
@@ -48,6 +55,7 @@
         <button type="button" data-action="quit"><%= t("demo.keypad.quit") %></button>
       </div>
     </div>
+  <% end %>
 
   <div class="demo-instructions">
     <h2><%= t("demo.commands.title") %></h2>
@@ -61,6 +69,8 @@
 
   <p class="demo-license">
     <%= t("demo.license") %>
-    <a href="https://github.com/caiiiycuk/js-dos">js-dos</a>
+    <a href="/vendor/js-dos/LICENSE.txt"><%= t("demo.license_text") %></a>
+    — <a href="https://github.com/caiiiycuk/js-dos">js-dos</a>,
+    <a href="https://github.com/caiiiycuk/emulators">emulators</a>
   </p>
 </section>

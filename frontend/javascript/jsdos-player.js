@@ -35,16 +35,50 @@ function carregarUmaVez() {
   return carregamento
 }
 
+// O window.Dos() volta na hora: o try/catch abaixo so cobre a falha de
+// carregar o script. Bundle que da 404, WebAssembly que nao instancia, arquivo
+// faltando no pathPrefix — tudo isso cai no estado de erro interno do js-dos,
+// que nao emite evento nenhum (o onEvent dele so dispara emu-ready, ci-ready e
+// fullscreen-change) e desenha, no maximo, um texto sem estilo dentro da
+// moldura. Sem este relogio o visitante ficaria olhando um retangulo preto,
+// que e exatamente o que a spec proibe. 30 s e folgado ate para 3G.
+const LIMITE_DE_BOOT_MS = 30000
+
 export async function bootJsdos(root) {
   const moldura = root.querySelector("[data-jsdos-frame]")
   const tela = root.querySelector("[data-jsdos-screen]")
   const erro = root.querySelector("[data-jsdos-error]")
+
+  // Sem isto, um partial reorganizado faria o proprio catch estourar em cima
+  // do erro original.
+  if (!moldura || !tela || !erro) return
+
+  let relogio = null
+
+  function cancelarRelogio() {
+    if (relogio === null) return
+    clearTimeout(relogio)
+    relogio = null
+  }
+
+  function mostrarFalha(motivo) {
+    cancelarRelogio()
+    moldura.hidden = true
+    tela.hidden = true
+    erro.hidden = false
+    console.error("[jsdos]", motivo)
+  }
 
   try {
     await carregarUmaVez()
 
     moldura.hidden = true
     tela.hidden = false
+
+    relogio = setTimeout(() => {
+      relogio = null
+      mostrarFalha(new Error("o emulador nao ficou pronto em 30 s"))
+    }, LIMITE_DE_BOOT_MS)
 
     window.Dos(tela, {
       url: root.dataset.bundle,
@@ -58,6 +92,11 @@ export async function bootJsdos(root) {
       autoStart: true,
       onEvent: (evento, ci) => {
         if (evento === "ci-ready") {
+          cancelarRelogio()
+          // Se o emulador chegou depois do limite, desfaz a mensagem de erro:
+          // o jogo esta rodando, e ele que o visitante tem que ver.
+          erro.hidden = true
+          tela.hidden = false
           root.__ci = ci
           montarTeclado(root, ci)
           root.dispatchEvent(new CustomEvent("jsdos:ready"))
@@ -65,10 +104,7 @@ export async function bootJsdos(root) {
       },
     })
   } catch (falha) {
-    moldura.hidden = true
-    tela.hidden = true
-    erro.hidden = false
-    console.error("[jsdos]", falha)
+    mostrarFalha(falha)
   }
 }
 
@@ -77,6 +113,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const botao = root.querySelector("[data-jsdos-start]")
     if (!botao) return
 
+    // O botao vem `disabled` do HTML: sem JavaScript ele nao faz nada, e
+    // oferecer um botao morto e pior do que nao oferecer nenhum. Quem liga e
+    // quem sabe atender o clique.
+    botao.disabled = false
     botao.addEventListener("click", () => bootJsdos(root), { once: true })
   })
 })

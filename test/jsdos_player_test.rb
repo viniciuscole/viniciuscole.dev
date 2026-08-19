@@ -65,4 +65,51 @@ class JsdosPlayerTest < Minitest::Test
     refute_match(/rel\s*=\s*"stylesheet"/, fonte,
       "o player nao deveria anexar <link rel=stylesheet> nenhum")
   end
+
+  def fonte_do_player
+    ROOT.join("frontend/javascript/jsdos-player.js").read
+  end
+
+  # O window.Dos() volta na hora, entao o catch so cobria falha de carregar o
+  # script. Bundle 404, wasm que nao instancia, arquivo faltando no
+  # pathPrefix: tudo isso morre dentro do js-dos, que nao emite evento de erro
+  # (o onEvent dele so dispara emu-ready, ci-ready e fullscreen-change). Sem
+  # relogio, o visitante fica com um retangulo preto e nenhuma explicacao.
+  def test_an_async_failure_still_reaches_the_visitor
+    fonte = fonte_do_player
+
+    assert_match(/setTimeout\(/, fonte,
+      "o player precisa armar um relogio ao chamar Dos(); sem ele uma falha " \
+      "assincrona do js-dos nunca vira mensagem")
+    assert_match(/clearTimeout\(/, fonte,
+      "o relogio precisa ser desarmado quando o emulador fica pronto")
+    assert_match(/ci-ready/, fonte,
+      "o desarme tem que estar preso ao ci-ready")
+    assert_match(/erro\.hidden\s*=\s*false/, fonte,
+      "quando o relogio estoura, a mensagem traduzida precisa aparecer")
+  end
+
+  def test_the_player_gives_up_before_the_visitor_does
+    limite = fonte_do_player[/LIMITE_DE_BOOT_MS\s*=\s*(\d+)/, 1]
+    refute_nil limite, "nao encontrei o limite de boot"
+    assert_operator limite.to_i, :>=, 10_000,
+      "limite curto demais reprova conexao lenta antes de o emulador chegar"
+    assert_operator limite.to_i, :<=, 60_000,
+      "limite longo demais deixa o visitante olhando um retangulo preto"
+  end
+
+  # O catch desreferencia moldura/tela/erro: com um partial reorganizado, ele
+  # estouraria por cima do erro original.
+  def test_the_player_checks_the_markup_before_touching_it
+    assert_match(/if\s*\(!moldura\s*\|\|\s*!tela\s*\|\|\s*!erro\)\s*return/,
+      fonte_do_player,
+      "bootJsdos precisa desistir cedo quando o markup esperado nao esta la")
+  end
+
+  # O botao vem `disabled` do HTML para nao existir botao morto sem
+  # JavaScript. Quem liga e quem sabe atender o clique.
+  def test_the_player_enables_the_start_button
+    assert_match(/\.disabled\s*=\s*false/, fonte_do_player,
+      "o player precisa ligar o botao que o HTML entrega desligado")
+  end
 end

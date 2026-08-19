@@ -37,7 +37,9 @@ en:
     weight: "Loads a DOS emulator, about 2.1 MB."
     failed: "The emulator could not load. You can still get the game from the repository."
     missing_bundle: "This demo has no bundle configured."
+    noscript: "This demo needs JavaScript. The game itself lives in the repository:"
     license: "Emulated with js-dos and DOSBox, both GPL-2.0."
+    license_text: "licence text"
     commands:
       title: "Commands"
       x: "plays X on row 1, column 1"

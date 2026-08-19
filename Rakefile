@@ -54,6 +54,12 @@ namespace :jsdos do
 
     FileUtils.cp("#{origem}/js-dos.js", destino)
 
+    # Servir o wdosbox.wasm da nossa origem e distribuir uma obra GPL-2.0, e o
+    # pacote npm nao traz o texto da licenca. Este e o LICENSE do
+    # caiiiycuk/emulators, de onde vem o binario do DOSBox, versionado em
+    # build/jsdos/ e publicado ao lado dos arquivos que ele cobre.
+    FileUtils.cp("build/jsdos/LICENSE-GPL-2.0.txt", "#{destino}/LICENSE.txt")
+
     # O js-dos.css NAO e copiado de proposito. Sao 118 KB que abrem com o
     # Preflight do Tailwind (`h1..h6{font-size:inherit}`, `a{color:inherit;
     # text-decoration:inherit}`, `*{border-width:0}`) e com a base do daisyUI
