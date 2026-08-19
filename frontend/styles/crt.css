@@ -59,9 +59,24 @@
 .demo-error {
   border: 1px solid var(--vga-amber);
   border-radius: var(--radius);
-  color: var(--vga-amber);
+  /* --vga-amber sozinho da 5.06:1 sobre --bg no tema claro (AA ok), mas cai
+     para 3.61:1 no escuro — e mesmo sobre um fundo preto solido fica em
+     4.01:1, ainda abaixo do AA de 4.5:1. Por isso --crt-warn clareia so no
+     escuro (ver bloco :root[data-theme="dark"] abaixo), assim como --accent
+     ja faz para o verde em tokens.css. */
+  color: var(--crt-warn, var(--vga-amber));
   font-family: var(--font-mono);
   padding: var(--space);
+}
+
+:root[data-theme="dark"] {
+  --crt-warn: #ee7700;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --crt-warn: #ee7700;
+  }
 }
 
 .demo-instructions ul {
@@ -76,7 +91,10 @@
 }
 
 .demo-instructions code {
-  color: var(--crt-phosphor);
+  /* Texto sobre o fundo normal da pagina, nao sobre o preto do CRT — usa
+     --accent (5.57:1 claro / 8.84:1 escuro), o mesmo verde ja calibrado
+     para AA em tokens.css, em vez do --crt-phosphor cru. */
+  color: var(--accent);
 }
 
 .demo-keypad {
@@ -112,8 +130,12 @@
 
 .demo-keypad button:hover,
 .demo-keypad button:focus-visible {
+  /* O teclado fica sobre o fundo normal da pagina, nao sobre preto — a cor
+     do texto precisa ser --accent (AA nos dois temas), nao --crt-phosphor
+     cru. A borda pode continuar com o verde puro: e sinal nao-textual, e o
+     3:1 exigido para isso ela cumpre nos dois temas. */
   border-color: var(--crt-phosphor);
-  color: var(--crt-phosphor);
+  color: var(--accent);
 }
 
 .demo-keypad button[aria-pressed="true"] {
