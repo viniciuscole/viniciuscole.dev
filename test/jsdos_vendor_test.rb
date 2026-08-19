@@ -81,4 +81,75 @@ class JsdosVendorTest < Minitest::Test
     assert_includes conteudo, "Version 2, June 1991",
       "o js-dos e o DOSBox sao GPL-2.0; o texto publicado precisa ser o da v2"
   end
+
+  # --- Requisito derivado do js-dos, nao da nossa propria lista -----------
+  #
+  # A lista VENDOR_FILES acima e copia a mao do que a task jsdos:vendor
+  # copia: ela so reprova se a task nao rodou. Foi assim que passou uma demo
+  # que nao bootava — faltavam tres arquivos que o js-dos busca em tempo de
+  # execucao e ninguem tinha escrito na lista.
+  #
+  # Os testes abaixo leem o js-dos vendorizado e perguntam a ELE o que ele
+  # carrega. Se uma versao nova acrescentar dependencia, ou mudar a forma de
+  # pedi-la, eles reprovam alto em vez de ficar verdes por construcao.
+
+  def vendored(caminho)
+    arquivo = output("vendor/js-dos/#{caminho}")
+    assert arquivo.file?, "#{caminho} nao foi publicado; rode `rake jsdos:vendor`"
+    arquivo.read
+  end
+
+  # js-dos.js injeta <script src="${pathPrefix}emulators.js"> quando o player
+  # comeca. A mensagem de falha dele e "Unable to add emulators.js. Probably
+  # you should set the 'pathPrefix' option to point to the js-dos folder."
+  def test_the_script_js_dos_injects_at_boot_is_published
+    injetados = vendored("js-dos.js")
+                .scan(/\.src\s*=\s*\w+\s*\+\s*"([\w.\-]+)"/).flatten.uniq
+
+    refute_empty injetados,
+      "nao achei mais o <script> que o js-dos injeta a partir do pathPrefix. " \
+      "O mecanismo mudou: releia o js-dos.js antes de mexer neste teste"
+
+    injetados.each do |nome|
+      assert output("vendor/js-dos/emulators/#{nome}").file?,
+        "o js-dos injeta #{nome} a partir do pathPrefix e ele nao foi " \
+        "publicado — no browser isso e 404 e a demo nunca aparece"
+    end
+  end
+
+  # emulators.js carrega wlibzip.js (para ler o .jsdos, que e um zip) e o js
+  # do backend. Os do dosboxX ficam de fora de proposito: sao 7,5 MB e o
+  # projeto usa o backend dosbox — ha um teste acima garantindo que nao
+  # entrem.
+  def test_everything_the_dosbox_backend_loads_from_the_path_prefix_is_published
+    emuladores = vendored("emulators/emulators.js")
+
+    literais = emuladores.scan(/pathPrefix\s*\+\s*"([\w.\-]+)"/).flatten
+    variaveis = emuladores.scan(/pathPrefix\s*\+\s*this\.(\w+)/).flatten
+                          .reject { |nome| nome.downcase.include?("wdosboxx") }
+
+    refute_empty literais + variaveis,
+      "nao achei mais nenhuma carga relativa ao pathPrefix no emulators.js. " \
+      "O mecanismo mudou: releia o fonte antes de mexer neste teste"
+
+    resolvidas = variaveis.map do |nome|
+      valor = emuladores[/#{Regexp.escape(nome)}\s*=\s*"([\w.\-]+)"/, 1]
+      refute_nil valor, "nao consegui resolver o nome do arquivo em this.#{nome}"
+      valor
+    end
+
+    (literais + resolvidas).uniq.each do |nome|
+      assert output("vendor/js-dos/emulators/#{nome}").file?,
+        "o emulators.js carrega #{nome} a partir do pathPrefix e ele nao foi " \
+        "publicado"
+
+      # Cada cola do Emscripten busca o .wasm irmao dela.
+      next unless nome.end_with?(".js")
+
+      vendored("emulators/#{nome}").scan(/"([\w.\-]+\.wasm)"/).flatten.uniq.each do |wasm|
+        assert output("vendor/js-dos/emulators/#{wasm}").file?,
+          "#{nome} carrega #{wasm} e ele nao foi publicado"
+      end
+    end
+  end
 end
