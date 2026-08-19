@@ -57,10 +57,77 @@ class JsdosKeypadTest < Minitest::Test
     {
       "X" => 88, "C" => 67, "S" => 83,
       "1" => 49, "2" => 50, "3" => 51,
-      "enter" => 257,
+      "enter" => 257, "shift" => 340,
     }.each do |tecla, codigo|
       assert_match(/#{Regexp.escape(tecla)}:\s*#{codigo}\b/, fonte,
         "o mapa de teclas deveria associar #{tecla} ao codigo #{codigo} do js-dos")
     end
+  end
+
+  # O codigo do modulo sem os comentarios. Os testes abaixo procuram chamadas
+  # de verdade: sem isto, um comentario explicando o bug ("simulateKeyPress(a,
+  # b, c) engole a tecla repetida") reprovaria o arquivo que ja esta certo.
+  def codigo_do_teclado
+    ROOT.join("frontend/javascript/jsdos-keypad.js")
+        .read
+        .lines
+        .map { |linha| linha.sub(%r{//.*$}, "") }
+        .join
+  end
+
+  # O ci.simulateKeyPress(a, b, c) do js-dos pressiona todos os argumentos no
+  # mesmo timestamp, e o addKey interno so emite quando o estado da tecla muda
+  # — o segundo digito repetido de X11 e engolido. Uma tecla por chamada e o
+  # que faz 11, 22 e 33 (a diagonal principal, com o C22 do painel) chegarem
+  # ao jogo.
+  def test_no_key_press_carries_more_than_one_key
+    fonte = codigo_do_teclado
+
+    chamadas = fonte.scan(/simulateKeyPress\(([^)]*)\)/)
+    refute_empty chamadas, "nao encontrei nenhuma chamada a simulateKeyPress"
+
+    chamadas.each do |(argumentos)|
+      refute_includes argumentos, ",",
+        "simulateKeyPress(#{argumentos}) manda mais de uma tecla na mesma " \
+        "chamada; o addKey do js-dos engole a segunda ocorrencia de um digito " \
+        "repetido e 11/22/33 ficam injogaveis"
+    end
+  end
+
+  # O VCA.EXE compara o comando com 'X' (0x58) e 'C' (0x43) maiusculos, e um
+  # codigo de tecla nao carrega caixa: sem KBD_leftshift a jogada de circulo
+  # manda 'c', que e o comando de reiniciar.
+  def test_the_mark_is_typed_with_shift_held
+    fonte = codigo_do_teclado
+
+    assert_match(/sendKeyEvent\(\s*TECLAS\.shift\s*,\s*true\s*\)/, fonte,
+      "a marca da jogada precisa ser digitada com shift pressionado")
+    assert_match(/sendKeyEvent\(\s*TECLAS\.shift\s*,\s*false\s*\)/, fonte,
+      "o shift precisa ser solto depois da marca, senao os digitos saem shiftados")
+  end
+
+  # 'c' (reiniciar) e 's' (sair) o jogo compara em minusculo. Se o shift
+  # vazasse para essas duas, os botoes de acao parariam de funcionar.
+  def test_restart_and_quit_are_not_shifted
+    fonte = codigo_do_teclado
+
+    trecho = fonte[/\[data-action\].*\z/m]
+    refute_nil trecho, "nao encontrei o bloco que liga os botoes de acao"
+
+    refute_match(/shift|maiuscul/i, trecho,
+      "os botoes de reiniciar e sair mandam 'c' e 's' em minusculo; shift ali " \
+      "(direto ou via a rotina que digita maiusculas) quebraria os dois")
+    assert_match(/digitar\(ci,/, trecho,
+      "os botoes de acao deveriam digitar direto, sem passar pelo caminho " \
+      "que segura o shift")
+  end
+
+  # Um segundo ci-ready religaria todos os botoes e cada clique mandaria o
+  # comando duas vezes.
+  def test_mounting_twice_is_a_no_op
+    fonte = codigo_do_teclado
+
+    assert_match(/dataset\.montado/, fonte,
+      "montarTeclado precisa de guarda de idempotencia contra um segundo ci-ready")
   end
 end
