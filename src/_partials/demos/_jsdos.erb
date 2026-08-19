@@ -23,6 +23,32 @@
     </p>
   <% end %>
 
+    <div class="demo-keypad" data-jsdos-keypad hidden>
+      <h3><%= t("demo.keypad.title") %></h3>
+
+      <div class="keypad-marks">
+        <button type="button" data-mark="X"><%= t("demo.keypad.mark_x") %></button>
+        <button type="button" data-mark="C"><%= t("demo.keypad.mark_c") %></button>
+      </div>
+
+      <div class="keypad-grid">
+        <% (1..3).each do |linha| %>
+          <% (1..3).each do |coluna| %>
+            <button type="button"
+                    data-cell="<%= linha %><%= coluna %>"
+                    aria-label="<%= t("demo.keypad.cell", row: linha, column: coluna) %>">
+              <%= linha %><%= coluna %>
+            </button>
+          <% end %>
+        <% end %>
+      </div>
+
+      <div class="keypad-actions">
+        <button type="button" data-action="restart"><%= t("demo.keypad.restart") %></button>
+        <button type="button" data-action="quit"><%= t("demo.keypad.quit") %></button>
+      </div>
+    </div>
+
   <div class="demo-instructions">
     <h2><%= t("demo.commands.title") %></h2>
     <ul>

@@ -2,6 +2,8 @@
 // clicar: sao cerca de 1,7 MB, e quem so veio ler sobre o projeto nao paga
 // essa conta.
 
+import { montarTeclado } from "./jsdos-keypad.js"
+
 const SCRIPT = "/vendor/js-dos/js-dos.js"
 const ESTILOS = "/vendor/js-dos/js-dos.css"
 
@@ -56,6 +58,7 @@ export async function bootJsdos(root) {
       onEvent: (evento, ci) => {
         if (evento === "ci-ready") {
           root.__ci = ci
+          montarTeclado(root, ci)
           root.dispatchEvent(new CustomEvent("jsdos:ready"))
         }
       },

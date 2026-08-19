@@ -44,3 +44,10 @@ pt:
       c: "joga o círculo na linha 2, coluna 2"
       restart: "começa uma partida nova"
       quit: "sai e restaura o modo de vídeo"
+    keypad:
+      title: "Controles na tela"
+      mark_x: "Jogar X"
+      mark_c: "Jogar círculo"
+      restart: "Reiniciar"
+      quit: "Sair"
+      cell: "Linha %{row}, coluna %{column}"

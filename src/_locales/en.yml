@@ -44,3 +44,10 @@ en:
       c: "plays the circle on row 2, column 2"
       restart: "starts a new game"
       quit: "quits and restores the video mode"
+    keypad:
+      title: "On-screen controls"
+      mark_x: "Play X"
+      mark_c: "Play circle"
+      restart: "Restart"
+      quit: "Quit"
+      cell: "Row %{row}, column %{column}"
