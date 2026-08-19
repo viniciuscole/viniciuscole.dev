@@ -24,11 +24,11 @@
   <% end %>
 
     <div class="demo-keypad" data-jsdos-keypad hidden>
-      <h3><%= t("demo.keypad.title") %></h3>
+      <h2><%= t("demo.keypad.title") %></h2>
 
       <div class="keypad-marks">
-        <button type="button" data-mark="X"><%= t("demo.keypad.mark_x") %></button>
-        <button type="button" data-mark="C"><%= t("demo.keypad.mark_c") %></button>
+        <button type="button" data-mark="X" aria-pressed="true"><%= t("demo.keypad.mark_x") %></button>
+        <button type="button" data-mark="C" aria-pressed="false"><%= t("demo.keypad.mark_c") %></button>
       </div>
 
       <div class="keypad-grid">

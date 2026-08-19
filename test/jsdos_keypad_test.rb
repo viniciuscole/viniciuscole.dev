@@ -28,6 +28,24 @@ class JsdosKeypadTest < Minitest::Test
     assert_includes page_body(PT), "Reiniciar"
   end
 
+  # Antes de qualquer clique, nada dizia (visualmente ou na arvore de
+  # acessibilidade) qual marca uma jogada na celula ia jogar. O JS assume
+  # marcaAtual = "X" desde o inicio, entao a marcacao precisa concordar com
+  # isso: exatamente um botao de marca com aria-pressed="true", e tem que
+  # ser o X.
+  def test_the_x_mark_starts_selected
+    corpo = page_body(EN)
+    marcas = corpo.scan(/<button[^>]*data-mark="([^"]+)"[^>]*aria-pressed="([^"]+)"/)
+
+    refute_empty marcas, "nao encontrei botoes de marca com data-mark e aria-pressed"
+
+    pressionadas = marcas.select { |_marca, estado| estado == "true" }
+    assert_equal 1, pressionadas.size,
+      "deveria haver exatamente um botao de marca com aria-pressed=\"true\" no estado inicial"
+    assert_equal "X", pressionadas.first.first,
+      "a marca selecionada no estado inicial deveria ser X, para bater com marcaAtual no JS"
+  end
+
   # Le o FONTE, nao o bundle minificado. Procurar "49" no bundle passaria
   # sempre: numeros curtos aparecem em qualquer JavaScript minificado, e o
   # teste ficaria verde mesmo com o mapa de teclas errado.
