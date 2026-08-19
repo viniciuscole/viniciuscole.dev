@@ -6,8 +6,11 @@ class JsdosVendorTest < Minitest::Test
   VENDOR_FILES = %w[
     vendor/js-dos/js-dos.js
     vendor/js-dos/js-dos.css
+    vendor/js-dos/emulators/emulators.js
     vendor/js-dos/emulators/wdosbox.js
     vendor/js-dos/emulators/wdosbox.wasm
+    vendor/js-dos/emulators/wlibzip.js
+    vendor/js-dos/emulators/wlibzip.wasm
   ].freeze
 
   def test_emulator_assets_are_published

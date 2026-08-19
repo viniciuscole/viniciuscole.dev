@@ -55,9 +55,19 @@ namespace :jsdos do
     FileUtils.cp("#{origem}/js-dos.js", destino)
     FileUtils.cp("#{origem}/js-dos.css", destino)
 
-    # Apenas o backend dosbox. O wdosbox-x tem 7,5 MB e serve para Windows 9x
-    # e 3Dfx, nada que este jogo use.
-    %w[wdosbox.js wdosbox.wasm].each do |arquivo|
+    # Tudo que o js-dos busca em tempo de execucao a partir do pathPrefix,
+    # lido no fonte dele:
+    #
+    #   js-dos.js  injeta <script src="${pathPrefix}emulators.js"> no start
+    #              ("Unable to add emulators.js" e a mensagem de falha dele);
+    #   emulators.js  carrega ${pathPrefix}wlibzip.js para ler o .jsdos (zip)
+    #              e ${pathPrefix}wdosbox.js para o backend dosbox;
+    #   wlibzip.js e wdosbox.js  carregam o .wasm irmao de cada um.
+    #
+    # Faltando qualquer um deles a demo 404 e nunca aparece. Apenas o backend
+    # dosbox: o wdosbox-x tem 7,5 MB e serve para Windows 9x e 3Dfx, nada que
+    # este jogo use.
+    %w[emulators.js wdosbox.js wdosbox.wasm wlibzip.js wlibzip.wasm].each do |arquivo|
       FileUtils.cp("#{origem}/emulators/#{arquivo}", "#{destino}/emulators/#{arquivo}")
     end
   end
