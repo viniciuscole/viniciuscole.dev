@@ -151,4 +151,23 @@ class CrtTest < Minitest::Test
       "se posiciona em absolute dentro dela. Estava so dentro do bloco de " \
       "prefers-reduced-motion, que nem todo visitante ativa."
   end
+
+  # A moldura da demo tem `display: flex`, e regra de autor ganha do
+  # `[hidden]{display:none}` da folha do agente do usuario com qualquer
+  # especificidade — entao `moldura.hidden = true` nao escondia nada: depois
+  # do boot o retangulo preto com o botao Jogar ja inerte continuava por cima
+  # do emulador, e no caminho de erro por cima da mensagem. A regra vale para
+  # o site inteiro, entao mora em base.css.
+  def test_hidden_wins_over_our_own_display_rules
+    base = ROOT.join("frontend/styles/base.css").read
+    assert_match(/\[hidden\]\s*\{[^}]*display:\s*none\s*!important/, base,
+      "base.css precisa de [hidden] { display: none !important }, senao o " \
+      "display: flex de .demo-frame mantem a moldura na tela depois do boot")
+
+    publicado = Dir.glob(OUTPUT.join("_bridgetown/static/*.css"))
+                   .map { |arquivo| File.read(arquivo) }.join
+    refute_empty publicado, "nenhum CSS publicado"
+    assert_match(/\[hidden\][^{]*\{[^}]*display:\s*none\s*!important/, publicado,
+      "a regra existe no fonte mas nao chegou ao CSS publicado")
+  end
 end

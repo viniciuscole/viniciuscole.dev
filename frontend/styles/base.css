@@ -1,5 +1,13 @@
 *, *::before, *::after { box-sizing: border-box; }
 
+/* O `display` do agente do usuario para [hidden] e uma regra de folha
+   padrao: qualquer `display` declarado por nos ganha dela, com qualquer
+   especificidade. Foi o que aconteceu com a moldura da demo, que tem
+   `display: flex` e continuava na tela depois de receber hidden, com o
+   botao Jogar ja inerte. Vale para o site inteiro: `hidden` no HTML tem
+   que esconder. */
+[hidden] { display: none !important; }
+
 body {
   margin: 0;
   background: var(--bg);
