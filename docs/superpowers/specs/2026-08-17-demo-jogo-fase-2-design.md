@@ -96,9 +96,9 @@ VCA.EXE
 | Decisão | Escolha | Por quê |
 |---|---|---|
 | Backend do emulador | **DOSBox simples** (`wdosbox`) | 1,4 MB contra 7,5 MB do DOSBox-X, e o jogo foi comprovadamente executado no DOSBox comum. O DOSBox-X existe para Windows 9x e 3Dfx, nada que este jogo use |
-| Origem do js-dos | **Dependência npm, copiada no build** | Serve da nossa origem, preservando a regra de zero requisições a terceiros da Fase 1, sem commitar 1,7 MB de binário no git |
+| Origem do js-dos | **Dependência npm, copiada no build** | Serve da nossa origem, preservando a regra de zero requisições a terceiros da Fase 1, sem commitar 2,1 MB de binário no git |
 | Bundle do jogo | **Versionado**, com `rake game:build` | São 2,1 KB que quase nunca mudam. Versionar mantém o CI trivial: o deploy não precisa de Docker, só quem mexe no assembly roda o rebuild |
-| Carregamento | **Sob clique**, não automático | ~1,7 MB só descem quando o visitante pede. Quem veio ler sobre o projeto não paga a conta do emulador |
+| Carregamento | **Sob clique**, não automático | ~2,1 MB só descem quando o visitante pede. Quem veio ler sobre o projeto não paga a conta do emulador |
 | Repositório do jogo | **Referenciado por URL**, não submodule | Continua um projeto independente; o site consome o artefato, não o fonte |
 
 ## Arquitetura
@@ -121,8 +121,11 @@ viniciuscole.dev/
 │   ├── vendor/                       # GITIGNORADO, preenchido no build
 │   │   └── js-dos/
 │   │       ├── js-dos.js
-│   │       ├── js-dos.css
-│   │       └── emulators/wdosbox.{js,wasm}
+│   │       ├── LICENSE.txt           # GPL-2.0, junto dos binarios servidos
+│   │       └── emulators/
+│   │           ├── emulators.js      # o js-dos injeta em runtime
+│   │           ├── wdosbox.{js,wasm} # o emulador
+│   │           └── wlibzip.{js,wasm} # le o dosbox.conf de dentro do bundle
 │   ├── _partials/demos/
 │   │   ├── _none.erb                 # ja existe
 │   │   └── _jsdos.erb                # NOVO
@@ -190,8 +193,16 @@ para fora da nossa origem. É uma checagem de conteúdo, não de marcação.
 **`kiosk: true`** esconde a interface própria do js-dos — barra lateral, botões e
 marca dele. Sem isso, a página exibe controles de terceiro com estilo alheio ao
 site, que é justamente o que se quer evitar: quem enquadra o jogo é a nossa
-moldura. A implementação deve confirmar quanto do `js-dos.css` (118 KB) ainda é
-necessário em modo kiosk e servir só o que for.
+moldura.
+
+**Resolvido na implementação: o `js-dos.css` não é servido.** Ele abre com o
+reset completo do Tailwind (`h1..h6{font-size:inherit;font-weight:inherit}`,
+`a{color:inherit;text-decoration:inherit}`), e como o player o injetava depois da
+nossa folha, clicar em jogar achatava todos os títulos e apagava a cor de todos
+os links do site inteiro. As poucas regras de que a tela do emulador realmente
+precisa foram escritas no `crt.css`, escopadas sob `.demo-screen`, e o arquivo de
+118 KB deixou de ser vendorizado. Um teste reprova se o reset voltar a ser
+servido.
 
 **`imageRendering: "pixelated"`** preserva os pixels quadrados do VGA. Suavizar
 borraria justamente o que dá identidade ao projeto.
@@ -274,7 +285,7 @@ minitest e html-proofer.
    válido, e contém `VCA.EXE` e a configuração do DOSBox.
 2. **Dispatcher liga o tipo certo** — a página do projeto renderiza o partial
    `jsdos` e não o placeholder `none`, nos dois idiomas.
-3. **Assets do emulador na saída** — `js-dos.js`, `js-dos.css` e
+3. **Assets do emulador na saída** — `js-dos.js` e
    `wdosbox.wasm` presentes em `output/vendor/js-dos/`, e o bundle em
    `output/demos/`.
 4. **Zero requisições a terceiros continua valendo** — o teste da Fase 1 segue
