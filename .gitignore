@@ -43,3 +43,6 @@ yarn-debug.log*
 
 # Superpowers orchestration scratch (never commit)
 .superpowers/
+
+# Vendorizado do npm a cada build (rake jsdos:vendor); nao versionar binario
+src/vendor/

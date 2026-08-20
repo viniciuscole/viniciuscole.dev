@@ -1,0 +1,264 @@
+/* Tratamento CRT, restrito a pagina do jogo. O resto do site permanece
+   moderno e limpo — e isso que faz o retro parecer intencional. */
+
+.demo-jsdos {
+  --crt-phosphor: var(--vga-green);
+  margin: calc(var(--space) * 2) 0;
+}
+
+.demo-frame,
+.demo-screen {
+  aspect-ratio: 4 / 3;           /* a proporcao do modo VGA 12h, 640x480 */
+  width: 100%;
+  background: #000;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.9);
+}
+
+.demo-frame {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.demo-start {
+  background: transparent;
+  border: 1px solid var(--crt-phosphor);
+  border-radius: var(--radius);
+  color: var(--crt-phosphor);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  padding: 0.5rem 1.25rem;
+}
+
+.demo-start:hover,
+.demo-start:focus-visible {
+  background: var(--crt-phosphor);
+  color: #000;
+}
+
+/* O botao nasce desligado no HTML e so o player o liga. Quem esta sem
+   JavaScript ve que ele nao esta valendo, e o <noscript> ao lado diz onde
+   pegar o jogo. */
+.demo-start:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.demo-weight,
+.demo-license {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+}
+
+.demo-weight { margin: 0; }
+
+.demo-screen {
+  /* Bloco de contencao da arvore do js-dos, que se posiciona em absolute
+     dentro dela. Tambem ancora a vinheta la embaixo. */
+  position: relative;
+  /* Qualquer texto que o js-dos desenhe aqui (carregando, erro dele) cai
+     sobre o preto do CRT. */
+  color: #ddd;
+}
+
+.demo-screen canvas {
+  image-rendering: pixelated;    /* pixels quadrados, como no VGA */
+  width: 100%;
+  height: 100%;
+}
+
+/* --- O que o js-dos precisa de CSS, e so isso --------------------------
+   O js-dos monta a arvore dele dentro de .demo-screen usando classes
+   utilitarias do Tailwind/daisyUI, e sem elas a arvore colapsa: o
+   dimensionamento do canvas (js-dos.js, funcao que faz
+   `e.parentElement.getBoundingClientRect()` e depois escreve style.width e
+   style.height em px) le a caixa do pai, que sem `h-full`/`flex-grow`
+   mediria zero.
+
+   O js-dos.css que traz essas classes tem 118 KB e abre com o Preflight do
+   Tailwind inteiro — `*,:before,:after{border-width:0}`, `html{font-family:
+   ui-sans-serif...}`, `h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:
+   inherit}`, `a{color:inherit;text-decoration:inherit}` — seguido da base do
+   daisyUI, que inclui `:root,[data-theme]{background-color;color}` e
+   `:root{color-scheme:light}`. O player injetava isso no <head> no clique,
+   depois da nossa folha e com a mesma especificidade: um clique em Jogar
+   achatava todo titulo do site, tirava cor e sublinhado de todo link e ainda
+   casava com o [data-theme] que o nosso proprio tema usa.
+
+   Entao ele nao e mais servido. As classes abaixo sao as que a arvore do modo
+   kiosk realmente usa, lidas do js-dos.js, escopadas na tela do emulador. */
+.demo-screen .absolute { position: absolute; }
+.demo-screen .relative { position: relative; }
+.demo-screen .w-full { width: 100%; }
+.demo-screen .h-full { height: 100%; }
+.demo-screen .w-2 { width: 0.5rem; }
+.demo-screen .flex { display: flex; }
+.demo-screen .flex-row { flex-direction: row; }
+.demo-screen .flex-col { flex-direction: column; }
+.demo-screen .flex-grow { flex-grow: 1; }
+.demo-screen .flex-shrink-0 { flex-shrink: 0; }
+.demo-screen .items-start { align-items: flex-start; }
+.demo-screen .items-center { align-items: center; }
+.demo-screen .justify-start { justify-content: flex-start; }
+.demo-screen .justify-center { justify-content: center; }
+.demo-screen .overflow-auto { overflow: auto; }
+.demo-screen .overflow-hidden { overflow: hidden; }
+.demo-screen .bg-black { background-color: #000; }
+.demo-screen .m-auto { margin: auto; }
+.demo-screen .mt-2 { margin-top: 0.5rem; }
+.demo-screen .mt-8 { margin-top: 2rem; }
+.demo-screen .px-8 { padding-left: 2rem; padding-right: 2rem; }
+.demo-screen .text-center { text-align: center; }
+.demo-screen .text-sm { font-size: 0.875rem; }
+/* Menor que o 1.5rem do Tailwind de proposito: o texto do js-dos aparece
+   dentro de uma moldura de 4:3, nao numa tela cheia. */
+.demo-screen .text-2xl { font-size: 1.25rem; }
+
+/* A imagem de fundo do js-dos nao e usada aqui (nao passamos `background`),
+   mas o elemento existe: fica inerte. */
+.demo-screen .background-image { pointer-events: none; }
+
+.demo-screen .emulator-mouse-overlay { position: absolute; inset: 0; }
+
+.demo-screen .emulator-canvas {
+  image-rendering: pixelated;
+  touch-action: none;            /* tocar a tela nao rola a pagina */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Ancora a raiz do js-dos na moldura. Vem depois de .relative de proposito:
+   o elemento tem a classe `relative` e as duas regras empatam em
+   especificidade, entao quem vem por ultimo vence. Com inset a altura da
+   arvore inteira passa a ser definida, sem depender de porcentagem resolvida
+   contra o aspect-ratio do pai. */
+.demo-screen > [data-theme] {
+  position: absolute;
+  inset: 0;
+}
+
+.demo-error {
+  border: 1px solid var(--vga-amber);
+  border-radius: var(--radius);
+  /* --vga-amber sozinho da 5.06:1 sobre --bg no tema claro (AA ok), mas cai
+     para 3.61:1 no escuro — e mesmo sobre um fundo preto solido fica em
+     4.01:1, ainda abaixo do AA de 4.5:1. Por isso --crt-warn clareia so no
+     escuro (ver bloco :root[data-theme="dark"] abaixo), assim como --accent
+     ja faz para o verde em tokens.css. */
+  color: var(--crt-warn, var(--vga-amber));
+  font-family: var(--font-mono);
+  padding: var(--space);
+}
+
+:root[data-theme="dark"] {
+  --crt-warn: #ee7700;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --crt-warn: #ee7700;
+  }
+}
+
+.demo-instructions ul {
+  list-style: none;
+  padding: 0;
+}
+
+.demo-instructions li {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  padding: 0.125rem 0;
+}
+
+.demo-instructions code {
+  /* Texto sobre o fundo normal da pagina, nao sobre o preto do CRT — usa
+     --accent (5.57:1 claro / 8.84:1 escuro), o mesmo verde ja calibrado
+     para AA em tokens.css, em vez do --crt-phosphor cru. */
+  color: var(--accent);
+}
+
+.demo-keypad {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-top: var(--space);
+  padding: var(--space);
+}
+
+.keypad-grid {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(3, minmax(3rem, 5rem));
+}
+
+.keypad-marks,
+.keypad-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.demo-keypad button {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--fg);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  min-height: 2.75rem;           /* alvo de toque confortavel no celular */
+  padding: 0.5rem;
+}
+
+.demo-keypad button:hover,
+.demo-keypad button:focus-visible {
+  /* O teclado fica sobre o fundo normal da pagina, nao sobre preto — a cor
+     do texto precisa ser --accent (AA nos dois temas), nao --crt-phosphor
+     cru. A borda pode continuar com o verde puro: e sinal nao-textual, e o
+     3:1 exigido para isso ela cumpre nos dois temas. */
+  border-color: var(--crt-phosphor);
+  color: var(--accent);
+}
+
+.demo-keypad button[aria-pressed="true"] {
+  background: var(--crt-phosphor);
+  border-color: var(--crt-phosphor);
+  color: #000;
+}
+
+/* A vinheta e o unico efeito puramente decorativo; some para quem pede
+   menos movimento ou prefere menos ruido visual. */
+@media (prefers-reduced-motion: no-preference) {
+  .demo-screen::after {
+    background: radial-gradient(ellipse at center,
+                transparent 60%, rgba(0, 0, 0, 0.35) 100%);
+    content: "";
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+  }
+}
+
+@media (min-width: 60rem) {
+  .demo-jsdos {
+    align-items: start;
+    display: grid;
+    gap: calc(var(--space) * 1.5);
+    grid-template-columns: 3fr 2fr;
+  }
+
+  .demo-frame,
+  .demo-screen { grid-column: 1; }
+  .demo-keypad,
+  .demo-instructions { grid-column: 2; }
+  /* A mensagem de erro ocupa a largura toda, como a licenca. Sem isto ela se
+     auto-posicionava onde sobrasse espaco no grid — do lado do teclado, por
+     exemplo. */
+  .demo-error,
+  .demo-license { grid-column: 1 / -1; }
+}

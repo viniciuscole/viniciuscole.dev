@@ -9,7 +9,8 @@ summary: Um jogo da velha escrito em assembly x86 de 16 bits para DOS, que desen
 tech: [Assembly x86, NASM, DOS, VGA]
 repo: https://github.com/viniciuscole/tic-tac-toe-assembly
 demo:
-  type: none
+  type: jsdos
+  bundle: /demos/tic-tac-toe/vca.jsdos
 ---
 
 O jogo inteiro é escrito em assembly NASM de 16 bits em modo real, para DOS. Ele

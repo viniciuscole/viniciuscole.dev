@@ -9,7 +9,7 @@ task default: :deploy
 # Standard set of tasks, which you can customize if you wish:
 #
 desc "Build the Bridgetown site for deployment"
-task :deploy => [:clean, "frontend:build"] do
+task :deploy => [:clean, "jsdos:vendor", "frontend:build"] do
   Bridgetown::Commands::Build.start
 end
 
@@ -34,6 +34,90 @@ namespace :frontend do
   task :dev do
     sh "npm run esbuild-dev"
   rescue Interrupt
+  end
+end
+
+namespace :jsdos do
+  desc "Copia o js-dos do node_modules para src/vendor, servido da nossa origem"
+  task :vendor do
+    require "fileutils"
+
+    origem = "node_modules/js-dos/dist"
+    destino = "src/vendor/js-dos"
+
+    unless Dir.exist?(origem)
+      raise "js-dos nao encontrado em #{origem}. Rode `npm install` primeiro."
+    end
+
+    FileUtils.rm_rf(destino)
+    FileUtils.mkdir_p("#{destino}/emulators")
+
+    FileUtils.cp("#{origem}/js-dos.js", destino)
+
+    # Servir o wdosbox.wasm da nossa origem e distribuir uma obra GPL-2.0, e o
+    # pacote npm nao traz o texto da licenca. Este e o LICENSE do
+    # caiiiycuk/emulators, de onde vem o binario do DOSBox, versionado em
+    # build/jsdos/ e publicado ao lado dos arquivos que ele cobre.
+    FileUtils.cp("build/jsdos/LICENSE-GPL-2.0.txt", "#{destino}/LICENSE.txt")
+
+    # O js-dos.css NAO e copiado de proposito. Sao 118 KB que abrem com o
+    # Preflight do Tailwind (`h1..h6{font-size:inherit}`, `a{color:inherit;
+    # text-decoration:inherit}`, `*{border-width:0}`) e com a base do daisyUI
+    # (`:root,[data-theme]{background-color;color}`). Servido depois da nossa
+    # folha, com a mesma especificidade, ele reestilizava o site inteiro no
+    # clique em Jogar. As poucas regras que a arvore do modo kiosk usa estao
+    # em frontend/styles/crt.css, escopadas em .demo-screen.
+
+    # Tudo que o js-dos busca em tempo de execucao a partir do pathPrefix,
+    # lido no fonte dele:
+    #
+    #   js-dos.js  injeta <script src="${pathPrefix}emulators.js"> no start
+    #              ("Unable to add emulators.js" e a mensagem de falha dele);
+    #   emulators.js  carrega ${pathPrefix}wlibzip.js para ler o .jsdos (zip)
+    #              e ${pathPrefix}wdosbox.js para o backend dosbox;
+    #   wlibzip.js e wdosbox.js  carregam o .wasm irmao de cada um.
+    #
+    # Faltando qualquer um deles a demo 404 e nunca aparece. Apenas o backend
+    # dosbox: o wdosbox-x tem 7,5 MB e serve para Windows 9x e 3Dfx, nada que
+    # este jogo use.
+    %w[emulators.js wdosbox.js wdosbox.wasm wlibzip.js wlibzip.wasm].each do |arquivo|
+      FileUtils.cp("#{origem}/emulators/#{arquivo}", "#{destino}/emulators/#{arquivo}")
+    end
+
+    # Os .map tem 1,4 MB somados e nao sao vendorizados. Sem tirar o
+    # comentario, quem abre o devtools na pagina do jogo leva um 404 por
+    # arquivo.
+    %W[#{destino}/js-dos.js #{destino}/emulators/emulators.js].each do |arquivo|
+      conteudo = File.read(arquivo)
+      File.write(arquivo, conteudo.sub(%r{\n?//# sourceMappingURL=\S+\s*\z}, "\n"))
+    end
+  end
+end
+
+namespace :game do
+  desc "Reconstroi o bundle do jogo a partir do fonte em assembly (exige Docker)"
+  task :build do
+    require "fileutils"
+    require "tmpdir"
+
+    repositorio = "https://github.com/viniciuscole/tic-tac-toe-assembly"
+    destino = File.expand_path("src/demos/tic-tac-toe")
+    receita = File.expand_path("build/game")
+
+    FileUtils.mkdir_p(destino)
+
+    Dir.mktmpdir do |tmp|
+      sh "git clone --depth 1 #{repositorio} #{tmp}/assembly"
+      sh "docker build -t viniciuscole-game-build #{receita}"
+      # Sem --user o container escreve o vca.jsdos como root dentro do
+      # repositorio, e a proxima reconstrucao precisa de sudo.
+      sh "docker run --rm " \
+         "--user #{Process.uid}:#{Process.gid} " \
+         "-v #{tmp}/assembly:/src:ro " \
+         "-v #{receita}:/conf:ro " \
+         "-v #{destino}:/out " \
+         "viniciuscole-game-build"
+    end
   end
 end
 
@@ -76,6 +160,7 @@ end
 # falso exatamente na hora em que se mais precisa de vermelho.
 desc "Constroi o site e roda todas as verificacoes"
 task :check => :clean do
+  Rake::Task["jsdos:vendor"].invoke
   Rake::Task["frontend:build"].invoke
   sh "bin/bridgetown build"
   Rake::Task["minitest"].invoke

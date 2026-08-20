@@ -9,7 +9,8 @@ summary: A tic-tac-toe game written in 16-bit x86 assembly for DOS, drawing its 
 tech: [x86 Assembly, NASM, DOS, VGA]
 repo: https://github.com/viniciuscole/tic-tac-toe-assembly
 demo:
-  type: none
+  type: jsdos
+  bundle: /demos/tic-tac-toe/vca.jsdos
 ---
 
 The whole game is written in NASM 16-bit real mode assembly, targeting DOS. It

@@ -46,4 +46,5 @@ gem "falcon"
 group :test do
   gem "minitest", "~> 5.25"
   gem "html-proofer", "~> 5.0"
+  gem "rubyzip", "~> 2.3"
 end

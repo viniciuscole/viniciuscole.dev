@@ -15,7 +15,13 @@ no Cloudflare Pages.
 
     bundle install
     npm install
+    bundle exec rake jsdos:vendor
     bin/bridgetown start
+
+O `rake jsdos:vendor` copia o js-dos do `node_modules/` para `src/vendor/`,
+que é gitignorado e nasce vazio. Sem essa etapa a página do jogo sobe com a
+moldura, mas o clique em **Jogar** dá 404 no emulador — o `rake check` roda a
+task sozinho, o `bin/bridgetown start` não.
 
 ## Verificar antes de publicar
 
@@ -52,6 +58,27 @@ correspondente em `src/_partials/demos/`, por exemplo `_jsdos.erb` para o
 tipo `jsdos`. Um `demo.type` desconhecido, ausente, ou com front matter mal
 formado (ex.: `demo: jsdos` em vez de `demo:\n  type: jsdos`) nunca derruba o
 build: o helper degrada para o partial `demos/none`.
+
+## Tarefas do emulador e do jogo
+
+    bundle exec rake jsdos:vendor
+
+Copia da dependência npm `js-dos` para `src/vendor/js-dos/` tudo que o
+emulador busca em tempo de execução: `js-dos.js`, `emulators/emulators.js`,
+o backend `wdosbox.{js,wasm}`, o `wlibzip.{js,wasm}` que lê o bundle `.jsdos`
+e o texto da GPL-2.0. Servir da nossa origem é o que mantém a regra de zero
+requisições a terceiros. O `js-dos.css` **não** é copiado de propósito: ele
+abre com o Preflight do Tailwind e reestilizaria o site inteiro; as poucas
+regras que o modo kiosk usa vivem em `frontend/styles/crt.css`, escopadas em
+`.demo-screen`.
+
+    bundle exec rake game:build
+
+Reconstrói `src/demos/tic-tac-toe/vca.jsdos` a partir do fonte em assembly,
+num container (NASM + Open Watcom `wlink`). Exige Docker, baixa ~143 MB e é
+manual de propósito: o bundle tem 2,1 KB, é versionado e quase nunca muda,
+então nem o `check` nem o deploy precisam de Docker. Só quem mexe no assembly
+roda isto.
 
 ## Textos, metadados e tema
 

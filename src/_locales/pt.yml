@@ -31,3 +31,25 @@ pt:
     server_error:
       title: "Erro interno do servidor"
       body: "Alguma coisa deu errado do nosso lado. Tente de novo daqui a pouco."
+  demo:
+    label: "Demo jogável"
+    start: "Jogar"
+    weight: "Carrega um emulador de DOS, cerca de 2,1 MB."
+    failed: "O emulador não carregou. Você ainda pode pegar o jogo no repositório."
+    missing_bundle: "Esta demo não tem bundle configurado."
+    noscript: "Esta demo precisa de JavaScript. O jogo em si está no repositório:"
+    license: "Emulado com js-dos e DOSBox, ambos GPL-2.0."
+    license_text: "texto da licença"
+    commands:
+      title: "Comandos"
+      x: "joga X na linha 1, coluna 1"
+      c: "joga o círculo na linha 2, coluna 2"
+      restart: "começa uma partida nova"
+      quit: "sai e restaura o modo de vídeo"
+    keypad:
+      title: "Controles na tela"
+      mark_x: "Jogar X"
+      mark_c: "Jogar círculo"
+      restart: "Reiniciar"
+      quit: "Sair"
+      cell: "Linha %{row}, coluna %{column}"
