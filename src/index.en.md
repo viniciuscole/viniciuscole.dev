@@ -8,14 +8,26 @@ locale: en
 # vazia, e a normalizacao de "/index/" para "/" nunca dispara), quebrando
 # todo link de volta para a home em ingles. A resolucao padrao da colecao
 # `pages` (`/:locale/:path/`) ja produz "/" corretamente aqui, entao nao
-# adicione `permalink: /` de volta. Ver task-6-report.md para o
-# rastreamento completo do bug.
+# adicione `permalink: /` de volta.
 ---
 
-<section class="hero">
-  <h1><%= t("site.title") %></h1>
-  <p class="tagline"><%= t("site.tagline") %></p>
-  <p class="intro"><%= t("home.intro") %></p>
+<section class="card">
+  <img class="card-photo"
+       src="/images/vinicius.svg"
+       alt="<%= t("home.photo_alt") %>"
+       width="400" height="400">
+
+  <div class="card-text">
+    <h1><%= t("site.title") %></h1>
+    <p class="card-role"><%= t("site.tagline") %></p>
+    <p class="card-intro"><%= t("home.intro") %></p>
+
+    <ul class="card-links">
+      <li><a href="<%= site.data.site_links.github %>" rel="me">GitHub</a></li>
+      <li><a href="<%= site.data.site_links.linkedin %>" rel="me">LinkedIn</a></li>
+      <li><a href="<%= site.data.site_links.email %>">E-mail</a></li>
+    </ul>
+  </div>
 </section>
 
 <section class="featured">

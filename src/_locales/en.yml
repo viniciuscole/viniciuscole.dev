@@ -15,6 +15,7 @@ en:
     pt: "Português"
   home:
     intro: "I build software. Some of it runs right here on this page."
+    photo_alt: "Portrait of Vinicius Cole"
     featured: "Featured projects"
     latest_posts: "Latest posts"
   projects:
