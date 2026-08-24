@@ -1,7 +1,13 @@
-/* Tratamento CRT, restrito a pagina do jogo. O resto do site permanece
-   moderno e limpo — e isso que faz o retro parecer intencional. */
+/* A pagina do jogo no vocabulario editorial do site: linha fina, tipo
+   monoespacado nos metadados, terracota como unico acento. O que continua
+   sendo DOS e so a tela de 640x480 la dentro — os pixels que o assembly
+   desenha. O site emoldura; o jogo fala. */
 
 .demo-jsdos {
+  /* Dentro da moldura o fundo e sempre preto, independente do tema da pagina.
+     O terracota escuro do site (#8b3a2f) daria 2,75:1 sobre preto, abaixo de
+     AA — entao a moldura usa a variante clara do acento, que da 7,8:1. */
+  --crt-acento: #d98a6b;
   --crt-phosphor: var(--vga-green);
   margin: calc(var(--space) * 2) 0;
 }
@@ -11,9 +17,10 @@
   aspect-ratio: 4 / 3;           /* a proporcao do modo VGA 12h, 640x480 */
   width: 100%;
   background: #000;
-  border: 2px solid var(--border);
-  border-radius: 10px;
-  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.9);
+  /* Linha fina em vez de moldura grossa arredondada: e o mesmo vocabulario
+     das regras que separam as secoes do resto do site. */
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
 }
 
 .demo-frame {
@@ -21,23 +28,26 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
 .demo-start {
   background: transparent;
-  border: 1px solid var(--crt-phosphor);
+  border: 1px solid var(--crt-acento);
   border-radius: var(--radius);
-  color: var(--crt-phosphor);
+  color: var(--crt-acento);
   cursor: pointer;
   font-family: var(--font-mono);
-  font-size: 1rem;
-  padding: 0.5rem 1.25rem;
+  font-size: var(--texto-meta);
+  letter-spacing: 0.12em;
+  padding: 0.75rem 1.75rem;
+  text-transform: uppercase;
+  transition: background-color 120ms ease, color 120ms ease;
 }
 
 .demo-start:hover,
 .demo-start:focus-visible {
-  background: var(--crt-phosphor);
+  background: var(--crt-acento);
   color: #000;
 }
 
@@ -166,16 +176,35 @@
   }
 }
 
+/* Os comandos viram um indice: rotulo em versalete monoespacada e cada linha
+   separada por regra fina, como as listagens de projeto e de posts. */
+.demo-instructions h2 {
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: var(--texto-meta);
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  margin: 0 0 var(--space);
+  padding-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
 .demo-instructions ul {
   list-style: none;
+  margin: 0;
   padding: 0;
 }
 
 .demo-instructions li {
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
   font-family: var(--font-mono);
-  font-size: 0.875rem;
-  padding: 0.125rem 0;
+  font-size: var(--texto-pequeno);
+  padding: 0.625rem 0;
 }
+
+.demo-instructions li:last-child { border-bottom: 0; }
 
 .demo-instructions code {
   /* Texto sobre o fundo normal da pagina, nao sobre o preto do CRT — usa
@@ -184,24 +213,40 @@
   color: var(--accent);
 }
 
+/* Os controles ficam centrados sob o jogo. Sem caixa em volta: uma regra fina
+   no topo separa do emulador, como as regras que separam as secoes do site. */
 .demo-keypad {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  margin-top: var(--space);
-  padding: var(--space);
+  border-top: 1px solid var(--border);
+  margin-inline: auto;
+  padding-top: calc(var(--space) * 1.5);
+  text-align: center;
+}
+
+.demo-keypad h2 {
+  border: 0;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: var(--texto-meta);
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  margin: 0 0 var(--space);
+  text-transform: uppercase;
 }
 
 .keypad-grid {
   display: grid;
   gap: 0.5rem;
-  grid-template-columns: repeat(3, minmax(3rem, 5rem));
+  grid-template-columns: repeat(3, 3.5rem);
+  justify-content: center;
 }
 
 .keypad-marks,
 .keypad-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
-  margin: 0.5rem 0;
+  justify-content: center;
+  margin: 0.75rem 0;
 }
 
 .demo-keypad button {
@@ -211,24 +256,34 @@
   color: var(--fg);
   cursor: pointer;
   font-family: var(--font-mono);
+  font-size: var(--texto-pequeno);
   min-height: 2.75rem;           /* alvo de toque confortavel no celular */
-  padding: 0.5rem;
+  padding: 0.5rem 0.875rem;
+  transition: border-color 120ms ease, color 120ms ease;
 }
 
 .demo-keypad button:hover,
 .demo-keypad button:focus-visible {
-  /* O teclado fica sobre o fundo normal da pagina, nao sobre preto — a cor
-     do texto precisa ser --accent (AA nos dois temas), nao --crt-phosphor
-     cru. A borda pode continuar com o verde puro: e sinal nao-textual, e o
-     3:1 exigido para isso ela cumpre nos dois temas. */
-  border-color: var(--crt-phosphor);
+  /* O teclado fica sobre o fundo normal da pagina, nao sobre preto — tanto o
+     texto quanto a borda usam --accent.
+
+     A borda ja foi --crt-phosphor: o verde VGA cru cumpria o 3:1 de sinal
+     nao-textual por margem minima (3,003:1) sobre o fundo antigo. O tema
+     editorial clareou o papel para #faf8f4 e isso derrubou a razao para
+     2,93:1, abaixo do limiar. --accent da 7,2:1 e ainda amarra o foco a cor
+     do resto do site. O verde continua onde e legitimo: sobre o preto da
+     moldura do emulador. */
+  border-color: var(--accent);
   color: var(--accent);
 }
 
+/* A marca selecionada fica preenchida no acento do site, nao no verde do
+   jogo: o teclado e cromo da pagina, e a pagina agora tem um acento so.
+   Texto em --bg sobre --accent da 7,2:1 no claro e 6,9:1 no escuro. */
 .demo-keypad button[aria-pressed="true"] {
-  background: var(--crt-phosphor);
-  border-color: var(--crt-phosphor);
-  color: #000;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
 }
 
 /* A vinheta e o unico efeito puramente decorativo; some para quem pede
@@ -244,21 +299,15 @@
   }
 }
 
-@media (min-width: 60rem) {
-  .demo-jsdos {
-    align-items: start;
-    display: grid;
-    gap: calc(var(--space) * 1.5);
-    grid-template-columns: 3fr 2fr;
-  }
+/* Tudo empilhado, em qualquer largura de tela: o jogo, depois os controles,
+   depois os comandos.
 
-  .demo-frame,
-  .demo-screen { grid-column: 1; }
-  .demo-keypad,
-  .demo-instructions { grid-column: 2; }
-  /* A mensagem de erro ocupa a largura toda, como a licenca. Sem isto ela se
-     auto-posicionava onde sobrasse espaco no grid — do lado do teclado, por
-     exemplo. */
-  .demo-error,
-  .demo-license { grid-column: 1 / -1; }
-}
+   Ja houve aqui um layout de duas colunas com os comandos ao lado do
+   emulador. Ele obrigava o bloco todo a escapar da largura da pagina para o
+   jogo nao ficar espremido, e o resultado era uma demo mais larga que o resto
+   do conteudo — desalinhamento que incomoda mais do que o tamanho extra
+   compensava. Empilhado, o emulador usa a largura inteira do `main`, que ja e
+   bem maior do que a fatia que ele tinha na grade. */
+.demo-jsdos > * + * { margin-top: calc(var(--space) * 1.5); }
+
+.demo-keypad { max-width: 26rem; }

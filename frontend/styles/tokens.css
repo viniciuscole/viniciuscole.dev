@@ -1,47 +1,75 @@
+/* Newsreader, auto-hospedada. Serve da nossa origem, entao a regra de zero
+   requisicoes a terceiros continua valendo. Licenca OFL em
+   src/fonts/newsreader-OFL.txt, publicada junto do arquivo da fonte.
+   E variavel: um arquivo cobre todos os pesos e tamanhos opticos. */
+@font-face {
+  font-family: "Newsreader";
+  src: url("/fonts/newsreader.woff2") format("woff2");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  /* acentos derivados da paleta VGA de 16 cores, o elo com o projeto em assembly */
+  /* Paleta VGA de 16 cores. E a identidade do jogo em assembly, nao do site:
+     so aparece na pagina da demo, sobre o preto da moldura do emulador. */
   --vga-green: #00aa00;
   --vga-cyan: #00aaaa;
   --vga-amber: #aa5500;
 
-  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
-  /* Sem nome de fonte que nao hospedamos: quem tivesse a JetBrains Mono
-     instalada veria um site diferente do de todo mundo. Auto-hospedar
-     continua possivel depois (um @font-face e um .woff2). */
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-display: "Newsreader", "Iowan Old Style", "Palatino Linotype",
+    Palatino, Georgia, serif;
+  --font-body: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+
+  /* Escala tipografica em quinta justa reduzida (1.5) no display, para os
+     titulos terem presenca sem gritar. */
+  --texto-base: 1.0625rem;
+  --texto-pequeno: 0.875rem;
+  --texto-meta: 0.75rem;
+  --titulo-1: clamp(2.5rem, 6vw, 3.75rem);
+  --titulo-2: clamp(1.5rem, 3vw, 1.875rem);
+  --titulo-3: 1.1875rem;
 
   --space: 1rem;
-  --measure: 68ch;
-  --radius: 4px;
+  /* Largura do container. A prosa e limitada separadamente em --leitura:
+     serifa em 72ch cansa, mas grades e navegacao querem o espaco. */
+  --measure: 74ch;
+  --leitura: 64ch;
+  --radius: 2px;
 }
 
+/* Tema claro — papel quente, tinta quase preta, terracota como unico acento.
+   O contraste do acento sobre o fundo e 7,2:1, bem acima do minimo AA. */
 :root,
 :root[data-theme="light"] {
-  --bg: #fbfbf9;
-  --fg: #16161a;
-  --muted: #5c5c66;
-  /* --vga-green puro (#00aa00) sobre --bg da 3.00:1, abaixo do AA de 4.5:1
-     exigido pela spec. Este e o mesmo verde escurecido: 5.57:1. O token cru
-     da paleta VGA fica preservado acima, documentando a origem da cor. */
-  --accent: #007700;
-  --border: #e0e0d8;
+  --bg: #faf8f4;
+  --bg-sutil: #f3efe7;
+  --fg: #1a1a1a;
+  --muted: #6b645c;
+  --accent: #8b3a2f;
+  --border: #e2dcd2;
 }
 
+/* Tema escuro — nao e preto puro: e um marrom muito escuro, para o papel
+   continuar parecendo papel a noite. O acento clareia para manter 7:1. */
 :root[data-theme="dark"] {
-  --bg: #0f1115;
-  --fg: #e8e8e3;
-  --muted: #9a9aa4;
-  --accent: #33cc33;
-  --border: #262a33;
+  --bg: #14120f;
+  --bg-sutil: #1c1917;
+  --fg: #ebe6dd;
+  --muted: #9a9186;
+  --accent: #d98a6b;
+  --border: #2c2721;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0f1115;
-    --fg: #e8e8e3;
-    --muted: #9a9aa4;
-    --accent: #33cc33;
-    --border: #262a33;
+    --bg: #14120f;
+    --bg-sutil: #1c1917;
+    --fg: #ebe6dd;
+    --muted: #9a9186;
+    --accent: #d98a6b;
+    --border: #2c2721;
   }
 }

@@ -57,11 +57,20 @@ class LayoutTest < Minitest::Test
   # O footer e o unico canal de contato do site. Um erro de digitacao em
   # src/_data/site_links.yml publicaria em silencio, entao os tres links sao
   # verificados, nao so o do GitHub.
+  # Le os enderecos do site_links.yml em vez de repeti-los aqui. A versao
+  # anterior fixava as URLs no teste, entao trocar um contato — a operacao que
+  # esse arquivo existe para tornar barata — quebrava a suite sem que nada
+  # estivesse errado. O que importa verificar e que os tres chegam a pagina,
+  # nao quais sao.
   def test_footer_shows_the_contact_links
+    links = YAML.load_file(ROOT.join("src/_data/site_links.yml"))
     body = page_body("index.html")
-    assert_includes body, 'href="https://github.com/viniciuscole"'
-    assert_includes body, 'href="https://www.linkedin.com/in/viniciuscole"'
-    assert_includes body, 'href="mailto:vinicius.amorim@v360.io"'
+
+    %w[github linkedin email].each do |chave|
+      endereco = links.fetch(chave)
+      assert_includes body, %(href="#{endereco}"),
+        "o link de #{chave} (#{endereco}) nao chegou ao rodape"
+    end
   end
 
   # aria-label da navegacao principal: rotula-la com t("nav.home") fazia o
