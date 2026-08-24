@@ -171,15 +171,23 @@ class CrtTest < Minitest::Test
       "a regra existe no fonte mas nao chegou ao CSS publicado")
   end
 
-  # No grid de duas colunas, sem grid-column a mensagem de erro se
-  # auto-posicionava onde sobrasse espaco — do lado do teclado, por exemplo.
-  def test_the_error_message_spans_the_whole_grid
-    grid = css[/@media \(min-width: 60rem\)(.*)\z/m, 1]
-    refute_nil grid, "nao encontrei o bloco do grid largo"
+  # Substitui um teste que guardava o `grid-column` da mensagem de erro no
+  # layout de duas colunas. Aquele grid deixou de existir: com tudo empilhado,
+  # a mensagem nao tem como se auto-posicionar ao lado do teclado, entao o
+  # guarda-corpo perdeu o objeto. O que ficou no lugar e a decisao que motivou
+  # a mudanca — a demo alinhada com o resto do conteudo.
+  def test_the_demo_does_not_break_out_of_the_content_width
+    regra = css[/\.demo-jsdos\s*\{([^}]*)\}/, 1].to_s
 
-    regra = grid[/\.demo-error[^{]*\{([^}]*)\}/, 1]
-    refute_nil regra, ".demo-error nao tem regra no grid largo"
-    assert_match(/grid-column:\s*1\s*\/\s*-1/, regra,
-      "a mensagem de erro precisa ocupar a largura toda, como a licenca")
+    refute_match(/margin-left:\s*calc\(\s*50%/, regra,
+      "a demo voltou a escapar da largura da pagina; ela deve acompanhar o " \
+      "resto do conteudo")
+    refute_match(/^\s*width:/, regra,
+      "largura fixa em .demo-jsdos tira a demo do fluxo da pagina")
+  end
+
+  def test_the_demo_stacks_the_game_above_its_controls
+    assert_match(/\.demo-jsdos\s*>\s*\*\s*\+\s*\*/, css,
+      "falta o espacamento vertical entre o jogo, os controles e os comandos")
   end
 end
