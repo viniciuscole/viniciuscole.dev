@@ -37,18 +37,46 @@ class AssetsTest < Minitest::Test
   # O projeto nao hospeda nenhum arquivo de fonte. Nomear uma fonte que so
   # existe na maquina de quem a instalou faz o site renderizar diferente para
   # esse visitante — e some para todos os outros.
+  # Uma fonte nomeada so vale se o visitante puder recebe-la: ou ela e uma
+  # familia do sistema, ou o site publica o arquivo dela. A segunda metade e
+  # derivada do que esta em disco, nao de uma lista que a gente mantem a mao —
+  # uma lista escrita por nos so consegue reprovar aquilo que ja lembramos.
   def test_font_stacks_only_name_fonts_the_site_can_actually_serve
     css = ROOT.join("frontend/styles/tokens.css").read
-    %w[--font-mono --font-body].each do |token|
+    servidas = system_font_families + self_hosted_font_families(css)
+
+    %w[--font-mono --font-body --font-display].each do |token|
       stack = css[/#{token}:([^;]*);/m, 1].to_s
       refute_empty stack, "token #{token} nao definido"
 
       named = stack.scan(/"([^"]+)"/).flatten
-      unhosted = named - system_font_families
+      unhosted = named - servidas
       assert_empty unhosted,
-        "#{token} nomeia fonte que o site nao hospeda: #{unhosted.join(', ')}"
+        "#{token} nomeia fonte que o site nao hospeda nem o sistema tem: " \
+        "#{unhosted.join(', ')}"
     end
     assert_includes css, "ui-monospace", "pilha monoespacada do sistema ausente"
+  end
+
+  # Toda fonte auto-hospedada precisa do arquivo publicado E da licenca ao
+  # lado. A Newsreader e OFL: distribui-la sem o texto da licenca seria
+  # descumprimento, do mesmo tipo que o aviso GPL do emulador cobre.
+  def test_self_hosted_fonts_are_published_with_their_licence
+    css = ROOT.join("frontend/styles/tokens.css").read
+    familias = self_hosted_font_families(css)
+    return if familias.empty?
+
+    css.scan(/src:\s*url\("([^"]+)"\)/).flatten.each do |caminho|
+      arquivo = output(caminho.sub(%r{\A/}, ""))
+      assert arquivo.file?, "a fonte #{caminho} nao foi publicada"
+      assert_operator arquivo.size, :>, 10_000,
+        "#{caminho} tem #{arquivo.size} bytes; nao parece um arquivo de fonte"
+    end
+
+    licencas = Dir.glob(OUTPUT.join("fonts/*OFL*")) +
+               Dir.glob(OUTPUT.join("fonts/*LICEN*"))
+    refute_empty licencas,
+      "ha fonte auto-hospedada (#{familias.join(', ')}) sem licenca publicada"
   end
 
   # Se o frontend nao foi compilado (ex.: esbuild falhou, ou rake check nao
@@ -81,7 +109,19 @@ class AssetsTest < Minitest::Test
   # nenhum. Qualquer outro nome entre aspas na pilha e uma fonte que o site
   # nao serve: ela aparece so para quem tiver instalado.
   def system_font_families
-    ["Segoe UI", "Helvetica Neue"]
+    [
+      "Segoe UI", "Helvetica Neue",
+      # Serifas de sistema usadas como fallback da Newsreader. Nenhuma esta em
+      # toda plataforma, e nao precisa estar: sao degraus de uma pilha que
+      # termina em `serif`, que existe em todas.
+      "Iowan Old Style", "Palatino Linotype", "SF Mono", "Liberation Mono",
+    ]
+  end
+
+  # Familias declaradas em @font-face no proprio CSS — ou seja, fontes que o
+  # site serve. Deriva do arquivo em vez de repetir uma lista.
+  def self_hosted_font_families(css)
+    css.scan(/@font-face\s*\{[^}]*?font-family:\s*"([^"]+)"/m).flatten.uniq
   end
 
   def external_loads(body)

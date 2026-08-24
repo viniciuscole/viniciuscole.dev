@@ -1,11 +1,9 @@
 *, *::before, *::after { box-sizing: border-box; }
 
-/* O `display` do agente do usuario para [hidden] e uma regra de folha
-   padrao: qualquer `display` declarado por nos ganha dela, com qualquer
-   especificidade. Foi o que aconteceu com a moldura da demo, que tem
-   `display: flex` e continuava na tela depois de receber hidden, com o
-   botao Jogar ja inerte. Vale para o site inteiro: `hidden` no HTML tem
-   que esconder. */
+/* O atributo hidden do HTML perde para qualquer `display` declarado no CSS,
+   por especificidade. Sem este !important, esconder um elemento por JavaScript
+   nao funciona em nada que tenha display proprio — foi assim que a moldura do
+   emulador continuava na tela depois do jogo carregar. */
 [hidden] { display: none !important; }
 
 body {
@@ -13,29 +11,59 @@ body {
   background: var(--bg);
   color: var(--fg);
   font-family: var(--font-body);
-  line-height: 1.6;
+  font-size: var(--texto-base);
+  line-height: 1.7;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 main {
   max-width: var(--measure);
   margin: 0 auto;
-  padding: calc(var(--space) * 3) var(--space);
+  padding: calc(var(--space) * 4) var(--space) calc(var(--space) * 6);
 }
 
 h1, h2, h3 {
-  font-family: var(--font-mono);
+  font-family: var(--font-display);
   font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: 1.25;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+  text-wrap: balance;
 }
 
-a { color: var(--accent); }
+h1 { font-size: var(--titulo-1); }
+h2 { font-size: var(--titulo-2); }
+h3 { font-size: var(--titulo-3); }
+
+/* Prosa respira numa medida menor que o container. Serifa em 74ch cansa;
+   em 64ch o olho acha a proxima linha sozinho. */
+p { max-width: var(--leitura); }
+
+a {
+  color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+a:hover { text-decoration-thickness: 2px; }
 
 a:focus-visible,
 button:focus-visible {
   outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
 
-code, pre { font-family: var(--font-mono); }
+code, pre {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+/* Regra fina em vez de caixa: o vocabulario do tema editorial e a linha,
+   nao o retangulo. */
+hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: calc(var(--space) * 3) 0;
+}
+
+img { max-width: 100%; height: auto; }
