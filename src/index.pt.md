@@ -7,7 +7,7 @@ permalink: /pt/
 
 <section class="card">
   <img class="card-photo"
-       src="/images/vinicius.svg"
+       src="/images/vinicius.jpeg"
        alt="<%= t("home.photo_alt") %>"
        width="400" height="400">
 
