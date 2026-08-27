@@ -4,16 +4,22 @@
 # patches, /out recebe os artefatos.
 set -euo pipefail
 
-# nullglob: achado ao rodar a prova por remocao da Task 2 (apagar o unico
-# patch e reconstruir). Sem nullglob, um /patches sem nenhum *.patch faz o
-# bash manter o padrao literal "*.patch" como unica iteracao do for, e o
-# git apply falha com "No such file or directory" -- a build quebra em vez
-# de fechar limpa e deixar so a bancada em navegador pegar a regressao.
-shopt -s nullglob
-
 cd /src
 
-for patch in /patches/*.patch; do
+# Diretorio de patches vazio nao e estado legitimo desta receita: sem o
+# 0001 o jogo aborta no primeiro quadro com "unsupported immediate mode 9"
+# (GL_POLYGON nao existe na emulacao de modo imediato do Emscripten). Falha
+# aqui, alto e com mensagem clara, em vez de deixar o git apply quebrar
+# depois com um criptico "No such file or directory" quando o glob
+# /patches/*.patch nao casa com nada.
+patches=(/patches/*.patch)
+if [ ! -e "${patches[0]}" ]; then
+  echo "ERRO: nenhum .patch em /patches. A receita nunca constroi sem patches --" >&2
+  echo "sem o 0001 o jogo aborta no primeiro quadro com 'unsupported immediate mode 9'." >&2
+  exit 1
+fi
+
+for patch in "${patches[@]}"; do
   echo "== aplicando $(basename "$patch")"
   # Sem --check antes: `git apply` ja falha inteiro ou nao aplica nada, e o
   # set -e derruba a build. Seguir sem o patch produziria um .wasm que aborta
