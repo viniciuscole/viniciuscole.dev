@@ -16,6 +16,7 @@ patches=(/patches/*.patch)
 if [ ! -e "${patches[0]}" ]; then
   echo "ERRO: nenhum .patch em /patches. A receita nunca constroi sem patches --" >&2
   echo "sem o 0001 o jogo aborta no primeiro quadro com 'unsupported immediate mode 9'." >&2
+  echo "restaure build/2d/0001-triangle-fan.patch (ou o patch que estiver faltando) antes de reconstruir." >&2
   exit 1
 fi
 

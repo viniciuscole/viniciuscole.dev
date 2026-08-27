@@ -44,6 +44,40 @@ async function alturaDoHeroi(page) {
   }, png)
 }
 
+// Centroide horizontal dos pixels do heroi. Medir a posicao dele, e nao o
+// quadro inteiro, e o que torna a afirmacao real: os sete oponentes da arena
+// andam e atiram sozinhos (enemiesCanWalk e enemiesCanShoot nascem true no
+// main.cpp), entao o quadro muda entre dois instantes quaisquer, com ou sem
+// teclado. Comparar quadros passaria com a entrada desligada. O centroide e
+// mais estavel que o pixel verde mais a esquerda porque as pernas do heroi
+// se animam ao andar.
+async function horizontalDoHeroi(page) {
+  const png = (await page.locator("#canvas").screenshot()).toString("base64")
+  return page.evaluate(async (b64) => {
+    const img = new Image()
+    img.src = "data:image/png;base64," + b64
+    await img.decode()
+    const c = document.createElement("canvas")
+    c.width = img.width
+    c.height = img.height
+    const ctx = c.getContext("2d")
+    ctx.drawImage(img, 0, 0)
+    const d = ctx.getImageData(0, 0, c.width, c.height).data
+    let soma = 0
+    let n = 0
+    for (let y = 0; y < c.height; y++) {
+      for (let x = 0; x < c.width; x++) {
+        const i = (y * c.width + x) * 4
+        if (d[i + 1] > 150 && d[i] < 100 && d[i + 2] < 100) {
+          soma += x
+          n++
+        }
+      }
+    }
+    return n ? soma / n : null
+  }, png)
+}
+
 async function quadro(page) {
   const png = await page.locator("#canvas").screenshot()
   return png.toString("base64")
@@ -94,18 +128,30 @@ async function pixelsNaoPretos(page) {
   await page.mouse.click(caixa.x + caixa.width / 2, caixa.y + caixa.height / 2)
   await page.waitForTimeout(400)
 
-  const parado = await quadro(page)
+  // Deslocamento horizontal medido cedo, perto do spawn: a camera acompanha
+  // o heroi e, depois de andar bastante, ele tende a ficar centralizado na
+  // tela e o deslocamento observado encolhe -- medir tarde tornaria a
+  // afirmacao instavel.
+  const xInicial = await horizontalDoHeroi(page)
   await page.keyboard.down("d")
   await page.waitForTimeout(1200)
   await page.keyboard.up("d")
   await page.waitForTimeout(300)
-  confere("a tecla d muda o quadro", (await quadro(page)) !== parado)
+  const xAposD = await horizontalDoHeroi(page)
+  confere(
+    "a tecla d desloca o heroi para a direita",
+    xInicial !== null && xAposD !== null && xAposD - xInicial > 20
+  )
 
   await page.keyboard.down("a")
   await page.waitForTimeout(600)
   await page.keyboard.up("a")
   await page.waitForTimeout(300)
-  confere("a tecla a muda o quadro", (await quadro(page)) !== parado)
+  const xAposA = await horizontalDoHeroi(page)
+  confere(
+    "a tecla a desloca o heroi para a esquerda",
+    xAposA !== null && xAposD !== null && xAposA < xAposD
+  )
 
   const chao = await alturaDoHeroi(page)
   await page.mouse.down({ button: "right" })
@@ -126,4 +172,4 @@ async function pixelsNaoPretos(page) {
   console.log("\ntudo verificado")
 })()
 
-module.exports = { alturaDoHeroi, quadro, pixelsNaoPretos, confere }
+module.exports = { alturaDoHeroi, horizontalDoHeroi, quadro, pixelsNaoPretos, confere }
