@@ -160,15 +160,14 @@ lido — resto de uma tentativa anterior ao enunciado.
 | 4 | Teclas de apresentação na página | Não expor nenhuma |
 | 5 | Menu de contexto | Suprimir sobre o canvas |
 | 6 | Pulo no `W` | Acrescentar, mantendo o botão direito |
-| 7 | `ESC` (hoje `exit(0)`) | **Proposta, pendente de revisão:** neutralizar |
+| 7 | `ESC` (hoje `exit(0)`) | Neutralizar |
 
 A decisão 6 é aditiva: o botão direito continua funcionando exatamente como o
 enunciado exige, então o port não perde conformidade — ganha uma alternativa
 confortável para quem joga em trackpad.
 
-A decisão 7 é a única que **remove** comportamento, e por isso é a única que
-proponho em vez de registrar como fechada. Detalhes e justificativa no patch
-`0003`.
+A decisão 7 é a única que **remove** comportamento, e por isso foi levantada
+separadamente antes de ser fechada. Detalhes e justificativa no patch `0003`.
 
 ## Arquitetura
 
@@ -252,8 +251,10 @@ A segunda mudança **neutraliza o `ESC`**, hoje `exit(0)` em `main.cpp`. Num
 executável de desktop sair é razoável; numa página não existe "sair", e um
 visitante que encoste no `ESC` fica com um canvas morto e nenhum caminho de
 volta além de recarregar. O `ESC` não é exigido pelo enunciado.
-**Ponto para sua revisão** — é a única mudança aqui que remove comportamento em
-vez de acrescentar.
+
+Esta é a única mudança dos três patches que remove comportamento em vez de
+acrescentar, e por isso foi decidida separadamente. O `case 27: exit(0);` sai do
+`switch` do `keyPress`; a tecla passa a não fazer nada.
 
 ### Front-end
 
