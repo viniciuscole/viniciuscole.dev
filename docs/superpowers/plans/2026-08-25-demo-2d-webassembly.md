@@ -535,14 +535,20 @@ Expected: cinco linhas `ok` e `tudo verificado`. Se o `GL_POLYGON` voltasse, a p
 
 - [ ] **Step 5: Provar que a bancada detecta a regressão que ela existe para pegar**
 
-Reverta o patch 0001 temporariamente e reconstrua:
+**Não apague o arquivo do patch.** Diretório de patches vazio não é estado legítimo desta receita — ela deve rejeitá-lo, alto, e o `build.sh` tem uma guarda para isso. Um build que fecha limpo sem patch nenhum produz exatamente o artefato quebrado que estamos tentando detectar.
+
+Em vez disso, faça o patch pedir o defeito de volta. Edite `build/2d/0001-triangle-fan.patch` trocando, na linha adicionada, `GL_TRIANGLE_FAN` por `GL_POLYGON`:
 
 ```bash
 cp build/2d/0001-triangle-fan.patch /tmp/0001.bak
-rm build/2d/0001-triangle-fan.patch
+sed -i 's/^+        glBegin(GL_TRIANGLE_FAN);/+        glBegin(GL_POLYGON);/' \
+    build/2d/0001-triangle-fan.patch
 rake demo2d:build && rake demo2d:verify
 ```
-Expected: `rake demo2d:verify` FALHA — o canvas fica preto e aparece `Aborted(unsupported immediate mode 9)`.
+
+O patch continua aplicando (o contexto não mudou) e a build fecha normalmente, mas o artefato produzido é o que aborta no primeiro quadro.
+
+Expected: `rake demo2d:build` termina bem, e `rake demo2d:verify` **FALHA** — o canvas fica preto e aparece `Aborted(unsupported immediate mode 9)`.
 
 Restaure:
 ```bash
@@ -551,7 +557,21 @@ rake demo2d:build && rake demo2d:verify
 ```
 Expected: verde.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 6: Provar a guarda de patches ausentes**
+
+```bash
+mv build/2d/0001-triangle-fan.patch /tmp/
+rake demo2d:build
+```
+Expected: FALHA com a mensagem explícita da guarda, não com um críptico `No such file or directory` do `git apply`.
+
+```bash
+mv /tmp/0001-triangle-fan.patch build/2d/
+rake demo2d:build
+```
+Expected: volta a construir.
+
+- [ ] **Step 7: Commit**
 
 ```bash
 git add build/2d/bench.html build/2d/verify.js Rakefile src/demos/2d-graphics/
