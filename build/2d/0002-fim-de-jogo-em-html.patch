@@ -1,5 +1,5 @@
 diff --git a/main.cpp b/main.cpp
-index d564b40..6b2d426 100644
+index d564b40..b71b07b 100644
 --- a/main.cpp
 +++ b/main.cpp
 @@ -11,6 +11,10 @@
@@ -13,47 +13,55 @@ index d564b40..6b2d426 100644
  int keyStatus[256];
  
  const GLint Width = 500;
-@@ -103,6 +107,13 @@ void restartGame()
+@@ -103,6 +107,15 @@ void restartGame()
      }
  }
  
++#ifdef __EMSCRIPTEN__
 +// Chamado pelo botao "jogar de novo" do overlay. Existe para o botao nao
 +// depender de disparar um KeyboardEvent sintetico -- foi exatamente ai que
 +// o teclado da demo do js-dos deu trabalho na Fase 2.
 +extern "C" EMSCRIPTEN_KEEPALIVE void reiniciarDoNavegador() {
 +    restartGame();
 +}
++#endif
 +
  void mouseClick(int button, int state, int x, int y)
  {
      if (button == GLUT_RIGHT_BUTTON) {
-@@ -171,11 +182,11 @@ void renderScene(void)
+@@ -171,11 +184,19 @@ void renderScene(void)
  
          // Desenha a mensagem de derrota
          glColor3f(1.0f, 1.0f, 1.0f);
--        glRasterPos2f(cameraX + 17, arena.height / 2 + 1);
--        const char* message = "Voce perdeu! Pressione R para reiniciar.";
--        for (const char* c = message; *c != '\0'; c++) {
--            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
--        }
++#ifdef __EMSCRIPTEN__
 +        // As fontes bitmap do GLUT nao existem no Emscripten. Onde o C++
 +        // desenhava texto no centro da tela, agora pede a pagina que mostre
 +        // texto no centro da tela -- traduzido e no tipo do site. Chamado a
 +        // cada quadro enquanto o jogo esta acabado: o lado JS e idempotente.
 +        EM_ASM({ if (window.__jogo2d) window.__jogo2d.fim($0); }, 0);
++#else
+         glRasterPos2f(cameraX + 17, arena.height / 2 + 1);
+         const char* message = "Voce perdeu! Pressione R para reiniciar.";
+         for (const char* c = message; *c != '\0'; c++) {
+             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+         }
++#endif
      }
      else if (gameOver && gameWon){
          glColor3f(0.0f, 0.0f, 0.0f);
-@@ -188,11 +199,7 @@ void renderScene(void)
+@@ -188,11 +209,15 @@ void renderScene(void)
  
          // Desenha a mensagem de derrota
          glColor3f(1.0f, 1.0f, 1.0f);
--        glRasterPos2f(cameraX + 17, arena.height / 2 + 1);
--        const char* message = "Voce venceu! Pressione R para reiniciar.";
--        for (const char* c = message; *c != '\0'; c++) {
--            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
--        }
++#ifdef __EMSCRIPTEN__
 +        EM_ASM({ if (window.__jogo2d) window.__jogo2d.fim($0); }, 1);
++#else
+         glRasterPos2f(cameraX + 17, arena.height / 2 + 1);
+         const char* message = "Voce venceu! Pressione R para reiniciar.";
+         for (const char* c = message; *c != '\0'; c++) {
+             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+         }
++#endif
      }
      else {
          renderArena(player, enemies, arena, obstacles);
