@@ -637,12 +637,28 @@ Em `build/2d/build.sh`, acrescente às flags do `em++`, antes de `-lGL`:
   -sEXPORTED_RUNTIME_METHODS='["ccall"]' \
 ```
 
-- [ ] **Step 3: Reconstruir**
+- [ ] **Step 3: Apagar o andaime do texto do GLUT**
+
+A Task 1 precisou criar `build/2d/glut-text-stubs.js`, um shim no-op para os três símbolos de fonte bitmap do GLUT (`glRasterPos2f`, `glutBitmapCharacter`, `glutBitmapHelvetica18`) que o Emscripten declara mas nunca implementa. Ele existia só para o link fechar enquanto o C++ ainda chamava essas funções.
+
+O patch 0002 remove essas chamadas. **A partir daqui o shim é peso morto e precisa sair:**
+
+```bash
+git rm build/2d/glut-text-stubs.js
+```
+
+E remova a flag `--js-library` correspondente do `build/2d/build.sh`.
+
+Isto não é limpeza cosmética. Mantido, o shim faria uma reintrodução futura de texto do GLUT **linkar em silêncio e não desenhar nada**, em vez de quebrar o link e avisar. O erro de link é a única coisa que sinaliza que aquela API não existe aqui.
+
+Se depois de remover os dois o `rake demo2d:build` falhar com `undefined symbol` em algum desses três nomes, então o patch 0002 não removeu todas as chamadas — procure a que sobrou em vez de devolver o shim.
+
+- [ ] **Step 4: Reconstruir**
 
 Run: `rake demo2d:build`
 Expected: sem erro.
 
-- [ ] **Step 4: Ensinar a bancada a receber o aviso**
+- [ ] **Step 5: Ensinar a bancada a receber o aviso**
 
 Em `build/2d/bench.html`, antes da chamada a `criarJogo2D`:
 
@@ -653,7 +669,7 @@ Em `build/2d/bench.html`, antes da chamada a `criarJogo2D`:
   }
 ```
 
-- [ ] **Step 5: Estender a verificação**
+- [ ] **Step 6: Estender a verificação**
 
 Em `build/2d/verify.js`, antes de `confere("nenhum erro de pagina", ...)`:
 
@@ -671,12 +687,12 @@ Em `build/2d/verify.js`, antes de `confere("nenhum erro de pagina", ...)`:
   confere("reiniciarDoNavegador devolve o jogo", depoisDoReinicio !== null)
 ```
 
-- [ ] **Step 6: Verificar**
+- [ ] **Step 7: Verificar**
 
 Run: `rake demo2d:verify`
 Expected: todas `ok`, incluindo as duas novas.
 
-- [ ] **Step 7: Provar que a nova verificação falha sem o patch**
+- [ ] **Step 8: Provar que a nova verificação falha sem o patch**
 
 ```bash
 mv build/2d/0002-fim-de-jogo-em-html.patch /tmp/0002.bak
@@ -690,7 +706,7 @@ rake demo2d:build && rake demo2d:verify
 ```
 Expected: verde.
 
-- [ ] **Step 8: Commit**
+- [ ] **Step 9: Commit**
 
 ```bash
 git add build/2d/ src/demos/2d-graphics/
