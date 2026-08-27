@@ -1199,7 +1199,10 @@ Entrega: a demo carrega sob clique, o menu de contexto não atrapalha o pulo, e 
 const TEMPO_LIMITE = 30000
 
 function iniciar(raiz) {
-  const base = raiz.dataset.wasmBase
+  // getAttribute, nao dataset.wasmBase: o nome do gancho aparece literal no
+  // codigo, e o teste que cobra "todo gancho emitido e lido por alguem"
+  // consegue enxerga-lo. Com dataset o nome vira camelCase e some.
+  const base = raiz.getAttribute("data-wasm-base")
   const quadro = raiz.querySelector("[data-wasm-frame]")
   const botao = raiz.querySelector("[data-wasm-start]")
   const tela = raiz.querySelector("[data-wasm-screen]")
@@ -1407,18 +1410,36 @@ Entrega: o casco comum às duas demos sai do `crt.css`, e a demo nova ganha esti
 - Consumes: as classes emitidas pelos dois partials.
 - Produces: `demo.css` passa a ser dono de `.demo`, `.demo-frame`, `.demo-start`, `.demo-weight`, `.demo-error`, `.demo-instructions`, `.demo-license`. `crt.css` fica só com o que é CRT.
 
-- [ ] **Step 1: Extrair o casco comum**
+- [ ] **Step 1: Escopar o que é CRT antes de mover qualquer coisa**
 
-Mova de `frontend/styles/crt.css` para um novo `frontend/styles/demo.css` as regras de `.demo`, `.demo-frame`, `.demo-start`, `.demo-weight`, `.demo-error`, `.demo-instructions` e `.demo-license`. Abra o arquivo com:
+**Faça isto primeiro.** Os dois partials emitem a classe `.demo-screen`. Hoje `crt.css` a estiliza sem escopo (proporção 4:3, fundo preto, borda, e as utilitárias do js-dos). Sem escopo, a demo nova herdaria o tratamento de CRT — que é justamente o que este trabalho não deve ter.
+
+Em `frontend/styles/crt.css`, prefixe com `.demo-jsdos` toda regra cujo seletor comece em `.demo-screen`:
+
+```css
+/* Antes */
+.demo-screen { aspect-ratio: 4 / 3; ... }
+.demo-screen .some-jsdos-utility { ... }
+
+/* Depois */
+.demo-jsdos .demo-screen { aspect-ratio: 4 / 3; ... }
+.demo-jsdos .demo-screen .some-jsdos-utility { ... }
+```
+
+A proporção 4:3 é do vídeo VGA do jogo DOS; este jogo é 1:1 por exigência do enunciado. Herdar 4:3 deformaria a arena.
+
+- [ ] **Step 2: Extrair o casco comum**
+
+Mova de `frontend/styles/crt.css` para um novo `frontend/styles/demo.css` as regras de `.demo`, `.demo-frame`, `.demo-start`, `.demo-weight`, `.demo-error`, `.demo-instructions` e `.demo-license`. Não mova nada de `.demo-screen` — ele acabou de virar CRT-específico no passo anterior. Abra o arquivo com:
 
 ```css
 /* Casco comum as duas demos do site. O que e tratamento de CRT — fosforo,
-   varredura, brilho — fica em crt.css e vale so para a demo do jogo DOS.
-   Este jogo aqui e OpenGL de 2024: fingir fosforo verde nele seria mentira
-   estetica. */
+   varredura, brilho, a proporcao 4:3 do VGA — fica em crt.css e vale so
+   para a demo do jogo DOS. Este jogo aqui e OpenGL de 2024: fingir fosforo
+   verde nele seria mentira estetica. */
 ```
 
-- [ ] **Step 2: Escrever o estilo da demo nova**
+- [ ] **Step 3: Escrever o estilo da demo nova**
 
 `frontend/styles/wasm-demo.css`:
 
@@ -1490,7 +1511,7 @@ Mova de `frontend/styles/crt.css` para um novo `frontend/styles/demo.css` as reg
 
 O overlay tem fundo preto próprio, então as cores do texto são fixas em vez de virem dos tokens do tema — `#ebe6dd` sobre `rgb(0 0 0 / 0.78)` dá contraste bem acima de 4.5:1 nos dois temas, e um `var(--fg)` claro sobre esse fundo falharia no tema claro.
 
-- [ ] **Step 3: Importar as folhas**
+- [ ] **Step 4: Importar as folhas**
 
 `frontend/styles/index.css`:
 
@@ -1503,7 +1524,7 @@ O overlay tem fundo preto próprio, então as cores do texto são fixas em vez d
 @import "./wasm-demo.css";
 ```
 
-- [ ] **Step 4: Corrigir o teste do CRT**
+- [ ] **Step 5: Corrigir o teste do CRT**
 
 Em `test/crt_test.rb`, o `test_every_class_the_demo_emits_has_styling` cobra do `crt.css` classes que agora vivem em `demo.css`. Reduza a lista às que continuam sendo CRT:
 
@@ -1516,7 +1537,7 @@ Em `test/crt_test.rb`, o `test_every_class_the_demo_emits_has_styling` cobra do 
   end
 ```
 
-- [ ] **Step 5: Escrever o teste das folhas de demo**
+- [ ] **Step 6: Escrever o teste das folhas de demo**
 
 `test/demo_styles_test.rb`:
 
@@ -1628,12 +1649,12 @@ class DemoStylesTest < Minitest::Test
 end
 ```
 
-- [ ] **Step 6: Construir e rodar**
+- [ ] **Step 7: Construir e rodar**
 
 Run: `npm run esbuild && bin/bridgetown build && rake minitest`
 Expected: PASS.
 
-- [ ] **Step 7: Provar que os testes falham**
+- [ ] **Step 8: Provar que os testes falham**
 
 Remova a linha `@import "./wasm-demo.css";` do `index.css`:
 
@@ -1642,7 +1663,7 @@ Expected: FAIL em `test_the_shared_shell_is_imported` e `test_the_styles_reach_t
 
 Desfaça e confirme verde.
 
-- [ ] **Step 8: Commit**
+- [ ] **Step 9: Commit**
 
 ```bash
 git add frontend/styles/ test/demo_styles_test.rb test/crt_test.rb
