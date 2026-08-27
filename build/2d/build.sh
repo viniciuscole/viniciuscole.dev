@@ -33,16 +33,18 @@ done
 # MODULARIZE evita que o modulo suba sozinho ao carregar o script, que e o
 # que permite carregar a demo so no clique.
 #
-# --js-library glut-text-stubs.js: o Emscripten declara glRasterPos2f,
-# glutBitmapCharacter e glutBitmapHelvetica18 nos headers de GL/GLUT mas nunca
-# implementa nenhuma das tres -- sem o shim o link falha com "undefined
-# symbol" antes de chegar ao navegador. Ver comentario no proprio arquivo.
+# EXPORTED_FUNCTIONS inclui _reiniciarDoNavegador (definida no patch 0002)
+# para o botao "jogar de novo" do overlay poder chamar Module.ccall sem
+# depender de disparar um KeyboardEvent sintetico. EXPORTED_RUNTIME_METHODS
+# expoe o proprio ccall no objeto do modulo.
 #
-# ANDAIME TEMPORARIO: quando uma tarefa posterior deste plano remover do C++
-# as chamadas a essas tres funcoes, apague junto o arquivo glut-text-stubs.js
-# e esta flag. Mantido depois disso, uma reintroducao futura de texto do
-# GLUT linkaria em silencio sem desenhar nada -- o erro de link e o unico
-# sinal de que essa API nao existe no Emscripten.
+# O patch 0002 tambem tira do C++ as chamadas a glRasterPos2f,
+# glutBitmapCharacter e glutBitmapHelvetica18 -- por isso nao ha mais
+# --js-library aqui. O Emscripten declara essas tres nos headers de GL/GLUT
+# mas nunca as implementa; se alguma chamada a elas for reintroduzida no
+# futuro, o link deve falhar com "undefined symbol" (e nao linkar em
+# silencio sem desenhar nada), que e o unico sinal de que essa API nao
+# existe aqui.
 em++ -std=c++11 -O2 \
   main.cpp arena.cpp tinyxml2.cpp character.cpp hero.cpp enemy.cpp shot.cpp \
   -sLEGACY_GL_EMULATION=1 \
@@ -50,8 +52,9 @@ em++ -std=c++11 -O2 \
   -sEXIT_RUNTIME=0 \
   -sMODULARIZE=1 \
   -sEXPORT_NAME=criarJogo2D \
+  -sEXPORTED_FUNCTIONS='["_main","_reiniciarDoNavegador"]' \
+  -sEXPORTED_RUNTIME_METHODS='["ccall"]' \
   -lGL -lglut \
-  --js-library /patches/glut-text-stubs.js \
   --preload-file arena_teste.svg \
   -o /out/jogo.js
 

@@ -160,6 +160,18 @@ async function pixelsNaoPretos(page) {
   await page.mouse.up({ button: "right" })
   confere("o botao direito levanta o heroi", pico !== null && chao !== null && pico < chao)
 
+  // '.' forca vitoria. E o caminho que desenhava texto no GLUT e agora
+  // avisa a pagina.
+  await page.keyboard.press(".")
+  await page.waitForTimeout(600)
+  const fim = await page.evaluate(() => window.__fim)
+  confere("o fim de jogo avisa a pagina com vitoria", fim === 1)
+
+  await page.evaluate(() => window.__modulo.ccall("reiniciarDoNavegador", null, [], []))
+  await page.waitForTimeout(600)
+  const depoisDoReinicio = await alturaDoHeroi(page)
+  confere("reiniciarDoNavegador devolve o jogo", depoisDoReinicio !== null)
+
   confere("nenhum erro de pagina", erros.length === 0)
   if (erros.length) console.error(erros.join("\n"))
 
