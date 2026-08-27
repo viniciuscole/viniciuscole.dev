@@ -160,6 +160,32 @@ async function pixelsNaoPretos(page) {
   await page.mouse.up({ button: "right" })
   confere("o botao direito levanta o heroi", pico !== null && chao !== null && pico < chao)
 
+  await page.waitForTimeout(2500)
+  const chaoW = await alturaDoHeroi(page)
+  await page.keyboard.down("w")
+  await page.waitForTimeout(900)
+  const picoW = await alturaDoHeroi(page)
+  await page.keyboard.up("w")
+  confere("a tecla W levanta o heroi", picoW !== null && picoW < chaoW)
+
+  // Toque curto: sobe menos que segurado. Medido durante a subida, nao
+  // depois de soltar -- um pulo cortado aterrissa em menos de 90ms e uma
+  // medicao tardia registra zero e parece falha quando nao e.
+  await page.waitForTimeout(2500)
+  await page.keyboard.down("w")
+  await page.waitForTimeout(120)
+  await page.keyboard.up("w")
+  await page.waitForTimeout(60)
+  const picoCurto = await alturaDoHeroi(page)
+  confere("segurar W sobe mais que tocar", picoW < picoCurto)
+
+  // ESC nao pode mais matar a demo.
+  await page.waitForTimeout(2500)
+  await page.keyboard.press("Escape")
+  await page.waitForTimeout(500)
+  const vivoDepoisDoEsc = await alturaDoHeroi(page)
+  confere("ESC nao encerra o jogo", vivoDepoisDoEsc !== null)
+
   // '.' forca vitoria. E o caminho que desenhava texto no GLUT e agora
   // avisa a pagina.
   await page.keyboard.press(".")

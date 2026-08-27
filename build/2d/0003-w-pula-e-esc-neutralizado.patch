@@ -1,0 +1,43 @@
+diff --git a/main.cpp b/main.cpp
+index b71b07b..c58cb87 100644
+--- a/main.cpp
++++ b/main.cpp
+@@ -254,6 +254,12 @@ void keyPress(unsigned char key, int x, int y)
+         case 'w':
+         case 'W':
+             keyStatus[(int)('w')] = 1;
++            // O enunciado exige o pulo no botao direito, e ele continua
++            // valendo. W e alternativa: em trackpad, segurar o botao direito
++            // enquanto se anda e mira e desconfortavel. jump() ja se protege
++            // com !isJumping && !isFalling, entao a repeticao de tecla ao
++            // segurar nao retriga o pulo.
++            player.jump();
+             break;
+         case 't':
+         case 'T':
+@@ -276,7 +282,13 @@ void keyPress(unsigned char key, int x, int y)
+             enemiesCanWalk = !enemiesCanWalk;
+             break;
+         case 27 :
++#ifndef __EMSCRIPTEN__
++            // Numa pagina nao existe "sair": quem encostasse no ESC ficaria
++            // com um canvas morto e nenhum caminho de volta alem de
++            // recarregar. Nativo mantem o comportamento original.
+             exit(0);
++#endif
++            break;
+     }
+     glutPostRedisplay();
+ }
+@@ -284,6 +296,11 @@ void keyPress(unsigned char key, int x, int y)
+ void keyup(unsigned char key, int x, int y)
+ {
+     keyStatus[(int)(key)] = 0;
++    // Soltar W corta o pulo, igual a soltar o botao direito. E o que da o
++    // controle de altura que o enunciado descreve.
++    if (key == 'w' || key == 'W') {
++        player.stopJump();
++    }
+     glutPostRedisplay();
+ }
+ 
