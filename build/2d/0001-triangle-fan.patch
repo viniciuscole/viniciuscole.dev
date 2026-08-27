@@ -1,0 +1,17 @@
+diff --git a/circle.h b/circle.h
+index a58a058..59c9ff9 100644
+--- a/circle.h
++++ b/circle.h
+@@ -14,7 +14,11 @@ struct Circle {
+     }
+     void draw() const {
+         glColor3f(color[0], color[1], color[2]);
+-        glBegin(GL_POLYGON);
++        // GL_POLYGON nao existe na emulacao de modo imediato do Emscripten:
++        // o runtime aborta com "unsupported immediate mode 9" no primeiro
++        // quadro. Para um poligono convexo o leque de triangulos desenha
++        // exatamente a mesma coisa.
++        glBegin(GL_TRIANGLE_FAN);
+         for (int i = 0; i < 360; i++) {
+             glVertex2f(cx + r * cos(i * M_PI / 180), cy + r * sin(i * M_PI / 180));
+         }

@@ -121,6 +121,40 @@ namespace :game do
   end
 end
 
+namespace :demo2d do
+  # SHA fixo, nao `main`. Um upstream que andou faria os patches aplicarem
+  # torto em silencio, e o resultado seria um .wasm que aborta no primeiro
+  # quadro em vez de um erro de build.
+  REPO_2D = "https://github.com/viniciuscole/2D-Computer-Graphics".freeze
+  SHA_2D  = "5910e9a0bf780dc739bc85cfe8a520851e7774cc".freeze
+
+  desc "Reconstroi o jogo 2D em WebAssembly a partir do fonte (exige Docker)"
+  task :build do
+    require "fileutils"
+    require "tmpdir"
+
+    destino = File.expand_path("src/demos/2d-graphics")
+    receita = File.expand_path("build/2d")
+
+    FileUtils.mkdir_p(destino)
+
+    Dir.mktmpdir do |tmp|
+      fonte = "#{tmp}/2d"
+      sh "git clone #{REPO_2D} #{fonte}"
+      sh "git -C #{fonte} checkout --detach #{SHA_2D}"
+      sh "docker build -t viniciuscole-2d-build #{receita}"
+      # Sem --user o container escreve os artefatos como root dentro do
+      # repositorio, e a proxima reconstrucao precisa de sudo.
+      sh "docker run --rm " \
+         "--user #{Process.uid}:#{Process.gid} " \
+         "-v #{fonte}:/src " \
+         "-v #{receita}:/patches:ro " \
+         "-v #{destino}:/out " \
+         "viniciuscole-2d-build"
+    end
+  end
+end
+
 #
 # Add your own Rake tasks here! You can use `environment` as a prerequisite
 # in order to write automations or other commands requiring a loaded site.
