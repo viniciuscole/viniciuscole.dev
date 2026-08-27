@@ -153,6 +153,62 @@ async function pixelsNaoPretos(page) {
     xAposA !== null && xAposD !== null && xAposA < xAposD
   )
 
+  // ESC nao pode mais matar a demo. Medir so a posicao do heroi apos o ESC
+  // nao bastaria: alturaDoHeroi/horizontalDoHeroi leem o que esta composto
+  // na tela AGORA, nao algo que dependa do laco principal continuar
+  // rodando de verdade. Duas checagens complementares abaixo, calibradas
+  // forcando de proposito o guard a regredir (trocando #ifndef
+  // __EMSCRIPTEN__ por #if 1 e reconstruindo) para confirmar que pegam o
+  // defeito:
+  //   - "ESC nao gera erro de pagina": e a que efetivamente falha quando o
+  //     guard regride. Sob -sEXIT_RUNTIME=0 (ver build.sh), exit(0) nao
+  //     interrompe o laco principal -- o requestAnimationFrame que o
+  //     Emscripten ja registrou continua rodando de qualquer jeito. O que
+  //     exit() faz de fato e lancar uma excecao ExitStatus nao capturada
+  //     dentro do handler de tecla, que vira um "pageerror" no navegador.
+  //   - "ESC nao encerra o jogo (ele ainda responde depois)": nao pegou o
+  //     defeito sozinha no teste forcado (o laco seguiu rodando e o heroi
+  //     seguiu andando mesmo com o exit(0) ativo, exatamente por causa do
+  //     EXIT_RUNTIME=0 acima) -- mas fica como segunda linha de defesa
+  //     caso o build mude para EXIT_RUNTIME=1 no futuro, cenario em que o
+  //     laco realmente pararia e essa seria a checagem que pegaria.
+  //
+  // Medido aqui, logo apos os testes de a/d e perto do spawn, pelo mesmo
+  // motivo do comentario acima deles: mais tarde na sequencia a camera ja
+  // recentralizou o heroi depois de ele andar bastante, e o deslocamento
+  // aparente por pixel encolhe.
+  await page.waitForTimeout(2500)
+  const errosAntesDoEsc = erros.length
+  await page.keyboard.press("Escape")
+  await page.waitForTimeout(500)
+
+  confere("ESC nao gera erro de pagina", erros.length === errosAntesDoEsc)
+
+  const antesDoAndar = await horizontalDoHeroi(page)
+  await page.keyboard.down("d")
+  await page.waitForTimeout(1000)
+  await page.keyboard.up("d")
+  await page.waitForTimeout(300)
+  const depoisDoAndar = await horizontalDoHeroi(page)
+
+  confere(
+    "ESC nao encerra o jogo (ele ainda responde depois)",
+    antesDoAndar !== null &&
+      depoisDoAndar !== null &&
+      depoisDoAndar > antesDoAndar + 20
+  )
+
+  // Devolve o heroi para perto de onde estava antes deste teste. Sem isso,
+  // o deslocamento extra empurra o heroi contra um obstaculo mais adiante
+  // na arena, o que trava o pulo dos testes seguintes (o heroi fica preso
+  // "caindo" contra a parede em vez de tocar o chao). Andar de volta com
+  // 'a' pelo mesmo tempo restaura a posicao que os testes de pulo abaixo
+  // ja validam.
+  await page.keyboard.down("a")
+  await page.waitForTimeout(1000)
+  await page.keyboard.up("a")
+  await page.waitForTimeout(300)
+
   const chao = await alturaDoHeroi(page)
   await page.mouse.down({ button: "right" })
   await page.waitForTimeout(900)
@@ -168,23 +224,24 @@ async function pixelsNaoPretos(page) {
   await page.keyboard.up("w")
   confere("a tecla W levanta o heroi", picoW !== null && picoW < chaoW)
 
-  // Toque curto: sobe menos que segurado. Medido durante a subida, nao
-  // depois de soltar -- um pulo cortado aterrissa em menos de 90ms e uma
-  // medicao tardia registra zero e parece falha quando nao e.
+  // Toque curto: sobe menos que segurado. Um pulo cortado aterrissa em menos
+  // de 90ms, entao uma unica medicao pontual (por exemplo 60ms depois de
+  // soltar) deixa so ~30ms de folga entre soltar e medir -- instavel num
+  // ambiente mais lento. Em vez de acertar o timing exato, amostramos
+  // alturaDoHeroi tres vezes seguidas logo apos soltar e usamos o menor y (o
+  // ponto mais alto atingido, que ocorre mais cedo, antes de o heroi comecar
+  // a cair de volta). Isso tira a dependencia do timing sem afrouxar a
+  // afirmacao.
   await page.waitForTimeout(2500)
   await page.keyboard.down("w")
   await page.waitForTimeout(120)
   await page.keyboard.up("w")
-  await page.waitForTimeout(60)
-  const picoCurto = await alturaDoHeroi(page)
+  const amostrasCurto = []
+  for (let i = 0; i < 3; i++) {
+    amostrasCurto.push(await alturaDoHeroi(page))
+  }
+  const picoCurto = Math.min(...amostrasCurto.filter((y) => y !== null))
   confere("segurar W sobe mais que tocar", picoW < picoCurto)
-
-  // ESC nao pode mais matar a demo.
-  await page.waitForTimeout(2500)
-  await page.keyboard.press("Escape")
-  await page.waitForTimeout(500)
-  const vivoDepoisDoEsc = await alturaDoHeroi(page)
-  confere("ESC nao encerra o jogo", vivoDepoisDoEsc !== null)
 
   // '.' forca vitoria. E o caminho que desenhava texto no GLUT e agora
   // avisa a pagina.
