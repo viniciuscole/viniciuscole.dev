@@ -153,6 +153,37 @@ namespace :demo2d do
          "viniciuscole-2d-build"
     end
   end
+
+  IMAGEM_PLAYWRIGHT = "mcr.microsoft.com/playwright:v1.56.0-noble".freeze
+
+  desc "Verifica em navegador de verdade que o jogo 2D desenha e responde (exige Docker)"
+  task :verify do
+    require "fileutils"
+    require "tmpdir"
+
+    receita = File.expand_path("build/2d")
+    artefatos = File.expand_path("src/demos/2d-graphics")
+
+    Dir.mktmpdir do |tmp|
+      # A bancada precisa dos artefatos e da pagina no mesmo diretorio, porque
+      # jogo.js busca jogo.wasm e jogo.data como irmaos.
+      FileUtils.cp(Dir["#{artefatos}/jogo.*"], tmp)
+      FileUtils.cp("#{receita}/bench.html", "#{tmp}/index.html")
+      FileUtils.cp("#{receita}/verify.js", tmp)
+
+      # python3 -m http.server, dentro do proprio container: a imagem
+      # mcr.microsoft.com/playwright:v1.56.0-noble ja traz Python 3.12 (e
+      # Node 22), entao nao ha necessidade de inventar um servidor em Node
+      # nem de rodar um processo a parte no host.
+      sh "docker run --rm --network host " \
+         "--user #{Process.uid}:#{Process.gid} " \
+         "-v #{tmp}:/work -w /work " \
+         "-e ALVO=http://localhost:4123/ " \
+         "#{IMAGEM_PLAYWRIGHT} " \
+         "bash -c 'npm install --silent playwright@1.56.0 && " \
+         "(python3 -m http.server 4123 &) && sleep 2 && node verify.js'"
+    end
+  end
 end
 
 #

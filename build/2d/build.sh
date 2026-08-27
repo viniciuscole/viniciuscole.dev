@@ -4,6 +4,13 @@
 # patches, /out recebe os artefatos.
 set -euo pipefail
 
+# nullglob: achado ao rodar a prova por remocao da Task 2 (apagar o unico
+# patch e reconstruir). Sem nullglob, um /patches sem nenhum *.patch faz o
+# bash manter o padrao literal "*.patch" como unica iteracao do for, e o
+# git apply falha com "No such file or directory" -- a build quebra em vez
+# de fechar limpa e deixar so a bancada em navegador pegar a regressao.
+shopt -s nullglob
+
 cd /src
 
 for patch in /patches/*.patch; do
