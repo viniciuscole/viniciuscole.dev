@@ -23,6 +23,12 @@ done
 # glutBitmapCharacter e glutBitmapHelvetica18 nos headers de GL/GLUT mas nunca
 # implementa nenhuma das tres -- sem o shim o link falha com "undefined
 # symbol" antes de chegar ao navegador. Ver comentario no proprio arquivo.
+#
+# ANDAIME TEMPORARIO: quando uma tarefa posterior deste plano remover do C++
+# as chamadas a essas tres funcoes, apague junto o arquivo glut-text-stubs.js
+# e esta flag. Mantido depois disso, uma reintroducao futura de texto do
+# GLUT linkaria em silencio sem desenhar nada -- o erro de link e o unico
+# sinal de que essa API nao existe no Emscripten.
 em++ -std=c++11 -O2 \
   main.cpp arena.cpp tinyxml2.cpp character.cpp hero.cpp enemy.cpp shot.cpp \
   -sLEGACY_GL_EMULATION=1 \

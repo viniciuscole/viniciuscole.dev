@@ -9,6 +9,15 @@
 // (ver main.cpp). Um no-op e suficiente para o link fechar e o jogo rodar;
 // o unico efeito colateral e o placar em texto nao aparecer na tela --
 // nao afeta fisica, colisao ou o restante do render em OpenGL.
+//
+// ANDAIME TEMPORARIO -- nao e para durar o projeto inteiro. Uma tarefa
+// posterior deste plano aplica um patch que remove do C++ as chamadas a
+// glRasterPos2f/glutBitmapCharacter/glutBitmapHelvetica18; quando isso
+// acontecer, apague este arquivo e a flag --js-library correspondente no
+// build.sh. Mantido depois disso, o shim faria uma reintroducao futura de
+// texto do GLUT linkar em silencio e nao desenhar nada, em vez de quebrar o
+// link e avisar -- o erro de link e o unico sinal de que essa API nao existe
+// no Emscripten.
 mergeInto(LibraryManager.library, {
   glRasterPos2f: function (x, y) {},
   glutBitmapCharacter: function (font, character) {},
