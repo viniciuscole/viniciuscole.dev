@@ -1,3 +1,13 @@
+/* A moldura de espera (antes de clicar Jogar) tem a forma do jogo que vai
+   aparecer nela: aqui e 1:1, a arena quadrada que o enunciado exige. O
+   casco comum em demo.css nao define proporcao nenhuma -- cada demo poe a
+   sua -- entao sem esta regra a moldura de espera ficaria sem forma fixa,
+   e mudaria de aspecto na cara do visitante ao trocar para o canvas
+   quadrado real. */
+.demo-wasm .demo-frame {
+  aspect-ratio: 1 / 1;
+}
+
 /* O canvas tem 500x500 fixos por exigencia do enunciado do trabalho, e o
    jogo nao trata resize. Entao nao se estica: centraliza-se, e em telas
    estreitas encolhe proporcionalmente com o proprio aspecto quadrado. */

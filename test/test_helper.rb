@@ -32,3 +32,23 @@ module OutputHelpers
     pages
   end
 end
+
+# Guardas de contraste WCAG usadas pelas duas suites de estilo (crt_test.rb
+# e demo_styles_test.rb). Viviam copiadas verbatim nos dois arquivos; aqui
+# em um so lugar para nao divergirem. Cada teste continua responsavel por
+# extrair a cor certa do CSS e decidir contra o que medir -- isto so faz a
+# conta.
+module ContrastHelpers
+  def relative_luminance(hex)
+    r, g, b = hex.delete("#").scan(/../).map { |c| c.to_i(16) / 255.0 }
+    r, g, b = [r, g, b].map { |c| c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055)**2.4 }
+    (0.2126 * r) + (0.7152 * g) + (0.0722 * b)
+  end
+
+  def contrast(hex_a, hex_b)
+    la = relative_luminance(hex_a)
+    lb = relative_luminance(hex_b)
+    lighter, darker = [la, lb].max, [la, lb].min
+    (lighter + 0.05) / (darker + 0.05)
+  end
+end

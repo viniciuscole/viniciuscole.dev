@@ -14,10 +14,11 @@
 }
 
 .demo-frame {
-  /* A proporcao 4:3 e a do modo VGA do jogo DOS, mas aqui e so a moldura de
-     espera (antes de Jogar): o canvas real da demo wasm, que precisa ser
-     quadrado, e escopado a parte em wasm-demo.css e nao herda isto. */
-  aspect-ratio: 4 / 3;
+  /* A proporcao da moldura de espera e a proporcao do jogo que vai aparecer
+     nela -- 4:3 do js-dos, 1:1 da demo wasm -- entao mora no arquivo de cada
+     demo (crt.css e wasm-demo.css), nao aqui. Sem isso a moldura de espera
+     ficaria sempre em 4:3, e a demo wasm mudaria de forma na cara do
+     visitante ao trocar da moldura para o canvas quadrado real. */
   width: 100%;
   background: #000;
   /* Linha fina em vez de moldura grossa arredondada: e o mesmo vocabulario

@@ -9,6 +9,14 @@
   --crt-phosphor: var(--vga-green);
 }
 
+/* A moldura de espera (antes de clicar Jogar) tem a forma do jogo que vai
+   aparecer nela: aqui e 4:3, o modo VGA 12h do DOS. Fica escopada por
+   demo, nao em demo.css -- o casco comum nao deveria carregar semantica de
+   video VGA que so faz sentido para esta demo. */
+.demo-jsdos .demo-frame {
+  aspect-ratio: 4 / 3;
+}
+
 .demo-jsdos .demo-screen {
   /* Bloco de contencao da arvore do js-dos, que se posiciona em absolute
      dentro dela. Tambem ancora a vinheta la embaixo. */

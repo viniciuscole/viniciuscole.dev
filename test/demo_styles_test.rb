@@ -2,6 +2,7 @@ require "test_helper"
 
 class DemoStylesTest < Minitest::Test
   include OutputHelpers
+  include ContrastHelpers
 
   def demo_css
     ROOT.join("frontend/styles/demo.css").read
@@ -72,20 +73,9 @@ class DemoStylesTest < Minitest::Test
   # Guarda de contraste, no molde de crt_test.rb. O overlay de fim de jogo
   # tem fundo preto proprio, entao suas cores sao fixas em vez de virem dos
   # tokens do tema -- e cor fixa e exatamente o que passa despercebido numa
-  # revisao. Le os valores do arquivo, nao copiados aqui.
-  def relative_luminance(hex)
-    r, g, b = hex.delete("#").scan(/../).map { |c| c.to_i(16) / 255.0 }
-    r, g, b = [r, g, b].map { |c| c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055)**2.4 }
-    (0.2126 * r) + (0.7152 * g) + (0.0722 * b)
-  end
-
-  def contrast(a, b)
-    la = relative_luminance(a)
-    lb = relative_luminance(b)
-    claro, escuro = [la, lb].max, [la, lb].min
-    (claro + 0.05) / (escuro + 0.05)
-  end
-
+  # revisao. Le os valores do arquivo, nao copiados aqui. `relative_luminance`
+  # e `contrast` vem de ContrastHelpers (test_helper.rb), compartilhado com
+  # crt_test.rb.
   def test_the_game_over_overlay_is_readable
     bloco = wasm_css[/\.demo-wasm\s+\.demo-over\s*\{(.*?)\}/m, 1]
     refute_nil bloco, "bloco .demo-wasm .demo-over nao encontrado"

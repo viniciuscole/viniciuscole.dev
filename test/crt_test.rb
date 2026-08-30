@@ -2,6 +2,7 @@ require "test_helper"
 
 class CrtTest < Minitest::Test
   include OutputHelpers
+  include ContrastHelpers
 
   def css
     ROOT.join("frontend/styles/crt.css").read
@@ -50,19 +51,6 @@ class CrtTest < Minitest::Test
     valor = block[/#{Regexp.escape(var_name)}:\s*(#[0-9a-fA-F]{6})/, 1]
     flunk "#{var_name} nao encontrado dentro de #{selector}" unless valor
     valor
-  end
-
-  def relative_luminance(hex)
-    r, g, b = hex.delete("#").scan(/../).map { |c| c.to_i(16) / 255.0 }
-    r, g, b = [r, g, b].map { |c| c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055)**2.4 }
-    (0.2126 * r) + (0.7152 * g) + (0.0722 * b)
-  end
-
-  def contrast(hex_a, hex_b)
-    la = relative_luminance(hex_a)
-    lb = relative_luminance(hex_b)
-    lighter, darker = [la, lb].max, [la, lb].min
-    (lighter + 0.05) / (darker + 0.05)
   end
 
   def test_text_over_the_page_background_meets_aa_contrast_in_both_themes
