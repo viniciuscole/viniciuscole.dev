@@ -28,6 +28,31 @@ class LocalesTest < Minitest::Test
       "chaves presentes em pt.yml e ausentes em en.yml: #{(pt - en).join(', ')}"
   end
 
+  # Renomear chaves de traducao falha em silencio: o Rails I18n devolve
+  # "translation missing: ..." dentro do HTML e o build passa. Este teste le
+  # os partials, extrai cada t("...") e cobra que a chave exista nos dois
+  # idiomas.
+  def test_every_translation_key_used_by_the_demo_partials_exists
+    tabelas = {
+      "en" => YAML.load_file(ROOT.join("src/_locales/en.yml")).fetch("en"),
+      "pt" => YAML.load_file(ROOT.join("src/_locales/pt.yml")).fetch("pt"),
+    }
+
+    Dir.glob(ROOT.join("src/_partials/demos/*.erb")).sort.each do |arquivo|
+      chaves = File.read(arquivo).scan(/\bt\("([a-z0-9_.]+)"/).flatten.uniq
+
+      chaves.each do |chave|
+        tabelas.each do |idioma, tabela|
+          valor = chave.split(".").reduce(tabela) do |nivel, parte|
+            nivel.is_a?(Hash) ? nivel[parte] : nil
+          end
+          refute_nil valor,
+            "#{File.basename(arquivo)} usa t(\"#{chave}\"), que nao existe em #{idioma}.yml"
+        end
+      end
+    end
+  end
+
   private
 
   # ["nav.home", "nav.projects", ...] a partir de um hash aninhado
