@@ -59,6 +59,28 @@ class WasmPartialTest < Minitest::Test
     end
   end
 
+  # A decisao do dono do site foi nao ter controles na tela nem detectar toque,
+  # justamente porque a legenda carregaria essa informacao. Sem este teste,
+  # uma edicao em qualquer uma das tres chaves do item de pulo faria a legenda
+  # parar de nomear os botoes do mouse sem nada acusar -- que foi exatamente o
+  # defeito corrigido aqui. Le o texto direto das tabelas de idioma (mesmo
+  # padrao de test/layout_test.rb#test_footer_shows_the_contact_links) para
+  # cobrar que a informacao chegue a pagina, nao qual e a redacao dela.
+  def test_the_legend_names_the_mouse_buttons_in_both_locales
+    { "en" => EN, "pt" => PT }.each do |idioma, pagina|
+      tabela = YAML.load_file(ROOT.join("src/_locales/#{idioma}.yml")).fetch(idioma)
+      controles = tabela.dig("demo", "wasm", "controls")
+      corpo = page_body(pagina)
+
+      %w[jump_mouse shoot aim].each do |chave|
+        texto = controles.fetch(chave)
+        assert_includes corpo, texto,
+          "a legenda de #{idioma} nao traz #{chave} (#{texto.inspect}) — " \
+          "o visitante fica sem saber qual botao do mouse usar"
+      end
+    end
+  end
+
   def test_the_page_credits_the_vendored_parser
     assert_includes page_body(EN), "tinyxml2"
   end
