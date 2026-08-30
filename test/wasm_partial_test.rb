@@ -40,14 +40,20 @@ class WasmPartialTest < Minitest::Test
 
   # As teclas n, t, l, virgula e ponto sao roteiro de apresentacao para a
   # banca, nao controles de jogo. Foi decidido nao expo-las.
+  #
+  # Varre a pagina inteira, nao um bloco isolado por regex: isolar
+  # `<div class="demo-instructions">.*?</div>` com regex nao-gulosa parava no
+  # primeiro `</div>` interno, entao envolver a lista numa div para estilizar
+  # faria o teste passar a ignorar o resto do bloco silenciosamente. Checar a
+  # pagina toda expressa a decisao real ("nao expor em lugar nenhum") sem
+  # depender da estrutura HTML.
   def test_the_presentation_shortcuts_are_not_documented_on_the_page
     [EN, PT].each do |pagina|
-      instrucoes = page_body(pagina)[/<div class="demo-instructions">.*?<\/div>/m]
-      refute_nil instrucoes, "#{pagina} nao tem o bloco de instrucoes"
+      corpo = page_body(pagina)
 
       ["<code>N</code>", "<code>T</code>", "<code>L</code>",
        "<code>,</code>", "<code>.</code>"].each do |tecla|
-        refute_includes instrucoes, tecla,
+        refute_includes corpo, tecla,
           "#{pagina} expoe #{tecla}, que e atalho de apresentacao e nao controle"
       end
     end

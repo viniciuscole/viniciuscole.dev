@@ -60,9 +60,10 @@ pt:
       controls:
         title: "Controles"
         walk: "andar"
-        jump: "segure para pular — quanto mais tempo, mais alto"
-        shoot: "atirar"
-        aim: "mova o mouse para mirar o braço"
+        jump_mouse: "Botão direito do mouse ou"
+        jump: "segure para pular; quanto mais tempo, mais alto"
+        shoot: "Botão esquerdo do mouse — atirar"
+        aim: "Mover o mouse — mirar o braço"
         restart: "recomeçar"
       over:
         won: "Você atravessou."

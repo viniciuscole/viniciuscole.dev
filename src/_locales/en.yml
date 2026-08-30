@@ -60,9 +60,10 @@ en:
       controls:
         title: "Controls"
         walk: "walk"
-        jump: "hold to jump — the longer you hold, the higher"
-        shoot: "shoot"
-        aim: "move the mouse to aim the arm"
+        jump_mouse: "Right mouse button or"
+        jump: "hold to jump; the longer you hold, the higher"
+        shoot: "Left mouse button — shoot"
+        aim: "Move the mouse — aim the arm"
         restart: "restart"
       over:
         won: "You made it across."
