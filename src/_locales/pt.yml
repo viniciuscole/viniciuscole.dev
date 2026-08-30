@@ -56,7 +56,7 @@ pt:
         quit: "Sair"
         cell: "Linha %{row}, coluna %{column}"
     wasm:
-      weight: "Carrega cerca de 380 KB de WebAssembly."
+      weight: "Carrega cerca de 380 KB: o jogo em WebAssembly, o carregador e a arena."
       controls:
         title: "Controles"
         walk: "andar"

@@ -56,7 +56,7 @@ en:
         quit: "Quit"
         cell: "Row %{row}, column %{column}"
     wasm:
-      weight: "Loads about 380 KB of WebAssembly."
+      weight: "Loads about 380 KB: the WebAssembly game, its loader and the arena."
       controls:
         title: "Controls"
         walk: "walk"
