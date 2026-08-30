@@ -1,0 +1,119 @@
+/* Casco comum as duas demos do site. O que e tratamento de CRT — fosforo,
+   varredura, brilho, a proporcao 4:3 do VGA — fica em crt.css e vale so
+   para a demo do jogo DOS. Este jogo aqui e OpenGL de 2024: fingir fosforo
+   verde nele seria mentira estetica. */
+
+.demo {
+  /* Antes do jogo carregar, o fundo da moldura de espera e sempre preto —
+     nos dois tipos de demo — independente do tema da pagina. O terracota
+     escuro do site (#8b3a2f) daria 2,75:1 sobre preto, abaixo de AA; a
+     variante clara do acento (a mesma do tema escuro) da 7,8:1, entao e ela
+     que a moldura usa, sempre. */
+  --demo-acento: #d98a6b;
+  margin: calc(var(--space) * 2) 0;
+}
+
+.demo-frame {
+  /* A proporcao 4:3 e a do modo VGA do jogo DOS, mas aqui e so a moldura de
+     espera (antes de Jogar): o canvas real da demo wasm, que precisa ser
+     quadrado, e escopado a parte em wasm-demo.css e nao herda isto. */
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  background: #000;
+  /* Linha fina em vez de moldura grossa arredondada: e o mesmo vocabulario
+     das regras que separam as secoes do resto do site. */
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.demo-start {
+  background: transparent;
+  border: 1px solid var(--demo-acento);
+  border-radius: var(--radius);
+  color: var(--demo-acento);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: var(--texto-meta);
+  letter-spacing: 0.12em;
+  padding: 0.75rem 1.75rem;
+  text-transform: uppercase;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.demo-start:hover,
+.demo-start:focus-visible {
+  background: var(--demo-acento);
+  color: #000;
+}
+
+/* O botao nasce desligado no HTML e so o player o liga. Quem esta sem
+   JavaScript ve que ele nao esta valendo, e o <noscript> ao lado diz onde
+   pegar o jogo. */
+.demo-start:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.demo-weight,
+.demo-license {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+}
+
+.demo-weight { margin: 0; }
+
+.demo-error {
+  border: 1px solid var(--vga-amber);
+  border-radius: var(--radius);
+  /* --vga-amber sozinho da 5.06:1 sobre --bg no tema claro (AA ok), mas cai
+     para 3.61:1 no escuro — e mesmo sobre um fundo preto solido fica em
+     4.01:1, ainda abaixo do AA de 4.5:1. Por isso --crt-warn (definido em
+     crt.css, que continua sendo o dono da paleta VGA) clareia so no escuro,
+     assim como --accent ja faz para o verde em tokens.css. */
+  color: var(--crt-warn, var(--vga-amber));
+  font-family: var(--font-mono);
+  padding: var(--space);
+}
+
+/* Os comandos viram um indice: rotulo em versalete monoespacada e cada linha
+   separada por regra fina, como as listagens de projeto e de posts. */
+.demo-instructions h2 {
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: var(--texto-meta);
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  margin: 0 0 var(--space);
+  padding-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.demo-instructions ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.demo-instructions li {
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: var(--texto-pequeno);
+  padding: 0.625rem 0;
+}
+
+.demo-instructions li:last-child { border-bottom: 0; }
+
+.demo-instructions code {
+  /* Texto sobre o fundo normal da pagina, nao sobre o preto de uma moldura —
+     usa --accent (5.57:1 claro / 8.84:1 escuro), o mesmo token ja calibrado
+     para AA em tokens.css, em vez de uma cor fixa do jogo. */
+  color: var(--accent);
+}

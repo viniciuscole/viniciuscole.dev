@@ -12,9 +12,8 @@ class CrtTest < Minitest::Test
   end
 
   def test_every_class_the_demo_emits_has_styling
-    %w[.demo-jsdos .demo-frame .demo-start .demo-weight .demo-screen
-       .demo-error .demo-instructions .demo-license
-       .demo-keypad .keypad-grid .keypad-marks .keypad-actions].each do |classe|
+    %w[.demo-jsdos .demo-screen .demo-keypad
+       .keypad-grid .keypad-marks .keypad-actions].each do |classe|
       assert_includes css, classe, "a classe #{classe} e emitida mas nao tem estilo"
     end
   end
@@ -110,20 +109,16 @@ class CrtTest < Minitest::Test
     body
   end
 
+  # .demo-instructions code e .demo-error migraram para demo.css na Task 8
+  # (viraram casco comum as duas demos); as mesmas asserções sobre eles
+  # vivem agora em demo_styles_test.rb. Aqui fica so o que continua sendo
+  # de fato CRT.
   def test_previously_broken_rules_now_use_the_aa_safe_tokens
-    instructions_code = rule_body('\.demo-instructions code')
-    assert_match(/color:\s*var\(--accent\)/, instructions_code,
-      ".demo-instructions code deveria usar --accent, nao --crt-phosphor cru")
-
     keypad_hover = rule_body(
       '\.demo-keypad button:hover,\s*\.demo-keypad button:focus-visible'
     )
     assert_match(/color:\s*var\(--accent\)/, keypad_hover,
       "hover/focus do teclado deveria usar --accent, nao --crt-phosphor cru")
-
-    demo_error = rule_body('\.demo-error')
-    assert_match(/color:\s*var\(--crt-warn/, demo_error,
-      ".demo-error deveria usar --crt-warn (com fallback para --vga-amber)")
   end
 
   # Estas classes sao do js-dos, nao nossas: elas vem no HTML que ele monta
