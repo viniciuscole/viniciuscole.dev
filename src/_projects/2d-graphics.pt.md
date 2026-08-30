@@ -18,7 +18,7 @@ retângulos pretos são obstáculos, o círculo verde marca onde o jogador
 começa e os vermelhos, os oponentes (sete deles). Os círculos servem só de
 posição e escala — cada personagem é desenhado inteiro a partir dali, com
 cabeça, tronco, braço articulado e duas pernas com quadril e joelho,
-animadas ao andar. O braço acompanha o mouse.
+animadas ao andar. O braço acompanha o mouse, e o botão esquerdo atira.
 
 A arena tem nove telas de largura; a janela quadrada acompanha o jogador na
 horizontal. O objetivo é atravessar da esquerda para a direita sem ser
@@ -42,11 +42,16 @@ As mensagens de fim de jogo eram desenhadas com fontes bitmap do GLUT, que
 o Emscripten também não tem. Elas viraram HTML sobre o canvas — o que, de
 quebra, as deixou traduzidas.
 
-Os dois pontos entram no código dentro de blocos `#ifdef __EMSCRIPTEN__`, o
-que deixou a compilação nativa intacta: o `make` do próprio trabalho ainda
-produz o executável `trabalhocg`, e ali as mensagens continuam desenhadas
-pelo GLUT, como sempre foram. O port não substituiu o original — ganhou um
-segundo alvo.
+Os dois pontos chegaram ao código de formas diferentes. A troca do
+`GL_POLYGON` é uma substituição direta, sem guarda nenhuma — inofensiva
+para o build nativo porque, como já dito, o leque de triângulos desenha o
+mesmo que o polígono para uma forma convexa. Já a troca das mensagens ficou
+dentro de um bloco `#ifdef __EMSCRIPTEN__ ... #else ... #endif`, preservando
+no `#else` o desenho original via GLUT.
+
+O `make` do próprio trabalho ainda produz o executável `trabalhocg` nativo,
+com as mensagens desenhadas como sempre foram. O port não substituiu o
+original — ganhou um segundo alvo, por dois caminhos diferentes.
 
 Fora isso, o jogo aqui é o mesmo que roda nativo: os cerca de 180 KB de
 WebAssembly desta página são o C++ do trabalho, compilado. Não há emulador
