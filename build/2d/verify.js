@@ -12,6 +12,11 @@ if (!ALVO) {
   process.exit(2)
 }
 
+// Bancada e pagina do site usam seletores de canvas diferentes: a bancada
+// serve um #canvas fixo, a pagina real usa [data-wasm-canvas]. Uma variavel
+// de ambiente deixa o mesmo script servir aos dois alvos.
+const CANVAS = process.env.CANVAS || "#canvas"
+
 const falhas = []
 function confere(descricao, condicao) {
   console.log(`${condicao ? "ok  " : "FALHA"} ${descricao}`)
@@ -23,7 +28,7 @@ function confere(descricao, condicao) {
 // preservado apos a composicao), entao o caminho correto e
 // screenshot -> <img> -> canvas 2D -> getImageData. Menor y = mais alto.
 async function alturaDoHeroi(page) {
-  const png = (await page.locator("#canvas").screenshot()).toString("base64")
+  const png = (await page.locator(CANVAS).screenshot()).toString("base64")
   return page.evaluate(async (b64) => {
     const img = new Image()
     img.src = "data:image/png;base64," + b64
@@ -52,7 +57,7 @@ async function alturaDoHeroi(page) {
 // mais estavel que o pixel verde mais a esquerda porque as pernas do heroi
 // se animam ao andar.
 async function horizontalDoHeroi(page) {
-  const png = (await page.locator("#canvas").screenshot()).toString("base64")
+  const png = (await page.locator(CANVAS).screenshot()).toString("base64")
   return page.evaluate(async (b64) => {
     const img = new Image()
     img.src = "data:image/png;base64," + b64
@@ -79,12 +84,12 @@ async function horizontalDoHeroi(page) {
 }
 
 async function quadro(page) {
-  const png = await page.locator("#canvas").screenshot()
+  const png = await page.locator(CANVAS).screenshot()
   return png.toString("base64")
 }
 
 async function pixelsNaoPretos(page) {
-  const png = (await page.locator("#canvas").screenshot()).toString("base64")
+  const png = (await page.locator(CANVAS).screenshot()).toString("base64")
   return page.evaluate(async (b64) => {
     const img = new Image()
     img.src = "data:image/png;base64," + b64
@@ -117,13 +122,32 @@ async function pixelsNaoPretos(page) {
   page.on("pageerror", (e) => erros.push(e.message))
 
   await page.goto(ALVO, { waitUntil: "load" })
-  await page.waitForSelector("#canvas", { timeout: 30000 })
-  await page.waitForFunction(() => window.__modulo !== undefined, { timeout: 60000 })
+
+  // Na pagina do site a demo carrega sob clique; na bancada ela ja sobe
+  // sozinha. Clicar se houver botao cobre os dois casos com um script so.
+  const comecar = page.locator("[data-wasm-start]")
+  if (await comecar.count()) {
+    await comecar.click()
+    await page.waitForSelector("[data-wasm-canvas]", { state: "visible", timeout: 30000 })
+  }
+
+  await page.waitForSelector(CANVAS, { timeout: 30000 })
+  // O canvas so ganha tamanho depois que o modulo sobe e o GLUT cria a
+  // janela. Serve para a bancada e para a pagina do site: window.__modulo e
+  // exclusivo da bancada, o player do site nao expoe o modulo de proposito.
+  await page.waitForFunction(
+    (sel) => {
+      const c = document.querySelector(sel)
+      return c && c.width > 0 && c.clientWidth > 0
+    },
+    CANVAS,
+    { timeout: 60000 }
+  )
   await page.waitForTimeout(2500)
 
   confere("o canvas desenha (pixels nao pretos)", (await pixelsNaoPretos(page)) > 1000)
 
-  const caixa = await page.locator("#canvas").boundingBox()
+  const caixa = await page.locator(CANVAS).boundingBox()
   await page.mouse.move(caixa.x + caixa.width / 2, caixa.y + caixa.height / 2)
   await page.mouse.click(caixa.x + caixa.width / 2, caixa.y + caixa.height / 2)
   await page.waitForTimeout(400)
@@ -244,16 +268,32 @@ async function pixelsNaoPretos(page) {
   confere("segurar W sobe mais que tocar", picoW < picoCurto)
 
   // '.' forca vitoria. E o caminho que desenhava texto no GLUT e agora
-  // avisa a pagina.
+  // avisa a pagina. Na bancada isso vira window.__fim; na pagina do site o
+  // sinal equivalente e o overlay HTML de fim de jogo ficar visivel.
   await page.keyboard.press(".")
   await page.waitForTimeout(600)
-  const fim = await page.evaluate(() => window.__fim)
-  confere("o fim de jogo avisa a pagina com vitoria", fim === 1)
+  const overlay = page.locator("[data-wasm-over]")
+  if (await overlay.count()) {
+    confere("o overlay de fim de jogo aparece", await overlay.isVisible())
+    const texto = await overlay.locator("[data-wasm-over-message]").textContent()
+    confere("o overlay traz uma mensagem", texto.trim().length > 0)
+  } else {
+    confere("o fim de jogo avisa a pagina com vitoria",
+            (await page.evaluate(() => window.__fim)) === 1)
+  }
 
-  await page.evaluate(() => window.__modulo.ccall("reiniciarDoNavegador", null, [], []))
+  // Reiniciar pelo botao quando ele existir cobre o caminho de verdade que o
+  // visitante clica na pagina do site; ccall direto e a porta dos fundos que
+  // sobra so para a bancada, que nao tem esse botao.
+  const botaoDnovo = page.locator("[data-wasm-restart]")
+  if (await botaoDnovo.count()) {
+    await botaoDnovo.click()
+  } else {
+    await page.evaluate(() => window.__modulo.ccall("reiniciarDoNavegador", null, [], []))
+  }
   await page.waitForTimeout(600)
   const depoisDoReinicio = await alturaDoHeroi(page)
-  confere("reiniciarDoNavegador devolve o jogo", depoisDoReinicio !== null)
+  confere("reiniciar devolve o jogo", depoisDoReinicio !== null)
 
   confere("nenhum erro de pagina", erros.length === 0)
   if (erros.length) console.error(erros.join("\n"))

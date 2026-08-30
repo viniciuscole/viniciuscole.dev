@@ -184,6 +184,35 @@ namespace :demo2d do
          "(python3 -m http.server 4123 &) && sleep 2 && node verify.js'"
     end
   end
+
+  namespace :verify do
+    desc "Verifica a demo na pagina do site de verdade (exige Docker e output/)"
+    task :site do
+      require "fileutils"
+
+      saida = File.expand_path("output")
+      receita = File.expand_path("build/2d")
+
+      unless File.directory?(saida)
+        raise "output/ nao existe — rode `bin/bridgetown build` primeiro."
+      end
+
+      FileUtils.cp("#{receita}/verify.js", saida)
+
+      begin
+        sh "docker run --rm --network host " \
+           "--user #{Process.uid}:#{Process.gid} " \
+           "-v #{saida}:/work -w /work " \
+           "-e ALVO=http://localhost:4124/projects/2d-graphics/ " \
+           "-e CANVAS=[data-wasm-canvas] " \
+           "#{IMAGEM_PLAYWRIGHT} " \
+           "bash -c 'npm install --silent playwright@1.56.0 && " \
+           "(python3 -m http.server 4124 &) && sleep 2 && node verify.js'"
+      ensure
+        FileUtils.rm_f("#{saida}/verify.js")
+      end
+    end
+  end
 end
 
 #
