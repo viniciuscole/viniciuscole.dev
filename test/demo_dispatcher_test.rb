@@ -120,4 +120,8 @@ class DemoDispatcherTest < Minitest::Test
 
     assert_equal "demos/none", Builders::DemoHelper.partial_for(resource)
   end
+
+  def test_wasm_is_a_known_demo_type
+    assert_includes Builders::DemoHelper::DEMO_TYPES, "wasm"
+  end
 end

@@ -1,0 +1,54 @@
+<% base = resource.data.dig(:demo, :base).to_s %>
+<section class="demo demo-wasm"
+         data-wasm
+         data-wasm-base="<%= base %>"
+         aria-label="<%= t("demo.label") %>">
+
+  <% if base.empty? %>
+    <p class="demo-error"><%= t("demo.missing_bundle") %></p>
+  <% else %>
+    <div class="demo-frame" data-wasm-frame>
+      <%# Nasce desligado: sem JavaScript o clique nao faz nada, e o player
+          liga o botao quando esta pronto para atender. %>
+      <button class="demo-start" type="button" data-wasm-start disabled>
+        <%= t("demo.start") %>
+      </button>
+      <p class="demo-weight"><%= t("demo.wasm.weight") %></p>
+      <noscript>
+        <p class="demo-weight">
+          <%= t("demo.noscript") %>
+          <a href="<%= resource.data.repo %>"><%= resource.data.repo.to_s.sub("https://", "") %></a>
+        </p>
+      </noscript>
+    </div>
+
+    <div class="demo-screen" data-wasm-screen hidden>
+      <canvas width="500" height="500" tabindex="0" data-wasm-canvas></canvas>
+
+      <%# O C++ desenhava esta mensagem no centro da tela com fontes bitmap
+          do GLUT. Aqui ela e HTML: traduzida e no tipo do site. %>
+      <div class="demo-over" data-wasm-over hidden>
+        <p data-wasm-over-message></p>
+        <button type="button" data-wasm-restart><%= t("demo.wasm.over.again") %></button>
+      </div>
+    </div>
+
+    <p class="demo-error" data-wasm-error hidden>
+      <%= t("demo.failed") %>
+      <a href="<%= resource.data.repo %>"><%= resource.data.repo.to_s.sub("https://", "") %></a>
+    </p>
+  <% end %>
+
+  <div class="demo-instructions">
+    <h2><%= t("demo.wasm.controls.title") %></h2>
+    <ul>
+      <li><code>A</code> <code>D</code> — <%= t("demo.wasm.controls.walk") %></li>
+      <li><%= t("demo.wasm.controls.jump") %> — <code>W</code></li>
+      <li><%= t("demo.wasm.controls.shoot") %></li>
+      <li><%= t("demo.wasm.controls.aim") %></li>
+      <li><code>R</code> — <%= t("demo.wasm.controls.restart") %></li>
+    </ul>
+  </div>
+
+  <p class="demo-license"><%= t("demo.wasm.credits") %></p>
+</section>
