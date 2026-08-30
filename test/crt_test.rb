@@ -169,8 +169,19 @@ class CrtTest < Minitest::Test
       "largura fixa em .demo-jsdos tira a demo do fluxo da pagina")
   end
 
+  # O espacamento vertical que empilha jogo, controles e comandos mudou de
+  # casa: era `.demo-jsdos > * + *` aqui, e virou `.demo > * + *` em demo.css
+  # quando o site ganhou uma segunda demo. Escopado por tipo, ele deixava a
+  # demo nova sem folga nenhuma — a legenda encostava na tela do jogo.
+  #
+  # A intencao deste teste nao mudou (a demo do jogo DOS continua empilhada,
+  # com espaco entre as partes); mudou so onde a regra mora. A cobranca fica
+  # em demo.css, e `test_child_spacing_applies_to_both_demos`, em
+  # demo_styles_test.rb, garante que ela nao volte a ser escopada por tipo.
   def test_the_demo_stacks_the_game_above_its_controls
-    assert_match(/\.demo-jsdos\s*>\s*\*\s*\+\s*\*/, css,
+    comum = ROOT.join("frontend/styles/demo.css").read
+
+    assert_match(/\.demo\s*>\s*\*\s*\+\s*\*/, comum,
       "falta o espacamento vertical entre o jogo, os controles e os comandos")
   end
 end

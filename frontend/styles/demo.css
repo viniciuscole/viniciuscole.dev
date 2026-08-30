@@ -13,6 +13,18 @@
   margin: calc(var(--space) * 2) 0;
 }
 
+/* Distancia entre a tela do jogo, a legenda de controles e os creditos.
+   Vale para os dois tipos de demo: espacamento entre os filhos e layout, nao
+   tratamento de CRT (fosforo, varredura e a proporcao 4:3 e que sao).
+
+   Ja esteve escopada em `.demo-jsdos`, e a demo wasm nasceu sem equivalente —
+   a legenda encostava na tela do jogo, sem folga nenhuma. Passou por 151
+   testes verdes e tres revisoes porque nenhum teste mede espaco vertical; so
+   apareceu ao olhar a pagina renderizada. Manter aqui, sem escopo de tipo. */
+.demo > * + * {
+  margin-top: calc(var(--space) * 1.5);
+}
+
 .demo-frame {
   /* A proporcao da moldura de espera e a proporcao do jogo que vai aparecer
      nela -- 4:3 do js-dos, 1:1 da demo wasm -- entao mora no arquivo de cada

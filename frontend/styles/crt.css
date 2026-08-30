@@ -205,15 +205,13 @@
   }
 }
 
-/* Tudo empilhado, em qualquer largura de tela: o jogo, depois os controles,
-   depois os comandos.
-
-   Ja houve aqui um layout de duas colunas com os comandos ao lado do
+/* Ja houve aqui um layout de duas colunas com os comandos ao lado do
    emulador. Ele obrigava o bloco todo a escapar da largura da pagina para o
    jogo nao ficar espremido, e o resultado era uma demo mais larga que o resto
    do conteudo — desalinhamento que incomoda mais do que o tamanho extra
    compensava. Empilhado, o emulador usa a largura inteira do `main`, que ja e
-   bem maior do que a fatia que ele tinha na grade. */
-.demo-jsdos > * + * { margin-top: calc(var(--space) * 1.5); }
+   bem maior do que a fatia que ele tinha na grade. O espacamento vertical
+   entre o jogo, os controles e os comandos e comum as duas demos, entao mora
+   em demo.css (`.demo > * + *`) -- nao e tratamento de CRT. */
 
 .demo-keypad { max-width: 26rem; }

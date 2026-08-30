@@ -16,6 +16,12 @@ class DemoStylesTest < Minitest::Test
     ROOT.join("frontend/styles/index.css").read
   end
 
+  # Lido aqui para cobrar que o espacamento entre filhos NAO volte a ser
+  # escopado por tipo de demo dentro do crt.css.
+  def crt_css
+    ROOT.join("frontend/styles/crt.css").read
+  end
+
   def test_the_shared_shell_is_imported
     assert_includes index_css, "demo.css"
     assert_includes index_css, "wasm-demo.css"
@@ -46,6 +52,30 @@ class DemoStylesTest < Minitest::Test
   def test_the_wasm_demo_does_not_borrow_the_crt_treatment
     refute_includes wasm_css, "--crt-phosphor"
     refute_includes wasm_css, "--vga-green"
+  end
+
+  # Guarda uma regressao que aconteceu de verdade: a regra que separa a tela do
+  # jogo da legenda de controles vivia escopada em `.demo-jsdos`, e a demo wasm
+  # nasceu sem equivalente — a legenda encostava na tela, sem folga.
+  #
+  # Nenhum teste desta suite mede espaco vertical, e nenhum vai: medir pixel
+  # exigiria navegador. O que da para cobrar honestamente e que a regra exista
+  # e alcance as duas demos, que e exatamente o que falhou. Um teste fraco que
+  # pega a regressao real vale mais que nenhum.
+  def test_child_spacing_applies_to_both_demos
+    regra = demo_css[/\.demo\s*>\s*\*\s*\+\s*\*\s*\{([^}]*)\}/m, 1]
+    refute_nil regra,
+      "demo.css nao tem regra de espacamento entre os filhos da demo — sem " \
+      "ela a legenda de controles encosta na tela do jogo"
+    assert_match(/margin-top/, regra,
+      "a regra de espacamento entre filhos nao define margin-top")
+
+    # Escopada a um tipo so, ela deixa a outra demo sem espacamento: foi
+    # assim que o defeito surgiu.
+    refute_match(/\.demo-(jsdos|wasm)\s*>\s*\*\s*\+\s*\*/, demo_css,
+      "o espacamento entre filhos nao pode ser escopado a um tipo de demo")
+    refute_match(/\.demo-jsdos\s*>\s*\*\s*\+\s*\*/, crt_css,
+      "crt.css voltou a escopar o espacamento entre filhos em .demo-jsdos")
   end
 
   # .demo-instructions e .demo-error saíram de crt.css nesta tarefa (viraram
