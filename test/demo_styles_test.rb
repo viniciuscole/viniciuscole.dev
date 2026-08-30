@@ -114,14 +114,27 @@ class DemoStylesTest < Minitest::Test
       "do minimo 3:1 da WCAG para indicador nao textual"
   end
 
+  # Deriva a(s) folha(s) publicada(s) do(s) <link> da propria pagina, em vez
+  # de pegar a primeira de um glob. Builds anteriores deixam CSS antigo em
+  # output/, e o glob pegaria um arquivo que ninguem serve -- o teste
+  # passaria mesmo que o CSS atual nao tivesse chegado ao bundle, que e
+  # justamente o que ele existe para pegar.
+  def published_stylesheets
+    corpo = page_body("projects/2d-graphics/index.html")
+    hrefs = corpo.scan(/<link[^>]+rel="stylesheet"[^>]+href="([^"]+\.css)"/).flatten
+    refute_empty hrefs, "a pagina nao linka nenhuma folha de estilo"
+
+    hrefs.map do |href|
+      caminho = OUTPUT.join(href.sub(%r{\A/}, ""))
+      assert caminho.file?, "a pagina linka #{href}, que nao existe em output/"
+      caminho.read
+    end.join
+  end
+
   # As folhas precisam chegar ao CSS publicado, nao so existir no fonte.
   # A build do esbuild ja publicou MISSING_ESBUILD_ASSET com a suite verde.
   def test_the_styles_reach_the_published_bundle
-    publicado = Dir.glob(OUTPUT.join("_bridgetown/static/*.css")).first
-    refute_nil publicado, "nenhum CSS publicado em output/_bridgetown/static/"
-
-    conteudo = File.read(publicado)
-    assert_includes conteudo, ".demo-wasm",
+    assert_includes published_stylesheets, ".demo-wasm",
       "wasm-demo.css nao chegou ao bundle publicado"
   end
 end
