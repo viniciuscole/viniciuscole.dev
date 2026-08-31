@@ -1,5 +1,5 @@
 diff --git a/main.cpp b/main.cpp
-index d564b40..b71b07b 100644
+index d564b40..2b08337 100644
 --- a/main.cpp
 +++ b/main.cpp
 @@ -11,6 +11,10 @@
@@ -13,23 +13,35 @@ index d564b40..b71b07b 100644
  int keyStatus[256];
  
  const GLint Width = 500;
-@@ -103,6 +107,15 @@ void restartGame()
+@@ -101,7 +105,27 @@ void restartGame()
+     for (auto& enemy : enemies) {
+         enemy.setEnemyAtObstacle(obstacles);
      }
- }
- 
++
++#ifdef __EMSCRIPTEN__
++    // Avisa a pagina que o jogo deixou de estar acabado. O C++ so chama
++    // window.__jogo2d.fim() a cada quadro ENQUANTO o jogo esta acabado;
++    // quando restartGame zera o estado ele simplesmente para de chamar, e
++    // nada avisava o JavaScript. Sem isto o overlay de fim de jogo ficava
++    // por cima mesmo depois de R reiniciar -- .demo-over cobre o canvas
++    // inteiro e nao tem pointer-events:none, entao atirar e pular pelo mouse
++    // ficavam mortos com o overlay no caminho.
++    EM_ASM({ if (window.__jogo2d && window.__jogo2d.jogando) window.__jogo2d.jogando(); });
++#endif
++}
++
 +#ifdef __EMSCRIPTEN__
 +// Chamado pelo botao "jogar de novo" do overlay. Existe para o botao nao
 +// depender de disparar um KeyboardEvent sintetico -- foi exatamente ai que
 +// o teclado da demo do js-dos deu trabalho na Fase 2.
 +extern "C" EMSCRIPTEN_KEEPALIVE void reiniciarDoNavegador() {
 +    restartGame();
-+}
+ }
 +#endif
-+
+ 
  void mouseClick(int button, int state, int x, int y)
  {
-     if (button == GLUT_RIGHT_BUTTON) {
-@@ -171,11 +184,19 @@ void renderScene(void)
+@@ -171,11 +195,19 @@ void renderScene(void)
  
          // Desenha a mensagem de derrota
          glColor3f(1.0f, 1.0f, 1.0f);
@@ -49,7 +61,7 @@ index d564b40..b71b07b 100644
      }
      else if (gameOver && gameWon){
          glColor3f(0.0f, 0.0f, 0.0f);
-@@ -188,11 +209,15 @@ void renderScene(void)
+@@ -188,11 +220,15 @@ void renderScene(void)
  
          // Desenha a mensagem de derrota
          glColor3f(1.0f, 1.0f, 1.0f);

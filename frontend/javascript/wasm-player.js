@@ -74,6 +74,31 @@ function iniciar(raiz) {
           mensagem.textContent = venceu ? textos.won : textos.lost
           fim.hidden = false
         },
+        // O C++ chama isto quando restartGame() zera o estado -- inclusive
+        // pelo atalho de teclado R, que nao passa pelo botao "jogar de novo"
+        // e portanto nunca escondia o overlay sozinho. Sem isto, apertar R
+        // deixava um jogo vivo debaixo de uma tela escura com pointer-events
+        // filtrando o mouse (.demo-over cobre o canvas inteiro).
+        jogando() {
+          if (fim) fim.hidden = true
+        },
+      }
+
+      // O GLUT do Emscripten escuta keydown/keyup na window em captura e da
+      // preventDefault em Tab, Enter e Espaco -- teclas que o jogo nao usa e a
+      // pagina precisa. Sem isto, a partir do clique em Jogar o visitante que
+      // navega por teclado fica preso no canvas: nao alcanca o rodape nem o
+      // botao de tema, e nem o "jogar de novo" do proprio overlay. Registrado
+      // ANTES de subir o modulo, este listener roda primeiro e as segura.
+      const TECLAS_DA_PAGINA = new Set(["Tab", "Enter", " "])
+      for (const tipo of ["keydown", "keyup"]) {
+        window.addEventListener(
+          tipo,
+          (evento) => {
+            if (TECLAS_DA_PAGINA.has(evento.key)) evento.stopImmediatePropagation()
+          },
+          true,
+        )
       }
 
       const script = document.createElement("script")
@@ -86,13 +111,13 @@ function iniciar(raiz) {
             // O main() do jogo le o caminho do SVG de argv[1]. No navegador
             // nao ha linha de comando; o Emscripten injeta os argumentos aqui.
             arguments: ["arena_teste.svg"],
-            // O loader gerado pelo Emscripten resolve o .data pelo caminho
-            // da PAGINA (window.location), nao pelo diretorio do proprio
-            // jogo.js. Sem isto o .data da 404 sempre que a pagina e o
-            // bundle moram em diretorios diferentes - que e sempre o nosso
-            // caso (pagina em /projects/..., bundle em /demos/...). O
-            // .wasm ja resolve certo por conta propria (usa o src do
-            // <script>), mas fornecer locateFile aqui nao muda isso.
+            // O loader gerado pelo Emscripten resolve o .data e o .wasm pelo
+            // caminho da PAGINA (window.location), nao pelo diretorio do
+            // proprio jogo.js -- `_scriptName` so vem preenchido em Node e em
+            // Worker, nao em uma <script> normal de pagina. Sem isto os dois
+            // dao 404 sempre que a pagina e o bundle moram em diretorios
+            // diferentes - que e sempre o nosso caso (pagina em
+            // /projects/..., bundle em /demos/...).
             locateFile: (nome) => `${diretorio}/${nome}`,
           })
           .then((modulo) => {

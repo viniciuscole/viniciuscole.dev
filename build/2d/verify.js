@@ -83,11 +83,6 @@ async function horizontalDoHeroi(page) {
   }, png)
 }
 
-async function quadro(page) {
-  const png = await page.locator(CANVAS).screenshot()
-  return png.toString("base64")
-}
-
 async function pixelsNaoPretos(page) {
   const png = (await page.locator(CANVAS).screenshot()).toString("base64")
   return page.evaluate(async (b64) => {
@@ -126,7 +121,8 @@ async function pixelsNaoPretos(page) {
   // Na pagina do site a demo carrega sob clique; na bancada ela ja sobe
   // sozinha. Clicar se houver botao cobre os dois casos com um script so.
   const comecar = page.locator("[data-wasm-start]")
-  if (await comecar.count()) {
+  const naPaginaDoSite = (await comecar.count()) > 0
+  if (naPaginaDoSite) {
     await comecar.click()
     await page.waitForSelector("[data-wasm-canvas]", { state: "visible", timeout: 30000 })
   }
@@ -264,8 +260,15 @@ async function pixelsNaoPretos(page) {
   for (let i = 0; i < 3; i++) {
     amostrasCurto.push(await alturaDoHeroi(page))
   }
+  // Math.min(...[]) devolve Infinity, e picoW < Infinity e verdadeiro -- a
+  // afirmacao passaria calada exatamente quando as tres amostras vierem
+  // null (heroi nao encontrado, jogo morto, detector quebrado). Exigir
+  // Number.isFinite fecha essa porta.
   const picoCurto = Math.min(...amostrasCurto.filter((y) => y !== null))
-  confere("segurar W sobe mais que tocar", picoW < picoCurto)
+  confere(
+    "segurar W sobe mais que tocar",
+    Number.isFinite(picoCurto) && picoW < picoCurto
+  )
 
   // '.' forca vitoria. E o caminho que desenhava texto no GLUT e agora
   // avisa a pagina. Na bancada isso vira window.__fim; na pagina do site o
@@ -277,6 +280,22 @@ async function pixelsNaoPretos(page) {
     confere("o overlay de fim de jogo aparece", await overlay.isVisible())
     const texto = await overlay.locator("[data-wasm-over-message]").textContent()
     confere("o overlay traz uma mensagem", texto.trim().length > 0)
+
+    // I1: a legenda anuncia R para reiniciar. Ate a correcao, o C++ so
+    // chamava window.__jogo2d.fim() enquanto o jogo estava acabado -- quando
+    // restartGame() zerava o estado ele simplesmente parava de chamar, e
+    // nada avisava o JavaScript. O overlay ficava por cima do canvas com o
+    // mouse morto (.demo-over cobre o canvas inteiro sem pointer-events:none,
+    // e o mousedown do GLUT filtra por event.target == canvas).
+    await page.keyboard.press("r")
+    await page.waitForTimeout(400)
+    confere("R esconde o overlay de fim de jogo", !(await overlay.isVisible()))
+
+    // R ja devolveu o jogo (gameOver volta a false), entao '.' forca vitoria
+    // de novo -- restaura o overlay visivel para o teste do botao "jogar de
+    // novo" logo abaixo, que espera encontra-lo.
+    await page.keyboard.press(".")
+    await page.waitForSelector("[data-wasm-over]", { state: "visible", timeout: 5000 })
   } else {
     confere("o fim de jogo avisa a pagina com vitoria",
             (await page.evaluate(() => window.__fim)) === 1)
@@ -292,8 +311,41 @@ async function pixelsNaoPretos(page) {
     await page.evaluate(() => window.__modulo.ccall("reiniciarDoNavegador", null, [], []))
   }
   await page.waitForTimeout(600)
-  const depoisDoReinicio = await alturaDoHeroi(page)
-  confere("reiniciar devolve o jogo", depoisDoReinicio !== null)
+  // alturaDoHeroi so cobrava que existisse ALGUM pixel verde -- um reinicio
+  // que deixasse o heroi perdido fora do spawn, ou a camera fora do lugar,
+  // passaria do mesmo jeito. horizontalDoHeroi comparado contra xInicial (a
+  // posicao medida logo no inicio, antes de qualquer movimento) cobra que o
+  // heroi e a camera realmente voltem para o spawn, na mesma margem de 20px
+  // usada pelas afirmacoes de movimento acima.
+  const depoisDoReinicio = await horizontalDoHeroi(page)
+  confere(
+    "reiniciar devolve o heroi e a camera para o spawn",
+    depoisDoReinicio !== null &&
+      xInicial !== null &&
+      Math.abs(depoisDoReinicio - xInicial) < 20
+  )
+
+  // C1: o GLUT do Emscripten escuta keydown/keyup na window em captura e da
+  // preventDefault em Tab -- tecla que o jogo nao usa e a pagina precisa.
+  // So faz sentido no alvo do site: e la que existem outros elementos
+  // focaveis (rodape, botao de tema, links). A bancada (bench.html) e uma
+  // pagina minima sem nenhum outro elemento tabulavel, e Tab sair do canvas
+  // para fora da pagina (document.activeElement vira <body>) nao provaria
+  // nada sobre a correcao -- aconteceria com ou sem o listener.
+  const outrosFocaveis = await page.evaluate((sel) => {
+    const candidatos = document.querySelectorAll("a[href], button, input, select, textarea, [tabindex]")
+    const canvasEl = document.querySelector(sel)
+    return Array.from(candidatos).filter((el) => el !== canvasEl && el.offsetParent !== null).length
+  }, CANVAS)
+  if (outrosFocaveis > 0) {
+    const canvasHandle = await page.locator(CANVAS).elementHandle()
+    await canvasHandle.focus()
+    await page.keyboard.press("Tab")
+    const saiuDoCanvas = await page.evaluate((canvasEl) => document.activeElement !== canvasEl, canvasHandle)
+    confere("Tab move o foco para fora do canvas (sem armadilha de teclado)", saiuDoCanvas)
+  } else {
+    console.log("info  pulando o teste de Tab: alvo sem outro elemento focavel (bancada)")
+  }
 
   confere("nenhum erro de pagina", erros.length === 0)
   if (erros.length) console.error(erros.join("\n"))
@@ -306,5 +358,3 @@ async function pixelsNaoPretos(page) {
   }
   console.log("\ntudo verificado")
 })()
-
-module.exports = { alturaDoHeroi, horizontalDoHeroi, quadro, pixelsNaoPretos, confere }
