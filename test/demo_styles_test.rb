@@ -3,6 +3,7 @@ require "test_helper"
 class DemoStylesTest < Minitest::Test
   include OutputHelpers
   include ContrastHelpers
+  include StylesheetHelpers
 
   def demo_css
     ROOT.join("frontend/styles/demo.css").read
@@ -132,23 +133,6 @@ class DemoStylesTest < Minitest::Test
     assert razao >= 3.0,
       "a borda do botao (#{borda}) tem contraste #{razao.round(2)}:1, abaixo " \
       "do minimo 3:1 da WCAG para indicador nao textual"
-  end
-
-  # Deriva a(s) folha(s) publicada(s) do(s) <link> da propria pagina, em vez
-  # de pegar a primeira de um glob. Builds anteriores deixam CSS antigo em
-  # output/, e o glob pegaria um arquivo que ninguem serve -- o teste
-  # passaria mesmo que o CSS atual nao tivesse chegado ao bundle, que e
-  # justamente o que ele existe para pegar.
-  def published_stylesheets
-    corpo = page_body("projects/2d-graphics/index.html")
-    hrefs = corpo.scan(/<link[^>]+rel="stylesheet"[^>]+href="([^"]+\.css)"/).flatten
-    refute_empty hrefs, "a pagina nao linka nenhuma folha de estilo"
-
-    hrefs.map do |href|
-      caminho = OUTPUT.join(href.sub(%r{\A/}, ""))
-      assert caminho.file?, "a pagina linka #{href}, que nao existe em output/"
-      caminho.read
-    end.join
   end
 
   # As folhas precisam chegar ao CSS publicado, nao so existir no fonte.

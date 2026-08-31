@@ -3,6 +3,7 @@ require "test_helper"
 class CrtTest < Minitest::Test
   include OutputHelpers
   include ContrastHelpers
+  include StylesheetHelpers
 
   def css
     ROOT.join("frontend/styles/crt.css").read
@@ -147,10 +148,7 @@ class CrtTest < Minitest::Test
       "base.css precisa de [hidden] { display: none !important }, senao o " \
       "display: flex de .demo-frame mantem a moldura na tela depois do boot")
 
-    publicado = Dir.glob(OUTPUT.join("_bridgetown/static/*.css"))
-                   .map { |arquivo| File.read(arquivo) }.join
-    refute_empty publicado, "nenhum CSS publicado"
-    assert_match(/\[hidden\][^{]*\{[^}]*display:\s*none\s*!important/, publicado,
+    assert_match(/\[hidden\][^{]*\{[^}]*display:\s*none\s*!important/, published_stylesheets,
       "a regra existe no fonte mas nao chegou ao CSS publicado")
   end
 
@@ -167,21 +165,5 @@ class CrtTest < Minitest::Test
       "resto do conteudo")
     refute_match(/^\s*width:/, regra,
       "largura fixa em .demo-jsdos tira a demo do fluxo da pagina")
-  end
-
-  # O espacamento vertical que empilha jogo, controles e comandos mudou de
-  # casa: era `.demo-jsdos > * + *` aqui, e virou `.demo > * + *` em demo.css
-  # quando o site ganhou uma segunda demo. Escopado por tipo, ele deixava a
-  # demo nova sem folga nenhuma — a legenda encostava na tela do jogo.
-  #
-  # A intencao deste teste nao mudou (a demo do jogo DOS continua empilhada,
-  # com espaco entre as partes); mudou so onde a regra mora. A cobranca fica
-  # em demo.css, e `test_child_spacing_applies_to_both_demos`, em
-  # demo_styles_test.rb, garante que ela nao volte a ser escopada por tipo.
-  def test_the_demo_stacks_the_game_above_its_controls
-    comum = ROOT.join("frontend/styles/demo.css").read
-
-    assert_match(/\.demo\s*>\s*\*\s*\+\s*\*/, comum,
-      "falta o espacamento vertical entre o jogo, os controles e os comandos")
   end
 end

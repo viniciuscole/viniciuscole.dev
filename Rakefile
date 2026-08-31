@@ -189,6 +189,7 @@ namespace :demo2d do
     desc "Verifica a demo na pagina do site de verdade (exige Docker e output/)"
     task :site do
       require "fileutils"
+      require "tmpdir"
 
       saida = File.expand_path("output")
       receita = File.expand_path("build/2d")
@@ -197,19 +198,25 @@ namespace :demo2d do
         raise "output/ nao existe — rode `bin/bridgetown build` primeiro."
       end
 
-      FileUtils.cp("#{receita}/verify.js", saida)
+      Dir.mktmpdir do |tmp|
+        FileUtils.cp("#{receita}/verify.js", tmp)
 
-      begin
+        # output/ entra so leitura (:ro) e o npm install roda num diretorio a
+        # parte: montar output/ como /work e instalar o playwright ali dentro
+        # deixava node_modules/, package.json e package-lock.json espalhados
+        # por cima do site gerado -- um `rake proof` avulso depois varreria
+        # HTML de dentro do node_modules. python3 -m http.server aceita
+        # --directory desde o 3.7, entao serve /site sem precisar copiar nada
+        # para dentro do diretorio de trabalho.
         sh "docker run --rm --network host " \
            "--user #{Process.uid}:#{Process.gid} " \
-           "-v #{saida}:/work -w /work " \
+           "-v #{saida}:/site:ro " \
+           "-v #{tmp}:/work -w /work " \
            "-e ALVO=http://localhost:4124/projects/2d-graphics/ " \
            "-e CANVAS=[data-wasm-canvas] " \
            "#{IMAGEM_PLAYWRIGHT} " \
            "bash -c 'npm install --silent playwright@1.56.0 && " \
-           "(python3 -m http.server 4124 &) && sleep 2 && node verify.js'"
-      ensure
-        FileUtils.rm_f("#{saida}/verify.js")
+           "(python3 -m http.server 4124 --directory /site &) && sleep 2 && node verify.js'"
       end
     end
   end

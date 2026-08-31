@@ -52,3 +52,24 @@ module ContrastHelpers
     (lighter + 0.05) / (darker + 0.05)
   end
 end
+
+# Deriva a(s) folha(s) publicada(s) do(s) <link> da propria pagina do jogo 2D,
+# em vez de pegar a primeira de um glob sobre output/. Builds anteriores
+# deixam CSS antigo em disco, e o glob pegaria um arquivo que ninguem serve --
+# o teste passaria mesmo que o CSS atual nao tivesse chegado ao bundle
+# publicado, que e justamente o que ele existe para pegar. Usado por
+# crt_test.rb e demo_styles_test.rb para as duas suites decidirem "CSS
+# publicado" da mesma forma.
+module StylesheetHelpers
+  def published_stylesheets
+    corpo = page_body("projects/2d-graphics/index.html")
+    hrefs = corpo.scan(/<link[^>]+rel="stylesheet"[^>]+href="([^"]+\.css)"/).flatten
+    refute_empty hrefs, "a pagina nao linka nenhuma folha de estilo"
+
+    hrefs.map do |href|
+      caminho = OUTPUT.join(href.sub(%r{\A/}, ""))
+      assert caminho.file?, "a pagina linka #{href}, que nao existe em output/"
+      caminho.read
+    end.join
+  end
+end

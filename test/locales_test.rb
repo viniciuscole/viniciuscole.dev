@@ -39,6 +39,8 @@ class LocalesTest < Minitest::Test
     }
 
     Dir.glob(ROOT.join("src/_partials/demos/*.erb")).sort.each do |arquivo|
+      # So enxerga t("...") com aspas duplas. t('...') ou t(:"...") passariam
+      # em silencio -- nao ha uso desses estilos hoje nos partials de demo.
       chaves = File.read(arquivo).scan(/\bt\("([a-z0-9_.]+)"/).flatten.uniq
 
       chaves.each do |chave|
