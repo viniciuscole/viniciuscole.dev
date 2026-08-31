@@ -2,6 +2,7 @@
 layout: post
 title: Porting DOS assembly to the browser
 locale: en
+slug: porting-dos-assembly-to-the-browser
 date: 2026-08-16
 ---
 
