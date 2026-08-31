@@ -46,12 +46,11 @@ class HomeTest < Minitest::Test
     assert_includes body, "Porting DOS assembly to the browser"
   end
 
-  def test_pt_home_lists_the_recent_posts_with_its_own_empty_state
+  def test_pt_home_lists_the_recent_posts_in_portuguese
     body = page_body("pt/index.html")
 
     assert_includes body, "Últimos posts"
-    # o unico post existe so em ingles; a home em portugues mostra o vazio
-    assert_includes body, "Nenhum post por aqui ainda"
+    assert_includes body, "Portando assembly de DOS para o navegador"
     refute_includes body, "Porting DOS assembly to the browser"
   end
 

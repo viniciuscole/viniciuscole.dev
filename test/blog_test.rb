@@ -13,11 +13,35 @@ class BlogTest < Minitest::Test
       "Porting DOS assembly to the browser"
   end
 
-  def test_portuguese_blog_shows_the_empty_state
-    # o post so existe em ingles, entao a listagem em portugues fica vazia
+  def test_portuguese_blog_lists_the_portuguese_post
     body = page_body("pt/blog/index.html")
+    assert_includes body, "Portando assembly de DOS para o navegador"
     refute_includes body, "Porting DOS assembly to the browser"
-    assert_includes body, "Nenhum post por aqui ainda"
+  end
+
+  # As duas traducoes sao arquivos distintos com o mesmo `slug` no front
+  # matter. Se o permalink deixasse de prefixar o locale, en e pt gravariam
+  # no mesmo caminho e uma sobrescreveria a outra em silencio -- o build
+  # continuaria passando com um dos idiomas simplesmente ausente.
+  def test_each_locale_gets_its_own_post_page
+    assert_page "2026/08/16/porting-dos-assembly-to-the-browser/index.html"
+    assert_page "pt/2026/08/16/porting-dos-assembly-to-the-browser/index.html"
+
+    assert_includes page_body("2026/08/16/porting-dos-assembly-to-the-browser/index.html"),
+      "Porting DOS assembly to the browser"
+    assert_includes page_body("pt/2026/08/16/porting-dos-assembly-to-the-browser/index.html"),
+      "Portando assembly de DOS para o navegador"
+  end
+
+  # O seletor de idioma acha a traducao por `resource.all_locales`, que pareia
+  # os recursos pelo `slug` do front matter. Sem o `slug` compartilhado ele cai
+  # para a home do outro idioma em vez de ir para o post correspondente.
+  def test_locale_switcher_links_each_post_to_its_translation
+    en = page_body("2026/08/16/porting-dos-assembly-to-the-browser/index.html")
+    pt = page_body("pt/2026/08/16/porting-dos-assembly-to-the-browser/index.html")
+
+    assert_includes en, 'href="/pt/2026/08/16/porting-dos-assembly-to-the-browser/"'
+    assert_includes pt, 'href="/2026/08/16/porting-dos-assembly-to-the-browser/"'
   end
 
   def test_post_page_has_semantic_structure
