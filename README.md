@@ -80,6 +80,36 @@ manual de propósito: o bundle tem 2,1 KB, é versionado e quase nunca muda,
 então nem o `check` nem o deploy precisam de Docker. Só quem mexe no assembly
 roda isto.
 
+    bundle exec rake demo2d:build
+
+Reconstrói o jogo 2D em WebAssembly (`src/demos/2d-graphics/jogo.{js,wasm,data}`,
+~380 KB somados) a partir do fonte em C++/OpenGL de
+`github.com/viniciuscole/2D-Computer-Graphics`, clonado num SHA fixo — não
+`main` — porque um upstream que andasse faria os patches aplicarem torto em
+silêncio, trocando um erro de build por um `.wasm` que aborta no primeiro
+quadro. Os três patches em `build/2d/*.patch` aplicam nessa ordem: `0001`
+troca `GL_POLYGON` por `GL_TRIANGLE_FAN` (a emulação de modo imediato do
+Emscripten não tem o primeiro); `0002` tira do C++ o desenho de texto do GLUT
+e o reinício por tecla, levando os dois para HTML/JavaScript; `0003`
+acrescenta W como atalho de pulo e neutraliza o ESC que antes encerrava o
+jogo. Exige Docker. Os artefatos gerados são versionados de propósito — quem
+clona o site não precisa de Docker para rodá-lo — então só quem mexe nos
+patches, no SHA ou no `build.sh` roda isto.
+
+    bundle exec rake demo2d:verify
+    bundle exec rake demo2d:verify:site
+
+Os dois rodam o mesmo `build/2d/verify.js` num Chromium de verdade (via
+Playwright, imagem `mcr.microsoft.com/playwright`), porque nenhum teste
+estático pega uma regressão de runtime do OpenGL emulado — a primeira
+compilação deste port linkou limpa e abortava no primeiro quadro. `verify`
+sobe uma bancada mínima (`build/2d/bench.html`) que serve os artefatos de um
+diretório plano; `verify:site` sobe a página real a partir de `output/`
+(rode `bin/bridgetown build` antes) e é o único capaz de pegar um
+descompasso de caminho entre página e bundle — em produção eles moram em
+diretórios diferentes (`/projects/...` e `/demos/...`), e a bancada, sendo
+plana, não reproduz essa classe de defeito. Os dois exigem Docker.
+
 ## Textos, metadados e tema
 
 Toda string de interface passa por `<%= t("chave") %>`, com a chave presente

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<title>Bancada — jogo 2D</title>
+<style>
+  body { background: #111; margin: 0; padding: 1rem;
+         font: 14px ui-monospace, monospace; color: #ddd; }
+  canvas { background: #000; display: block; }
+</style>
+</head>
+<body>
+  <canvas id="canvas" width="500" height="500" tabindex="1"></canvas>
+  <div id="estado">carregando</div>
+<script src="./jogo.js"></script>
+<script>
+  // Espelha o que o site faz: recebe o aviso de fim de jogo do C++.
+  window.__jogo2d = {
+    fim: function (venceu) { window.__fim = venceu },
+  }
+
+  // O main() do jogo le o caminho do SVG de argv[1]. No navegador nao ha
+  // linha de comando, entao o Emscripten injeta os argumentos aqui.
+  criarJogo2D({
+    canvas: document.getElementById("canvas"),
+    arguments: ["arena_teste.svg"],
+  }).then(function (mod) {
+    window.__modulo = mod
+    document.getElementById("estado").textContent = "pronto"
+  })
+</script>
+</body>
+</html>

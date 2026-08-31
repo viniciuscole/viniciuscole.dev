@@ -14,7 +14,7 @@
       <button class="demo-start" type="button" data-jsdos-start disabled>
         <%= t("demo.start") %>
       </button>
-      <p class="demo-weight"><%= t("demo.weight") %></p>
+      <p class="demo-weight"><%= t("demo.jsdos.weight") %></p>
       <noscript>
         <p class="demo-weight">
           <%= t("demo.noscript") %>
@@ -31,11 +31,11 @@
     </p>
 
     <div class="demo-keypad" data-jsdos-keypad hidden>
-      <h2><%= t("demo.keypad.title") %></h2>
+      <h2><%= t("demo.jsdos.keypad.title") %></h2>
 
       <div class="keypad-marks">
-        <button type="button" data-mark="X" aria-pressed="true"><%= t("demo.keypad.mark_x") %></button>
-        <button type="button" data-mark="C" aria-pressed="false"><%= t("demo.keypad.mark_c") %></button>
+        <button type="button" data-mark="X" aria-pressed="true"><%= t("demo.jsdos.keypad.mark_x") %></button>
+        <button type="button" data-mark="C" aria-pressed="false"><%= t("demo.jsdos.keypad.mark_c") %></button>
       </div>
 
       <div class="keypad-grid">
@@ -43,7 +43,7 @@
           <% (1..3).each do |coluna| %>
             <button type="button"
                     data-cell="<%= linha %><%= coluna %>"
-                    aria-label="<%= t("demo.keypad.cell", row: linha, column: coluna) %>">
+                    aria-label="<%= t("demo.jsdos.keypad.cell", row: linha, column: coluna) %>">
               <%= linha %><%= coluna %>
             </button>
           <% end %>
@@ -51,25 +51,25 @@
       </div>
 
       <div class="keypad-actions">
-        <button type="button" data-action="restart"><%= t("demo.keypad.restart") %></button>
-        <button type="button" data-action="quit"><%= t("demo.keypad.quit") %></button>
+        <button type="button" data-action="restart"><%= t("demo.jsdos.keypad.restart") %></button>
+        <button type="button" data-action="quit"><%= t("demo.jsdos.keypad.quit") %></button>
       </div>
     </div>
   <% end %>
 
   <div class="demo-instructions">
-    <h2><%= t("demo.commands.title") %></h2>
+    <h2><%= t("demo.jsdos.commands.title") %></h2>
     <ul>
-      <li><code>X11</code> — <%= t("demo.commands.x") %></li>
-      <li><code>C22</code> — <%= t("demo.commands.c") %></li>
-      <li><code>c</code> — <%= t("demo.commands.restart") %></li>
-      <li><code>s</code> — <%= t("demo.commands.quit") %></li>
+      <li><code>X11</code> — <%= t("demo.jsdos.commands.x") %></li>
+      <li><code>C22</code> — <%= t("demo.jsdos.commands.c") %></li>
+      <li><code>c</code> — <%= t("demo.jsdos.commands.restart") %></li>
+      <li><code>s</code> — <%= t("demo.jsdos.commands.quit") %></li>
     </ul>
   </div>
 
   <p class="demo-license">
-    <%= t("demo.license") %>
-    <a href="/vendor/js-dos/LICENSE.txt"><%= t("demo.license_text") %></a>
+    <%= t("demo.jsdos.license") %>
+    <a href="/vendor/js-dos/LICENSE.txt"><%= t("demo.jsdos.license_text") %></a>
     — <a href="https://github.com/caiiiycuk/js-dos">js-dos</a>,
     <a href="https://github.com/caiiiycuk/emulators">emulators</a>
   </p>

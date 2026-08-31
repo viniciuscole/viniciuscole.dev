@@ -1,19 +1,26 @@
-/* A pagina do jogo no vocabulario editorial do site: linha fina, tipo
-   monoespacado nos metadados, terracota como unico acento. O que continua
-   sendo DOS e so a tela de 640x480 la dentro — os pixels que o assembly
-   desenha. O site emoldura; o jogo fala. */
+/* Tratamento de CRT da demo do jogo em assembly (js-dos): fosforo verde,
+   moldura preta em 4:3 (proporcao do modo VGA 12h, 640x480), e as classes
+   utilitarias que a arvore do js-dos precisa dentro de .demo-screen. Nada
+   daqui vale para a demo em WebAssembly — ver wasm-demo.css. O casco comum
+   as duas demos (moldura de espera, botao Jogar, erros, instrucoes) mora em
+   demo.css. */
 
 .demo-jsdos {
-  /* Dentro da moldura o fundo e sempre preto, independente do tema da pagina.
-     O terracota escuro do site (#8b3a2f) daria 2,75:1 sobre preto, abaixo de
-     AA — entao a moldura usa a variante clara do acento, que da 7,8:1. */
-  --crt-acento: #d98a6b;
   --crt-phosphor: var(--vga-green);
-  margin: calc(var(--space) * 2) 0;
 }
 
-.demo-frame,
-.demo-screen {
+/* A moldura de espera (antes de clicar Jogar) tem a forma do jogo que vai
+   aparecer nela: aqui e 4:3, o modo VGA 12h do DOS. Fica escopada por
+   demo, nao em demo.css -- o casco comum nao deveria carregar semantica de
+   video VGA que so faz sentido para esta demo. */
+.demo-jsdos .demo-frame {
+  aspect-ratio: 4 / 3;
+}
+
+.demo-jsdos .demo-screen {
+  /* Bloco de contencao da arvore do js-dos, que se posiciona em absolute
+     dentro dela. Tambem ancora a vinheta la embaixo. */
+  position: relative;
   aspect-ratio: 4 / 3;           /* a proporcao do modo VGA 12h, 640x480 */
   width: 100%;
   background: #000;
@@ -21,63 +28,12 @@
      das regras que separam as secoes do resto do site. */
   border: 1px solid var(--border);
   border-radius: var(--radius);
-}
-
-.demo-frame {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-}
-
-.demo-start {
-  background: transparent;
-  border: 1px solid var(--crt-acento);
-  border-radius: var(--radius);
-  color: var(--crt-acento);
-  cursor: pointer;
-  font-family: var(--font-mono);
-  font-size: var(--texto-meta);
-  letter-spacing: 0.12em;
-  padding: 0.75rem 1.75rem;
-  text-transform: uppercase;
-  transition: background-color 120ms ease, color 120ms ease;
-}
-
-.demo-start:hover,
-.demo-start:focus-visible {
-  background: var(--crt-acento);
-  color: #000;
-}
-
-/* O botao nasce desligado no HTML e so o player o liga. Quem esta sem
-   JavaScript ve que ele nao esta valendo, e o <noscript> ao lado diz onde
-   pegar o jogo. */
-.demo-start:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-.demo-weight,
-.demo-license {
-  color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: 0.8125rem;
-}
-
-.demo-weight { margin: 0; }
-
-.demo-screen {
-  /* Bloco de contencao da arvore do js-dos, que se posiciona em absolute
-     dentro dela. Tambem ancora a vinheta la embaixo. */
-  position: relative;
   /* Qualquer texto que o js-dos desenhe aqui (carregando, erro dele) cai
      sobre o preto do CRT. */
   color: #ddd;
 }
 
-.demo-screen canvas {
+.demo-jsdos .demo-screen canvas {
   image-rendering: pixelated;    /* pixels quadrados, como no VGA */
   width: 100%;
   height: 100%;
@@ -103,40 +59,40 @@
 
    Entao ele nao e mais servido. As classes abaixo sao as que a arvore do modo
    kiosk realmente usa, lidas do js-dos.js, escopadas na tela do emulador. */
-.demo-screen .absolute { position: absolute; }
-.demo-screen .relative { position: relative; }
-.demo-screen .w-full { width: 100%; }
-.demo-screen .h-full { height: 100%; }
-.demo-screen .w-2 { width: 0.5rem; }
-.demo-screen .flex { display: flex; }
-.demo-screen .flex-row { flex-direction: row; }
-.demo-screen .flex-col { flex-direction: column; }
-.demo-screen .flex-grow { flex-grow: 1; }
-.demo-screen .flex-shrink-0 { flex-shrink: 0; }
-.demo-screen .items-start { align-items: flex-start; }
-.demo-screen .items-center { align-items: center; }
-.demo-screen .justify-start { justify-content: flex-start; }
-.demo-screen .justify-center { justify-content: center; }
-.demo-screen .overflow-auto { overflow: auto; }
-.demo-screen .overflow-hidden { overflow: hidden; }
-.demo-screen .bg-black { background-color: #000; }
-.demo-screen .m-auto { margin: auto; }
-.demo-screen .mt-2 { margin-top: 0.5rem; }
-.demo-screen .mt-8 { margin-top: 2rem; }
-.demo-screen .px-8 { padding-left: 2rem; padding-right: 2rem; }
-.demo-screen .text-center { text-align: center; }
-.demo-screen .text-sm { font-size: 0.875rem; }
+.demo-jsdos .demo-screen .absolute { position: absolute; }
+.demo-jsdos .demo-screen .relative { position: relative; }
+.demo-jsdos .demo-screen .w-full { width: 100%; }
+.demo-jsdos .demo-screen .h-full { height: 100%; }
+.demo-jsdos .demo-screen .w-2 { width: 0.5rem; }
+.demo-jsdos .demo-screen .flex { display: flex; }
+.demo-jsdos .demo-screen .flex-row { flex-direction: row; }
+.demo-jsdos .demo-screen .flex-col { flex-direction: column; }
+.demo-jsdos .demo-screen .flex-grow { flex-grow: 1; }
+.demo-jsdos .demo-screen .flex-shrink-0 { flex-shrink: 0; }
+.demo-jsdos .demo-screen .items-start { align-items: flex-start; }
+.demo-jsdos .demo-screen .items-center { align-items: center; }
+.demo-jsdos .demo-screen .justify-start { justify-content: flex-start; }
+.demo-jsdos .demo-screen .justify-center { justify-content: center; }
+.demo-jsdos .demo-screen .overflow-auto { overflow: auto; }
+.demo-jsdos .demo-screen .overflow-hidden { overflow: hidden; }
+.demo-jsdos .demo-screen .bg-black { background-color: #000; }
+.demo-jsdos .demo-screen .m-auto { margin: auto; }
+.demo-jsdos .demo-screen .mt-2 { margin-top: 0.5rem; }
+.demo-jsdos .demo-screen .mt-8 { margin-top: 2rem; }
+.demo-jsdos .demo-screen .px-8 { padding-left: 2rem; padding-right: 2rem; }
+.demo-jsdos .demo-screen .text-center { text-align: center; }
+.demo-jsdos .demo-screen .text-sm { font-size: 0.875rem; }
 /* Menor que o 1.5rem do Tailwind de proposito: o texto do js-dos aparece
    dentro de uma moldura de 4:3, nao numa tela cheia. */
-.demo-screen .text-2xl { font-size: 1.25rem; }
+.demo-jsdos .demo-screen .text-2xl { font-size: 1.25rem; }
 
 /* A imagem de fundo do js-dos nao e usada aqui (nao passamos `background`),
    mas o elemento existe: fica inerte. */
-.demo-screen .background-image { pointer-events: none; }
+.demo-jsdos .demo-screen .background-image { pointer-events: none; }
 
-.demo-screen .emulator-mouse-overlay { position: absolute; inset: 0; }
+.demo-jsdos .demo-screen .emulator-mouse-overlay { position: absolute; inset: 0; }
 
-.demo-screen .emulator-canvas {
+.demo-jsdos .demo-screen .emulator-canvas {
   image-rendering: pixelated;
   touch-action: none;            /* tocar a tela nao rola a pagina */
   -webkit-user-select: none;
@@ -148,22 +104,9 @@
    especificidade, entao quem vem por ultimo vence. Com inset a altura da
    arvore inteira passa a ser definida, sem depender de porcentagem resolvida
    contra o aspect-ratio do pai. */
-.demo-screen > [data-theme] {
+.demo-jsdos .demo-screen > [data-theme] {
   position: absolute;
   inset: 0;
-}
-
-.demo-error {
-  border: 1px solid var(--vga-amber);
-  border-radius: var(--radius);
-  /* --vga-amber sozinho da 5.06:1 sobre --bg no tema claro (AA ok), mas cai
-     para 3.61:1 no escuro — e mesmo sobre um fundo preto solido fica em
-     4.01:1, ainda abaixo do AA de 4.5:1. Por isso --crt-warn clareia so no
-     escuro (ver bloco :root[data-theme="dark"] abaixo), assim como --accent
-     ja faz para o verde em tokens.css. */
-  color: var(--crt-warn, var(--vga-amber));
-  font-family: var(--font-mono);
-  padding: var(--space);
 }
 
 :root[data-theme="dark"] {
@@ -174,43 +117,6 @@
   :root:not([data-theme="light"]) {
     --crt-warn: #ee7700;
   }
-}
-
-/* Os comandos viram um indice: rotulo em versalete monoespacada e cada linha
-   separada por regra fina, como as listagens de projeto e de posts. */
-.demo-instructions h2 {
-  border-bottom: 1px solid var(--border);
-  color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: var(--texto-meta);
-  font-weight: 400;
-  letter-spacing: 0.12em;
-  margin: 0 0 var(--space);
-  padding-bottom: 0.5rem;
-  text-transform: uppercase;
-}
-
-.demo-instructions ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.demo-instructions li {
-  border-bottom: 1px solid var(--border);
-  color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: var(--texto-pequeno);
-  padding: 0.625rem 0;
-}
-
-.demo-instructions li:last-child { border-bottom: 0; }
-
-.demo-instructions code {
-  /* Texto sobre o fundo normal da pagina, nao sobre o preto do CRT — usa
-     --accent (5.57:1 claro / 8.84:1 escuro), o mesmo verde ja calibrado
-     para AA em tokens.css, em vez do --crt-phosphor cru. */
-  color: var(--accent);
 }
 
 /* Os controles ficam centrados sob o jogo. Sem caixa em volta: uma regra fina
@@ -289,7 +195,7 @@
 /* A vinheta e o unico efeito puramente decorativo; some para quem pede
    menos movimento ou prefere menos ruido visual. */
 @media (prefers-reduced-motion: no-preference) {
-  .demo-screen::after {
+  .demo-jsdos .demo-screen::after {
     background: radial-gradient(ellipse at center,
                 transparent 60%, rgba(0, 0, 0, 0.35) 100%);
     content: "";
@@ -299,15 +205,13 @@
   }
 }
 
-/* Tudo empilhado, em qualquer largura de tela: o jogo, depois os controles,
-   depois os comandos.
-
-   Ja houve aqui um layout de duas colunas com os comandos ao lado do
+/* Ja houve aqui um layout de duas colunas com os comandos ao lado do
    emulador. Ele obrigava o bloco todo a escapar da largura da pagina para o
    jogo nao ficar espremido, e o resultado era uma demo mais larga que o resto
    do conteudo — desalinhamento que incomoda mais do que o tamanho extra
    compensava. Empilhado, o emulador usa a largura inteira do `main`, que ja e
-   bem maior do que a fatia que ele tinha na grade. */
-.demo-jsdos > * + * { margin-top: calc(var(--space) * 1.5); }
+   bem maior do que a fatia que ele tinha na grade. O espacamento vertical
+   entre o jogo, os controles e os comandos e comum as duas demos, entao mora
+   em demo.css (`.demo > * + *`) -- nao e tratamento de CRT. */
 
 .demo-keypad { max-width: 26rem; }

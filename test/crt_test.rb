@@ -2,6 +2,8 @@ require "test_helper"
 
 class CrtTest < Minitest::Test
   include OutputHelpers
+  include ContrastHelpers
+  include StylesheetHelpers
 
   def css
     ROOT.join("frontend/styles/crt.css").read
@@ -12,9 +14,8 @@ class CrtTest < Minitest::Test
   end
 
   def test_every_class_the_demo_emits_has_styling
-    %w[.demo-jsdos .demo-frame .demo-start .demo-weight .demo-screen
-       .demo-error .demo-instructions .demo-license
-       .demo-keypad .keypad-grid .keypad-marks .keypad-actions].each do |classe|
+    %w[.demo-jsdos .demo-screen .demo-keypad
+       .keypad-grid .keypad-marks .keypad-actions].each do |classe|
       assert_includes css, classe, "a classe #{classe} e emitida mas nao tem estilo"
     end
   end
@@ -51,19 +52,6 @@ class CrtTest < Minitest::Test
     valor = block[/#{Regexp.escape(var_name)}:\s*(#[0-9a-fA-F]{6})/, 1]
     flunk "#{var_name} nao encontrado dentro de #{selector}" unless valor
     valor
-  end
-
-  def relative_luminance(hex)
-    r, g, b = hex.delete("#").scan(/../).map { |c| c.to_i(16) / 255.0 }
-    r, g, b = [r, g, b].map { |c| c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055)**2.4 }
-    (0.2126 * r) + (0.7152 * g) + (0.0722 * b)
-  end
-
-  def contrast(hex_a, hex_b)
-    la = relative_luminance(hex_a)
-    lb = relative_luminance(hex_b)
-    lighter, darker = [la, lb].max, [la, lb].min
-    (lighter + 0.05) / (darker + 0.05)
   end
 
   def test_text_over_the_page_background_meets_aa_contrast_in_both_themes
@@ -110,20 +98,16 @@ class CrtTest < Minitest::Test
     body
   end
 
+  # .demo-instructions code e .demo-error migraram para demo.css na Task 8
+  # (viraram casco comum as duas demos); as mesmas asserções sobre eles
+  # vivem agora em demo_styles_test.rb. Aqui fica so o que continua sendo
+  # de fato CRT.
   def test_previously_broken_rules_now_use_the_aa_safe_tokens
-    instructions_code = rule_body('\.demo-instructions code')
-    assert_match(/color:\s*var\(--accent\)/, instructions_code,
-      ".demo-instructions code deveria usar --accent, nao --crt-phosphor cru")
-
     keypad_hover = rule_body(
       '\.demo-keypad button:hover,\s*\.demo-keypad button:focus-visible'
     )
     assert_match(/color:\s*var\(--accent\)/, keypad_hover,
       "hover/focus do teclado deveria usar --accent, nao --crt-phosphor cru")
-
-    demo_error = rule_body('\.demo-error')
-    assert_match(/color:\s*var\(--crt-warn/, demo_error,
-      ".demo-error deveria usar --crt-warn (com fallback para --vga-amber)")
   end
 
   # Estas classes sao do js-dos, nao nossas: elas vem no HTML que ele monta
@@ -164,10 +148,7 @@ class CrtTest < Minitest::Test
       "base.css precisa de [hidden] { display: none !important }, senao o " \
       "display: flex de .demo-frame mantem a moldura na tela depois do boot")
 
-    publicado = Dir.glob(OUTPUT.join("_bridgetown/static/*.css"))
-                   .map { |arquivo| File.read(arquivo) }.join
-    refute_empty publicado, "nenhum CSS publicado"
-    assert_match(/\[hidden\][^{]*\{[^}]*display:\s*none\s*!important/, publicado,
+    assert_match(/\[hidden\][^{]*\{[^}]*display:\s*none\s*!important/, published_stylesheets,
       "a regra existe no fonte mas nao chegou ao CSS publicado")
   end
 
@@ -184,10 +165,5 @@ class CrtTest < Minitest::Test
       "resto do conteudo")
     refute_match(/^\s*width:/, regra,
       "largura fixa em .demo-jsdos tira a demo do fluxo da pagina")
-  end
-
-  def test_the_demo_stacks_the_game_above_its_controls
-    assert_match(/\.demo-jsdos\s*>\s*\*\s*\+\s*\*/, css,
-      "falta o espacamento vertical entre o jogo, os controles e os comandos")
   end
 end

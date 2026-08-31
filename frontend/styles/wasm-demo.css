@@ -1,0 +1,73 @@
+/* A moldura de espera (antes de clicar Jogar) tem a forma do jogo que vai
+   aparecer nela: aqui e 1:1, a arena quadrada que o enunciado exige. O
+   casco comum em demo.css nao define proporcao nenhuma -- cada demo poe a
+   sua -- entao sem esta regra a moldura de espera ficaria sem forma fixa,
+   e mudaria de aspecto na cara do visitante ao trocar para o canvas
+   quadrado real. */
+.demo-wasm .demo-frame {
+  aspect-ratio: 1 / 1;
+}
+
+/* O canvas tem 500x500 fixos por exigencia do enunciado do trabalho, e o
+   jogo nao trata resize. Entao nao se estica: centraliza-se, e em telas
+   estreitas encolhe proporcionalmente com o proprio aspecto quadrado. */
+.demo-wasm .demo-screen {
+  position: relative;
+  max-width: 500px;
+  margin-inline: auto;
+}
+
+.demo-wasm canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  background: #000;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  image-rendering: pixelated;
+}
+
+/* A mensagem de fim de jogo. O C++ desenhava isto no centro da tela com
+   fonte bitmap; aqui ela e HTML, entao herda o tipo e o idioma do site. */
+.demo-wasm .demo-over {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space);
+  background: rgb(0 0 0 / 0.78);
+  color: #ebe6dd;
+  text-align: center;
+  border-radius: var(--radius);
+}
+
+.demo-wasm .demo-over p {
+  margin: 0;
+  max-width: 28ch;
+  font-family: var(--font-display);
+  font-size: var(--titulo-2);
+}
+
+.demo-wasm .demo-over button {
+  font: inherit;
+  font-size: var(--texto-pequeno);
+  padding: 0.5em 1.2em;
+  color: #ebe6dd;
+  background: transparent;
+  border: 1px solid #9a9186;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.demo-wasm .demo-over button:hover,
+.demo-wasm .demo-over button:focus-visible {
+  border-color: var(--accent);
+}
+
+.demo-wasm .demo-instructions {
+  max-width: 32rem;
+  margin-inline: auto;
+}

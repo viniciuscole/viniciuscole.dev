@@ -121,6 +121,107 @@ namespace :game do
   end
 end
 
+namespace :demo2d do
+  # SHA fixo, nao `main`. Um upstream que andou faria os patches aplicarem
+  # torto em silencio, e o resultado seria um .wasm que aborta no primeiro
+  # quadro em vez de um erro de build.
+  REPO_2D = "https://github.com/viniciuscole/2D-Computer-Graphics".freeze
+  SHA_2D  = "5910e9a0bf780dc739bc85cfe8a520851e7774cc".freeze
+
+  desc "Reconstroi o jogo 2D em WebAssembly a partir do fonte (exige Docker)"
+  task :build do
+    require "fileutils"
+    require "tmpdir"
+
+    destino = File.expand_path("src/demos/2d-graphics")
+    receita = File.expand_path("build/2d")
+
+    FileUtils.mkdir_p(destino)
+
+    Dir.mktmpdir do |tmp|
+      fonte = "#{tmp}/2d"
+      sh "git clone #{REPO_2D} #{fonte}"
+      sh "git -C #{fonte} checkout --detach #{SHA_2D}"
+      sh "docker build -t viniciuscole-2d-build #{receita}"
+      # Sem --user o container escreve os artefatos como root dentro do
+      # repositorio, e a proxima reconstrucao precisa de sudo.
+      sh "docker run --rm " \
+         "--user #{Process.uid}:#{Process.gid} " \
+         "-v #{fonte}:/src " \
+         "-v #{receita}:/patches:ro " \
+         "-v #{destino}:/out " \
+         "viniciuscole-2d-build"
+    end
+  end
+
+  IMAGEM_PLAYWRIGHT = "mcr.microsoft.com/playwright:v1.56.0-noble".freeze
+
+  desc "Verifica em navegador de verdade que o jogo 2D desenha e responde (exige Docker)"
+  task :verify do
+    require "fileutils"
+    require "tmpdir"
+
+    receita = File.expand_path("build/2d")
+    artefatos = File.expand_path("src/demos/2d-graphics")
+
+    Dir.mktmpdir do |tmp|
+      # A bancada precisa dos artefatos e da pagina no mesmo diretorio, porque
+      # jogo.js busca jogo.wasm e jogo.data como irmaos.
+      FileUtils.cp(Dir["#{artefatos}/jogo.*"], tmp)
+      FileUtils.cp("#{receita}/bench.html", "#{tmp}/index.html")
+      FileUtils.cp("#{receita}/verify.js", tmp)
+
+      # python3 -m http.server, dentro do proprio container: a imagem
+      # mcr.microsoft.com/playwright:v1.56.0-noble ja traz Python 3.12 (e
+      # Node 22), entao nao ha necessidade de inventar um servidor em Node
+      # nem de rodar um processo a parte no host.
+      sh "docker run --rm --network host " \
+         "--user #{Process.uid}:#{Process.gid} " \
+         "-v #{tmp}:/work -w /work " \
+         "-e ALVO=http://localhost:4123/ " \
+         "#{IMAGEM_PLAYWRIGHT} " \
+         "bash -c 'npm install --silent playwright@1.56.0 && " \
+         "(python3 -m http.server 4123 &) && sleep 2 && node verify.js'"
+    end
+  end
+
+  namespace :verify do
+    desc "Verifica a demo na pagina do site de verdade (exige Docker e output/)"
+    task :site do
+      require "fileutils"
+      require "tmpdir"
+
+      saida = File.expand_path("output")
+      receita = File.expand_path("build/2d")
+
+      unless File.directory?(saida)
+        raise "output/ nao existe — rode `bin/bridgetown build` primeiro."
+      end
+
+      Dir.mktmpdir do |tmp|
+        FileUtils.cp("#{receita}/verify.js", tmp)
+
+        # output/ entra so leitura (:ro) e o npm install roda num diretorio a
+        # parte: montar output/ como /work e instalar o playwright ali dentro
+        # deixava node_modules/, package.json e package-lock.json espalhados
+        # por cima do site gerado -- um `rake proof` avulso depois varreria
+        # HTML de dentro do node_modules. python3 -m http.server aceita
+        # --directory desde o 3.7, entao serve /site sem precisar copiar nada
+        # para dentro do diretorio de trabalho.
+        sh "docker run --rm --network host " \
+           "--user #{Process.uid}:#{Process.gid} " \
+           "-v #{saida}:/site:ro " \
+           "-v #{tmp}:/work -w /work " \
+           "-e ALVO=http://localhost:4124/projects/2d-graphics/ " \
+           "-e CANVAS=[data-wasm-canvas] " \
+           "#{IMAGEM_PLAYWRIGHT} " \
+           "bash -c 'npm install --silent playwright@1.56.0 && " \
+           "(python3 -m http.server 4124 --directory /site &) && sleep 2 && node verify.js'"
+      end
+    end
+  end
+end
+
 #
 # Add your own Rake tasks here! You can use `environment` as a prerequisite
 # in order to write automations or other commands requiring a loaded site.
