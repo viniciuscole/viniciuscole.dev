@@ -70,3 +70,7 @@ pt:
         lost: "Você foi atingido."
         again: "Jogar de novo"
       credits: "Arena em SVG lida com tinyxml2 (licença zlib)."
+    video:
+      weight: "Uma gravação curta, baixada só quando você aperta o play."
+      why: "Mostrado em vídeo porque a emulação de OpenGL de função fixa do navegador não dá conta da iluminação deste jogo."
+      caption: "Gravação do jogo rodando nativo."
