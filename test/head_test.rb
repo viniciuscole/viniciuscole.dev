@@ -89,13 +89,6 @@ class HeadTest < Minitest::Test
     assert_includes body, '<meta property="og:type" content="article" />'
   end
 
-  # O _head.erb so monta URL absoluta quando ha um dominio configurado; com
-  # `url` vazio ele emite caminho relativo, de proposito, para nunca publicar
-  # "https:///projects/" no meio-termo. Este teste derivava o esperado de
-  # valores cravados aqui, entao preencher o dominio o quebrava sem que nada
-  # estivesse errado — o mesmo defeito que o teste dos links de contato ja
-  # teve. Agora ele le o dominio da configuracao real e monta o esperado do
-  # mesmo jeito que o partial monta.
   def site_url
     Bridgetown::Current.preloaded_configuration.url.to_s.chomp("/")
   end
