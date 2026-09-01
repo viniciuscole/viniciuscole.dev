@@ -25,6 +25,17 @@ pt:
     title: "Blog"
     intro: "Notas sobre as coisas que eu construo."
     empty: "Nenhum post por aqui ainda"
+  tags:
+    index_title: "Tags"
+    index_intro: "Navegue pelos posts por assunto."
+    empty: "Nenhuma tag em uso ainda"
+    on_tag_page: "Posts marcados com este assunto."
+    on_post: "Tags deste post"
+    back_to_index: "Todas as tags"
+    label:
+      assembly: "Assembly"
+      emulation: "Emulação"
+      webassembly: "WebAssembly"
   errors:
     not_found:
       title: "Página não encontrada"

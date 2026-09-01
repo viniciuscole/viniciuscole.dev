@@ -1,0 +1,16 @@
+<%# Chips de tag de um post. Recebe `post` (o resource cujas tags serao
+    listadas); o idioma dos links vem do proprio post, nao da pagina que
+    renderiza, para o caso de um dia isto ser usado numa listagem. %>
+<% post_tags = tags_of(post) %>
+
+<% unless post_tags.empty? %>
+  <ul class="post-tags" aria-label="<%= t("tags.on_post") %>">
+    <% post_tags.each do |tag| %>
+      <li>
+        <a href="<%= relative_url("#{locale_prefix(post.data.locale)}tags/#{tag}/") %>">
+          <%= tag_label(tag) %>
+        </a>
+      </li>
+    <% end %>
+  </ul>
+<% end %>

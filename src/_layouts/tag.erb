@@ -1,0 +1,16 @@
+---
+layout: default
+---
+<%# Pagina de uma tag. `data.tag` e a chave canonica; o rotulo exibido sai do
+    arquivo de locale via tag_label. Gerada por plugins/builders/tag_pages.rb,
+    nao existe como arquivo. %>
+<h1><%= tag_label(data.tag) %></h1>
+<p class="page-intro"><%= t("tags.on_tag_page") %></p>
+
+<%= render "post_list", tag: data.tag %>
+
+<p class="tag-back">
+  <a href="<%= relative_url("#{locale_prefix(resource.data.locale)}tags/") %>">
+    <%= t("tags.back_to_index") %>
+  </a>
+</p>

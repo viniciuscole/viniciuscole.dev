@@ -4,6 +4,7 @@ title: Porting DOS assembly to the browser
 locale: en
 slug: porting-dos-assembly-to-the-browser
 date: 2026-08-16
+tags: [assembly, emulation, webassembly]
 ---
 
 My tic-tac-toe game is written in 16-bit x86 real mode assembly. There is no

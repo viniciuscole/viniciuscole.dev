@@ -1,10 +1,15 @@
-<%# Local opcional `limit`: a home mostra so os posts recentes, o blog mostra
-    tudo. Sem `limit` a listagem e completa. %>
+<%# Locals opcionais:
+    `limit` — a home mostra so os posts recentes, o blog mostra tudo.
+    `tag`   — filtra pela tag canonica; usado pelas paginas de tag. Sem ele a
+              listagem e completa.
+    Sempre filtra pelo locale da pagina que renderiza. %>
 <% max = defined?(limit) ? limit : nil %>
+<% only_tag = defined?(tag) ? tag.to_s : nil %>
 
 <% posts = collections.posts.resources
      .select { |p| p.data.locale.to_s == resource.data.locale.to_s }
      .sort_by { |p| p.data.date }.reverse %>
+<% posts = posts.select { |p| tags_of(p).include?(only_tag) } if only_tag %>
 <% posts = posts.first(max) if max %>
 
 <% if posts.empty? %>

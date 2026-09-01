@@ -25,6 +25,17 @@ en:
     title: "Blog"
     intro: "Notes on things I build."
     empty: "Nothing here yet"
+  tags:
+    index_title: "Tags"
+    index_intro: "Browse posts by subject."
+    empty: "No tags in use yet"
+    on_tag_page: "Posts tagged with this subject."
+    on_post: "Tags for this post"
+    back_to_index: "All tags"
+    label:
+      assembly: "Assembly"
+      emulation: "Emulation"
+      webassembly: "WebAssembly"
   errors:
     not_found:
       title: "Page not found"
