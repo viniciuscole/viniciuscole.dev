@@ -1,10 +1,28 @@
 <% base = resource.data.dig(:demo, :base).to_s %>
+
+<%# O front matter so da o prefixo -- nao garante que o arquivo exista. A
+    gravacao pode ainda nao ter chegado (o dono do site grava depois desta
+    tarefa) ou, mais tarde, pode ser removida ou renomeada. Checar em disco
+    em tempo de build, nao so o front matter, e o que evita publicar um
+    <video>/<source> apontando para o vazio nos dois casos -- e e por isso
+    que o html-proofer, que segue "src" de verdade, nunca ve um link
+    quebrado aqui. %>
+<% extensoes_da_midia = %w[.webm .mp4 .jpg]
+   midia_existe = !base.empty? && extensoes_da_midia.all? { |extensao|
+     File.exist?(resource.site.in_source_dir("#{base}#{extensao}"))
+   } %>
+
 <section class="demo demo-video"
          data-video
          aria-label="<%= t("demo.label") %>">
 
   <% if base.empty? %>
     <p class="demo-error"><%= t("demo.missing_bundle") %></p>
+  <% elsif !midia_existe %>
+    <p class="demo-error" data-video-unavailable>
+      <%= t("demo.video.unavailable") %>
+      <a href="<%= resource.data.repo %>"><%= resource.data.repo.to_s.sub("https://", "") %></a>
+    </p>
   <% else %>
     <%# preload="none": nada baixa ate o visitante apertar o play do proprio
         navegador. E o mesmo principio do botao desligado nas outras duas

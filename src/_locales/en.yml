@@ -74,3 +74,4 @@ en:
       weight: "A short recording, downloaded only when you press play."
       why: "Shown as a recording, because fixed-function OpenGL emulation in the browser cannot drive the lighting this game needs."
       caption: "Recording of the game running natively."
+      unavailable: "The recording is not ready yet. You can still get the game from the repository."
