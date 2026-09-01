@@ -1,0 +1,35 @@
+/* Esta demo nao tem CRT nem WebAssembly: e um <video> nativo, sem fosforo
+   verde e sem canvas. O casco comum (demo.css) ja cobre .demo-weight,
+   .demo-error e .demo-instructions -- aqui so o que e proprio do video. */
+
+/* A proporcao real (4:3 ou 1:1, conforme a gravacao) so da pra fixar depois
+   que o arquivo existir e as dimensoes forem conhecidas -- aspect-ratio
+   errado deformaria o poster antes mesmo do primeiro quadro. Ate la, o
+   video so ganha um teto de largura e altura automatica, centralizado,
+   como o proprio atributo width/height do arquivo (quando chegar) ja
+   garante a proporcao correta sem esticar. */
+.demo-video .demo-screen {
+  max-width: 640px;
+  margin-inline: auto;
+}
+
+.demo-video video {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #000;
+  /* Mesma linha fina e o mesmo raio das outras duas demos -- vocabulario
+     visual comum, nao um tratamento novo. */
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+/* A legenda explica por que este projeto e mostrado em video, nao jogavel;
+   mesma familia tipografica e cor apagada das outras legendas do casco
+   comum (.demo-weight, .demo-license), so com nome proprio porque o
+   conteudo e outro (motivo + credito), nao peso de download. */
+.demo-video .demo-caption {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+}

@@ -1,0 +1,40 @@
+<% base = resource.data.dig(:demo, :base).to_s %>
+<section class="demo demo-video"
+         data-video
+         aria-label="<%= t("demo.label") %>">
+
+  <% if base.empty? %>
+    <p class="demo-error"><%= t("demo.missing_bundle") %></p>
+  <% else %>
+    <%# preload="none": nada baixa ate o visitante apertar o play do proprio
+        navegador. E o mesmo principio do botao desligado nas outras duas
+        demos, so que aqui quem guarda a porta e o <video> nativo, sem
+        JavaScript nenhum. %>
+    <div class="demo-screen">
+      <video class="demo-video-player"
+             data-video-player
+             controls
+             playsinline
+             preload="none"
+             poster="<%= base %>.jpg">
+        <source src="<%= base %>.webm" type="video/webm">
+        <source src="<%= base %>.mp4" type="video/mp4">
+        <%# So aparece em navegadores sem suporte a <video> — o mesmo papel
+            do <noscript> das outras demos, so que a barreira aqui e o
+            elemento, nao o JavaScript. %>
+        <p class="demo-error" data-video-error>
+          <%= t("demo.failed") %>
+          <a href="<%= resource.data.repo %>"><%= resource.data.repo.to_s.sub("https://", "") %></a>
+        </p>
+      </video>
+    </div>
+
+    <p class="demo-weight"><%= t("demo.video.weight") %></p>
+  <% end %>
+
+  <p class="demo-caption">
+    <%= t("demo.video.why") %>
+    <%= t("demo.video.caption") %>
+    — <a href="<%= resource.data.repo %>"><%= resource.data.repo.to_s.sub("https://", "") %></a>
+  </p>
+</section>
