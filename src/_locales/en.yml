@@ -72,7 +72,7 @@ en:
       credits: "SVG arena parsed with tinyxml2 (zlib licence)."
     video:
       label: "Game recording"
-      weight: "A short recording, downloaded only when you press play."
+      weight: "1:41 of recording, about 600 KB, downloaded only when you press play."
       failed: "Your browser could not play the video. You can still get the game from the repository."
       caption: "Recording of the game running natively: fixed-function OpenGL emulation in the browser cannot drive its lighting."
       unavailable: "The recording is not ready yet. You can still get the game from the repository."
