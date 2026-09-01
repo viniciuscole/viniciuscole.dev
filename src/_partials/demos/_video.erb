@@ -12,9 +12,13 @@
      File.exist?(resource.site.in_source_dir("#{base}#{extensao}"))
    } %>
 
+<%# aria-label proprio, nao o generico t("demo.label") ("Playable
+    demo"/"Demo jogavel"): este projeto e exatamente o que NAO e jogavel, e
+    quem navega por leitor de tela nao pode ouvir essa afirmacao falsa logo
+    na entrada do bloco. %>
 <section class="demo demo-video"
          data-video
-         aria-label="<%= t("demo.label") %>">
+         aria-label="<%= t("demo.video.label") %>">
 
   <% if base.empty? %>
     <p class="demo-error"><%= t("demo.missing_bundle") %></p>
@@ -51,7 +55,6 @@
   <% end %>
 
   <p class="demo-caption">
-    <%= t("demo.video.why") %>
     <%= t("demo.video.caption") %>
     — <a href="<%= resource.data.repo %>"><%= resource.data.repo.to_s.sub("https://", "") %></a>
   </p>

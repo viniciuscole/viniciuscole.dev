@@ -38,6 +38,25 @@ class VideoPartialTest < Minitest::Test
     assert_includes page_body(EN), "data-video"
   end
 
+  # t("demo.label") ("Playable demo"/"Demo jogavel") esta errado aqui: este
+  # projeto e exatamente o que nao e jogavel. Quem navega por leitor de tela
+  # nao pode ouvir essa afirmacao falsa na entrada do bloco -- por isso o
+  # partial usa uma chave propria (demo.video.label) no aria-label da
+  # secao, e nao a generica que wasm/jsdos usam.
+  def test_the_aria_label_is_the_video_specific_one_not_the_generic_playable_one
+    { "en" => EN, "pt" => PT }.each do |idioma, pagina|
+      tabela = YAML.load_file(ROOT.join("src/_locales/#{idioma}.yml")).fetch(idioma)
+      rotulo_video = tabela.dig("demo", "video", "label")
+      rotulo_generico = tabela.dig("demo", "label")
+      corpo = page_body(pagina)
+
+      assert_includes corpo, "aria-label=\"#{rotulo_video}\"",
+        "#{pagina} deveria anunciar a secao como #{rotulo_video.inspect}"
+      refute_includes corpo, "aria-label=\"#{rotulo_generico}\"",
+        "#{pagina} anuncia a secao de video como #{rotulo_generico.inspect}, que e falso aqui"
+    end
+  end
+
   # Este e o teste que garante a protecao pedida: o partial checa em disco,
   # nao so o front matter, se webm, mp4 e poster existem de verdade em
   # src/demos/3d-graphics/. Enquanto a gravacao nao chegar -- que e o estado
@@ -78,21 +97,18 @@ class VideoPartialTest < Minitest::Test
     end
   end
 
-  # "why" e "caption" explicam a decisao de projeto (mostrar em video, e
-  # porque) -- valem independente de a gravacao especifica estar presente no
-  # momento do build, ao contrario de "weight" (peso do download), que so
-  # faz sentido quando ha de fato algo para baixar.
+  # "caption" carrega os dois fatos numa frase so (e gravacao; e o motivo de
+  # nao rodar embutido) -- vale independente de a gravacao especifica estar
+  # presente no momento do build, ao contrario de "weight" (peso do
+  # download), que so faz sentido quando ha de fato algo para baixar.
   def test_the_caption_explains_the_video_choice_in_both_locales
     { "en" => EN, "pt" => PT }.each do |idioma, pagina|
       tabela = YAML.load_file(ROOT.join("src/_locales/#{idioma}.yml")).fetch(idioma)
-      video = tabela.dig("demo", "video")
+      texto = tabela.dig("demo", "video", "caption")
       corpo = page_body(pagina)
 
-      %w[why caption].each do |chave|
-        texto = video.fetch(chave)
-        assert_includes corpo, texto,
-          "a pagina de #{idioma} nao traz demo.video.#{chave} (#{texto.inspect})"
-      end
+      assert_includes corpo, texto,
+        "a pagina de #{idioma} nao traz demo.video.caption (#{texto.inspect})"
     end
   end
 
