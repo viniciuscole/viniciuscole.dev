@@ -124,4 +124,8 @@ class DemoDispatcherTest < Minitest::Test
   def test_wasm_is_a_known_demo_type
     assert_includes Builders::DemoHelper::DEMO_TYPES, "wasm"
   end
+
+  def test_video_is_a_known_demo_type
+    assert_includes Builders::DemoHelper::DEMO_TYPES, "video"
+  end
 end
