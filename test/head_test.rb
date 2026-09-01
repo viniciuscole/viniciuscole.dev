@@ -89,14 +89,18 @@ class HeadTest < Minitest::Test
     assert_includes body, '<meta property="og:type" content="article" />'
   end
 
+  def site_url
+    Bridgetown::Current.preloaded_configuration.url.to_s.chomp("/")
+  end
+
   def test_each_translated_page_declares_its_sibling_locale
     assert_includes page_body("index.html"),
-      '<link rel="alternate" hreflang="pt" href="/pt/" />'
+      %(<link rel="alternate" hreflang="pt" href="#{site_url}/pt/" />)
     assert_includes page_body("pt/index.html"),
-      '<link rel="alternate" hreflang="en" href="/" />'
+      %(<link rel="alternate" hreflang="en" href="#{site_url}/" />)
 
     assert_includes page_body("projects/tic-tac-toe/index.html"),
-      '<link rel="alternate" hreflang="pt" href="/pt/projects/tic-tac-toe/" />'
+      %(<link rel="alternate" hreflang="pt" href="#{site_url}/pt/projects/tic-tac-toe/" />)
   end
 
   # all_locales inclui o proprio recurso; o alternate e so o irmao.

@@ -16,8 +16,7 @@
 # em portugues nao publique metadados em ingles.
 
 Bridgetown.configure do |config|
-  # The base hostname & protocol for your site, e.g. https://example.com
-  url ""
+  url "https://viniciuscole.com"
 
   # Available options are `erb` (default), `serbea`, or `liquid`
   template_engine "erb"
