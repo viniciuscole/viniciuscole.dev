@@ -11,6 +11,14 @@
    empurrando a legenda abaixo -- isto reserva o espaco antes do play, nao
    e so forma. Mesmo raciocinio e mesma dimensao real do canvas do jogo 2D em
    wasm-demo.css. */
+/* Na secao inteira, e nao so no video: a legenda e o aviso de peso sao
+   irmaos da tela, e sem isto comecavam na margem da coluna enquanto o
+   video ficava centrado. */
+.demo-video {
+  max-width: 500px;
+  margin-inline: auto;
+}
+
 .demo-video .demo-screen {
   max-width: 500px;
   margin-inline: auto;
