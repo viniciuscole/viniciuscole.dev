@@ -4,6 +4,7 @@ title: Portando assembly de DOS para o navegador
 locale: pt
 slug: porting-dos-assembly-to-the-browser
 date: 2026-08-16
+tags: [assembly, emulation, webassembly]
 ---
 
 Meu jogo da velha é escrito em assembly x86 de 16 bits, em modo real. Não existe

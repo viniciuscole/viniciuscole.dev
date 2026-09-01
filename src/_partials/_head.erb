@@ -41,7 +41,11 @@
   # Open Graph espera language_TERRITORY, nao so o codigo de idioma.
   og_locale = ->(code) { { "en" => "en_US", "pt" => "pt_BR" }.fetch(code.to_s, code.to_s) }
 
-  og_type = %w[posts projects].include?(resource.collection&.label.to_s) ? "article" : "website"
+  # Paginas geradas (as de tag, em plugins/builders/tag_pages.rb) nao pertencem
+  # a colecao nenhuma e nao respondem a `collection` — `&.` protege contra nil,
+  # nao contra o metodo ausente. Mesmo teste que Bridgetown::Localizable usa.
+  collection_label = resource.respond_to?(:collection) ? resource.collection&.label.to_s : ""
+  og_type = %w[posts projects].include?(collection_label) ? "article" : "website"
 %>
 <title><%= full_title %></title>
 

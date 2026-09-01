@@ -12,4 +12,6 @@ layout: default
   <div class="post-body">
     <%= yield %>
   </div>
+
+  <%= render "tag_list", post: resource %>
 </article>

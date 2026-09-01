@@ -289,3 +289,69 @@
   letter-spacing: 0.06em;
   margin: 0;
 }
+
+/* --- tags -----------------------------------------------------------------
+   Herdam a linguagem dos chips de tecnologia dos cards de projeto (.tech-list):
+   mono, caixa alta, tamanho de meta. A diferenca e que estes sao links, entao
+   ganham o mesmo tratamento de hover do resto do site. */
+.post-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  list-style: none;
+  padding: 0;
+  margin: calc(var(--space) * 2) 0 0;
+  border-top: 1px solid var(--border);
+  padding-top: var(--space);
+  font-family: var(--font-mono);
+  font-size: var(--texto-meta);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.post-tags a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.post-tags a:hover {
+  color: var(--accent);
+}
+
+.tag-index {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem calc(var(--space) * 1.25);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--texto-pequeno);
+  letter-spacing: 0.04em;
+}
+
+.tag-index a {
+  color: var(--fg);
+  text-decoration: none;
+}
+
+.tag-index a:hover {
+  color: var(--accent);
+}
+
+.tag-back {
+  margin-top: calc(var(--space) * 2);
+  font-family: var(--font-mono);
+  font-size: var(--texto-meta);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.tag-back a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.tag-back a:hover {
+  color: var(--accent);
+}
