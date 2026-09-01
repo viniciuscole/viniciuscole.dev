@@ -2,14 +2,17 @@
    verde e sem canvas. O casco comum (demo.css) ja cobre .demo-weight,
    .demo-error e .demo-instructions -- aqui so o que e proprio do video. */
 
-/* A proporcao real (4:3 ou 1:1, conforme a gravacao) so da pra fixar depois
-   que o arquivo existir e as dimensoes forem conhecidas -- aspect-ratio
-   errado deformaria o poster antes mesmo do primeiro quadro. Ate la, o
-   video so ganha um teto de largura e altura automatica, centralizado,
-   como o proprio atributo width/height do arquivo (quando chegar) ja
-   garante a proporcao correta sem esticar. */
+/* A gravacao e 500x500 (1:1). preload="none" significa que o navegador so
+   conhece as dimensoes reais do video depois que alguem da play -- sem a
+   proporcao fixada abaixo, o elemento nao tem tamanho intrinseco garantido
+   antes disso. O poster ajuda na maioria dos navegadores, mas depender so
+   dele e depender de um comportamento que varia. Sem essa regra, o bloco
+   nasce com uma altura e pula para outra quando o video carrega,
+   empurrando a legenda abaixo -- isto reserva o espaco antes do play, nao
+   e so forma. Mesmo raciocinio e mesma dimensao real do canvas do jogo 2D em
+   wasm-demo.css. */
 .demo-video .demo-screen {
-  max-width: 640px;
+  max-width: 500px;
   margin-inline: auto;
 }
 
@@ -17,6 +20,7 @@
   display: block;
   width: 100%;
   height: auto;
+  aspect-ratio: 1 / 1;
   background: #000;
   /* Mesma linha fina e o mesmo raio das outras duas demos -- vocabulario
      visual comum, nao um tratamento novo. */
