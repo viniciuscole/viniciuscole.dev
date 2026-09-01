@@ -172,4 +172,25 @@ class VideoPartialTest < Minitest::Test
         "a pagina de #{idioma} nao traz demo.video.weight (#{texto.inspect})"
     end
   end
+
+  # t("demo.failed") ("O emulador nao carregou"/"The emulator could not
+  # load") foi escrita para o jogo DOS emulado em DOSBox e reusada aqui so
+  # por ser a chave generica de falha -- mas esta pagina nao tem emulador
+  # nenhum. Quem cai neste fallback (navegador que nao toca nem webm nem
+  # mp4) merece uma explicacao verdadeira, nao a de outra demo.
+  def test_the_native_fallback_uses_a_video_specific_failed_message_once_the_media_exists
+    skip media_missing_message unless media_present?
+
+    { "en" => EN, "pt" => PT }.each do |idioma, pagina|
+      tabela = YAML.load_file(ROOT.join("src/_locales/#{idioma}.yml")).fetch(idioma)
+      texto_video = tabela.dig("demo", "video", "failed")
+      texto_generico = tabela.dig("demo", "failed")
+      corpo = page_body(pagina)
+
+      assert_includes corpo, texto_video,
+        "a pagina de #{idioma} nao traz demo.video.failed (#{texto_video.inspect})"
+      refute_includes corpo, texto_generico,
+        "a pagina de #{idioma} ainda usa demo.failed (#{texto_generico.inspect}), que fala de emulador"
+    end
+  end
 end

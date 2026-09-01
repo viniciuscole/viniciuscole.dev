@@ -43,9 +43,12 @@
         <source src="<%= base %>.mp4" type="video/mp4">
         <%# So aparece em navegadores sem suporte a <video> — o mesmo papel
             do <noscript> das outras demos, so que a barreira aqui e o
-            elemento, nao o JavaScript. %>
+            elemento, nao o JavaScript. t("demo.failed") fala de "emulador",
+            que nao existe nesta pagina -- foi escrita para o jogo DOS
+            emulado em DOSBox. Chave propria para nao afirmar um mecanismo
+            de falha que essa demo nao tem. %>
         <p class="demo-error" data-video-error>
-          <%= t("demo.failed") %>
+          <%= t("demo.video.failed") %>
           <a href="<%= resource.data.repo %>"><%= resource.data.repo.to_s.sub("https://", "") %></a>
         </p>
       </video>
