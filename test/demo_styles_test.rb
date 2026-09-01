@@ -13,6 +13,10 @@ class DemoStylesTest < Minitest::Test
     ROOT.join("frontend/styles/wasm-demo.css").read
   end
 
+  def video_css
+    ROOT.join("frontend/styles/video-demo.css").read
+  end
+
   def index_css
     ROOT.join("frontend/styles/index.css").read
   end
@@ -47,6 +51,18 @@ class DemoStylesTest < Minitest::Test
   def test_the_canvas_is_capped_at_the_size_the_game_expects
     assert_includes wasm_css, "500px"
     assert_includes wasm_css, "aspect-ratio"
+  end
+
+  # A gravacao e 500x500 (1:1), e preload="none" significa que o navegador
+  # so conhece as dimensoes reais do video depois que alguem da play. Sem
+  # aspect-ratio declarado, o elemento nao tem tamanho intrinseco garantido
+  # antes disso -- o bloco nasceria com uma altura e pularia para outra
+  # quando o video carregasse, empurrando a legenda abaixo. Mesmo molde de
+  # test_the_canvas_is_capped_at_the_size_the_game_expects, para o video em
+  # vez do canvas.
+  def test_the_video_reserves_its_space_before_play
+    assert_includes video_css, "500px"
+    assert_includes video_css, "aspect-ratio"
   end
 
   # Este jogo nao e CRT. Fosforo verde nele seria mentira estetica.

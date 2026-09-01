@@ -1,0 +1,39 @@
+/* Esta demo nao tem CRT nem WebAssembly: e um <video> nativo, sem fosforo
+   verde e sem canvas. O casco comum (demo.css) ja cobre .demo-weight,
+   .demo-error e .demo-instructions -- aqui so o que e proprio do video. */
+
+/* A gravacao e 500x500 (1:1). preload="none" significa que o navegador so
+   conhece as dimensoes reais do video depois que alguem da play -- sem a
+   proporcao fixada abaixo, o elemento nao tem tamanho intrinseco garantido
+   antes disso. O poster ajuda na maioria dos navegadores, mas depender so
+   dele e depender de um comportamento que varia. Sem essa regra, o bloco
+   nasce com uma altura e pula para outra quando o video carrega,
+   empurrando a legenda abaixo -- isto reserva o espaco antes do play, nao
+   e so forma. Mesmo raciocinio e mesma dimensao real do canvas do jogo 2D em
+   wasm-demo.css. */
+.demo-video .demo-screen {
+  max-width: 500px;
+  margin-inline: auto;
+}
+
+.demo-video video {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  background: #000;
+  /* Mesma linha fina e o mesmo raio das outras duas demos -- vocabulario
+     visual comum, nao um tratamento novo. */
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+/* A legenda explica por que este projeto e mostrado em video, nao jogavel;
+   mesma familia tipografica e cor apagada das outras legendas do casco
+   comum (.demo-weight, .demo-license), so com nome proprio porque o
+   conteudo e outro (motivo + credito), nao peso de download. */
+.demo-video .demo-caption {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+}

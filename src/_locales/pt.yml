@@ -81,3 +81,9 @@ pt:
         lost: "Você foi atingido."
         again: "Jogar de novo"
       credits: "Arena em SVG lida com tinyxml2 (licença zlib)."
+    video:
+      label: "Gravação do jogo"
+      weight: "1min41 de gravação, cerca de 600 KB, baixados só quando você aperta o play."
+      failed: "Seu navegador não conseguiu tocar o vídeo. Você ainda pode pegar o jogo no repositório."
+      caption: "Gravação do jogo rodando nativo: a emulação de OpenGL de função fixa do navegador não dá conta da iluminação dele."
+      unavailable: "A gravação ainda não está pronta. Você ainda pode pegar o jogo no repositório."

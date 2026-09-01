@@ -1,0 +1,64 @@
+<% base = resource.data.dig(:demo, :base).to_s %>
+
+<%# O front matter so da o prefixo -- nao garante que o arquivo exista. A
+    gravacao pode ainda nao ter chegado (o dono do site grava depois desta
+    tarefa) ou, mais tarde, pode ser removida ou renomeada. Checar em disco
+    em tempo de build, nao so o front matter, e o que evita publicar um
+    <video>/<source> apontando para o vazio nos dois casos -- e e por isso
+    que o html-proofer, que segue "src" de verdade, nunca ve um link
+    quebrado aqui. %>
+<% extensoes_da_midia = %w[.webm .mp4 .jpg]
+   midia_existe = !base.empty? && extensoes_da_midia.all? { |extensao|
+     File.exist?(resource.site.in_source_dir("#{base}#{extensao}"))
+   } %>
+
+<%# aria-label proprio, nao o generico t("demo.label") ("Playable
+    demo"/"Demo jogavel"): este projeto e exatamente o que NAO e jogavel, e
+    quem navega por leitor de tela nao pode ouvir essa afirmacao falsa logo
+    na entrada do bloco. %>
+<section class="demo demo-video"
+         data-video
+         aria-label="<%= t("demo.video.label") %>">
+
+  <% if base.empty? %>
+    <p class="demo-error"><%= t("demo.missing_bundle") %></p>
+  <% elsif !midia_existe %>
+    <p class="demo-error" data-video-unavailable>
+      <%= t("demo.video.unavailable") %>
+      <a href="<%= resource.data.repo %>"><%= resource.data.repo.to_s.sub("https://", "") %></a>
+    </p>
+  <% else %>
+    <%# preload="none": nada baixa ate o visitante apertar o play do proprio
+        navegador. E o mesmo principio do botao desligado nas outras duas
+        demos, so que aqui quem guarda a porta e o <video> nativo, sem
+        JavaScript nenhum. %>
+    <div class="demo-screen">
+      <video class="demo-video-player"
+             data-video-player
+             controls
+             playsinline
+             preload="none"
+             poster="<%= base %>.jpg">
+        <source src="<%= base %>.webm" type="video/webm">
+        <source src="<%= base %>.mp4" type="video/mp4">
+        <%# So aparece em navegadores sem suporte a <video> — o mesmo papel
+            do <noscript> das outras demos, so que a barreira aqui e o
+            elemento, nao o JavaScript. t("demo.failed") fala de "emulador",
+            que nao existe nesta pagina -- foi escrita para o jogo DOS
+            emulado em DOSBox. Chave propria para nao afirmar um mecanismo
+            de falha que essa demo nao tem. %>
+        <p class="demo-error" data-video-error>
+          <%= t("demo.video.failed") %>
+          <a href="<%= resource.data.repo %>"><%= resource.data.repo.to_s.sub("https://", "") %></a>
+        </p>
+      </video>
+    </div>
+
+    <p class="demo-weight"><%= t("demo.video.weight") %></p>
+  <% end %>
+
+  <p class="demo-caption">
+    <%= t("demo.video.caption") %>
+    — <a href="<%= resource.data.repo %>"><%= resource.data.repo.to_s.sub("https://", "") %></a>
+  </p>
+</section>
