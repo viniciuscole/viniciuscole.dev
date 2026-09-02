@@ -1,9 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="vc">
-  <!-- Marca autoral: "vc" em monoespacada, no verde da paleta VGA de 16 cores
-       (o mesmo elo visual com o projeto em assembly usado nos tokens de cor).
-       Sem arquivo de fonte: `monospace` resolve para a fonte do sistema. -->
-  <rect width="32" height="32" rx="4" fill="#0f1115"/>
+  <!-- Marca autoral: "vc" em monoespacada, nas mesmas cores de
+       frontend/styles/tokens.css. Um favicon SVG e um documento proprio: nao
+       enxerga as custom properties da pagina, entao os valores sao repetidos
+       aqui, na mesma ordem do arquivo de tokens (claro como base, escuro no
+       media query). Sem arquivo de fonte: `monospace` resolve para a do sistema. -->
+  <style>
+    svg {
+      --bg: #fbfbf9;
+      --border: #e0e0d8;
+      --accent: #007700;
+    }
+    @media (prefers-color-scheme: dark) {
+      svg {
+        --bg: #0f1115;
+        --border: #262a33;
+        --accent: #33cc33;
+      }
+    }
+  </style>
+  <rect x="1" y="1" width="30" height="30" rx="4"
+        fill="var(--bg)" stroke="var(--border)" stroke-width="2"/>
   <text x="16" y="22" text-anchor="middle"
         font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
-        font-size="16" font-weight="700" fill="#33cc33">vc</text>
+        font-size="16" font-weight="700" fill="var(--accent)">vc</text>
 </svg>
