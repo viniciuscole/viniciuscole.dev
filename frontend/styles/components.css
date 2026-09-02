@@ -49,18 +49,42 @@
 
 .locale-switcher { display: flex; gap: 0.75rem; }
 
+/* O botao nao tem mais texto dentro, so um SVG — por isso saiu a fonte mono
+   daqui. O traco dos icones e currentColor, entao a cor do botao continua
+   sendo a unica coisa que muda no hover, de graca. */
 .theme-toggle {
+  align-items: center;
   background: none;
   border: 0;
   color: var(--muted);
   cursor: pointer;
-  font-family: var(--font-mono);
-  font-size: 0.9375rem;
+  display: flex;
   line-height: 1;
   padding: 0.25rem;
 }
 
+.theme-toggle svg {
+  height: 1.125rem;
+  width: 1.125rem;
+}
+
 .theme-toggle:hover { color: var(--accent); }
+
+/* Mostra o destino do clique, nao o estado atual: no tema claro aparece a lua.
+
+   As tres condicoes sao as mesmas do tokens.css, na mesma ordem — o claro
+   como base, a escolha explicita em data-theme, e o prefers-color-scheme
+   para quem nunca clicou. Se divergirem, o icone passa a mentir sobre o que
+   o clique vai fazer. */
+.theme-toggle .icone-sol { display: none; }
+
+:root[data-theme="dark"] .theme-toggle .icone-lua { display: none; }
+:root[data-theme="dark"] .theme-toggle .icone-sol { display: block; }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-toggle .icone-lua { display: none; }
+  :root:not([data-theme="light"]) .theme-toggle .icone-sol { display: block; }
+}
 
 /* ---- O cartao da home ----------------------------------------------- */
 

@@ -11,7 +11,30 @@
 
   <%= render "locale_switcher", resource: resource %>
 
-  <button class="theme-toggle" type="button" aria-label="<%= t("nav.theme") %>">
-    ◐
+  <%# Os dois icones vao no HTML e o CSS mostra um. A troca nao pode depender
+      do bundle JS: ele e `defer`, e o tema ja foi aplicado antes do primeiro
+      paint pelo script inline de _head.erb — quem esta no escuro veria o sol
+      piscar antes de virar lua.
+
+      O icone mostra o destino do clique, nao o estado atual: no tema claro
+      aparece a lua, porque clicar escurece.
+
+      Os SVGs sao aria-hidden e focusable="false" (o segundo por causa do IE/
+      Edge legado, onde SVG entra na ordem de tabulacao): o nome acessivel do
+      botao vem do aria-label, e o title repete a mesma string so para dar o
+      tooltip visivel que faltava a quem usa mouse. %>
+  <button class="theme-toggle" type="button"
+          aria-label="<%= t("nav.theme") %>" title="<%= t("nav.theme") %>">
+    <svg class="icone-lua" viewBox="0 0 24 24" aria-hidden="true" focusable="false"
+         fill="none" stroke="currentColor" stroke-width="1.5"
+         stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+    </svg>
+    <svg class="icone-sol" viewBox="0 0 24 24" aria-hidden="true" focusable="false"
+         fill="none" stroke="currentColor" stroke-width="1.5"
+         stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="5" />
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+    </svg>
   </button>
 </header>
