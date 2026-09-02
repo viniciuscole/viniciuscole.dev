@@ -73,13 +73,21 @@
   padding: 0.25rem;
 }
 
-/* middle poe o centro do icone em baseline + metade da altura-x. O centro da
-   caixa alta ao lado fica em baseline + metade da altura de capitular, cerca
-   de 1px acima disso nesta escala — diferenca que nao se ve, e o preco de nao
-   cravar um numero magico derivado da metrica de uma fonte especifica. */
+/* O alinhamento e feito contra a caixa alta do texto ao lado, nao contra a
+   baseline nem contra a altura-x.
+
+   `vertical-align: middle` centraria o icone em baseline + metade da
+   altura-x. Mas a navegacao e toda em maiuscula, e a caixa alta e mais alta
+   que a altura-x: medido no navegador, isso deixava o icone 1,11px abaixo do
+   centro optico do texto.
+
+   Um comprimento negativo desce a borda inferior do icone abaixo da baseline,
+   e o valor sai de uma conta, nao de tentativa: metade da capitular menos
+   metade do icone. A capitular desta mono e 0,75em (9px em 12px) e o icone
+   tem 18px, entao 4,5 - 9 = -4,5px, que em em do botao e -0.375em. */
 .theme-toggle svg {
   height: 1.125rem;
-  vertical-align: middle;
+  vertical-align: -0.375em;
   width: 1.125rem;
 }
 
