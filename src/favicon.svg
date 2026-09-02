@@ -1,19 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="vc">
-  <!-- Marca autoral: "vc" no terracota do tema editorial. As cores sao as de
-       frontend/styles/tokens.css: o azulejo e o token de acento (#8b3a2f) e a
-       letra e o papel do fundo claro (#faf8f4), o mesmo par do site, so que
-       invertido. Um favicon SVG e um documento proprio e nao enxerga as custom
-       properties da pagina, entao os valores estao repetidos aqui.
+  <!-- Marca autoral: "vc" em marrom escuro, na familia quente do tema
+       editorial. O azulejo (#3b2318) fica entre o fundo do tema escuro
+       (#14120f) e o acento terracota (#8b3a2f) de frontend/styles/tokens.css;
+       a letra e o papel do tema claro (#faf8f4). Contraste de 13,75:1. Um
+       favicon SVG e um documento proprio e nao enxerga as custom properties da
+       pagina, entao os valores estao repetidos aqui.
 
-       Um unico azulejo solido nos dois temas, sem prefers-color-scheme: o
-       terracota ja se destaca tanto numa barra de abas clara quanto numa
-       escura, e o acento do tema escuro (#d98a6b) nao sustentaria texto branco.
+       O marrom nao desce ate o #14120f do tema escuro de proposito: naquele
+       tom o azulejo se dissolve numa barra de abas escura e sobra so a letra
+       solta. Este ainda le como azulejo nas duas barras.
+
+       Um unico solido nos dois temas, sem prefers-color-scheme: o acento do
+       tema escuro (#d98a6b) nao sustentaria texto branco.
 
        O rx de 4 num viewBox de 32 da os 2px de raio do tema quando o icone e
        desenhado nos 16px da aba. Sem arquivo de fonte: a Newsreader do site
        nao carrega dentro de um favicon, entao a marca fica na monoespacada do
        sistema, que aguenta melhor os 16px. -->
-  <rect width="32" height="32" rx="4" fill="#8b3a2f"/>
+  <rect width="32" height="32" rx="4" fill="#3b2318"/>
   <text x="16" y="22" text-anchor="middle"
         font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
         font-size="16" font-weight="700" fill="#faf8f4">vc</text>
