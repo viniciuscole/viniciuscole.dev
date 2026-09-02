@@ -9,9 +9,19 @@
 
 */
 
+/* Este arquivo e carregado depois do index.css (veja frontend/javascript/
+   index.js), entao ele vence o `pre` do base.css. O #F6F8FA que estava aqui
+   vinha do tema do GitHub: um cinza azulado, frio, dentro de um tema de papel
+   quente. Passa a usar a mesma segunda superficie do resto do site.
+
+   As cores dos tokens abaixo continuam sendo as do GitHub e ainda sao um
+   problema em aberto: sao fixas e claras, entao no tema escuro ficam preto
+   sobre quase-preto. Nenhum post publicado tem bloco de codigo ainda, entao
+   isso e latente — mas precisa de uma passada antes do primeiro post com
+   codigo. */
 pre.highlight {
-  padding: 16px;
-  background-color: #F6F8FA;
+  padding: var(--space);
+  background-color: var(--bg-sutil);
 }
 
 .highlight .hll { background-color: #ffffcc }
