@@ -49,18 +49,65 @@
 
 .locale-switcher { display: flex; gap: 0.75rem; }
 
+/* O traco dos icones e currentColor, entao a cor do botao continua sendo a
+   unica coisa que muda no hover, de graca.
+
+   O botao NAO pode virar um flex container aqui, e a fonte tem de ficar. O
+   .site-header alinha os filhos por baseline; um flex container cujo unico
+   filho e um SVG nao tem baseline de texto para oferecer, entao o navegador
+   sintetiza uma na borda inferior da caixa — o botao inteiro sobe para sentar
+   em cima da linha da navegacao. Foi o que aconteceu quando o "◐" virou SVG.
+
+   Como <button> ja e inline-block, deixando o icone em fluxo inline a baseline
+   volta a sair do strut da propria fonte do botao. Por isso a fonte e o
+   tamanho repetem os da navegacao: mesmo strut, mesma baseline, alinhamento
+   sem numero magico. */
 .theme-toggle {
   background: none;
   border: 0;
   color: var(--muted);
   cursor: pointer;
   font-family: var(--font-mono);
-  font-size: 0.9375rem;
+  font-size: var(--texto-meta);
   line-height: 1;
   padding: 0.25rem;
 }
 
+/* O alinhamento e feito contra a caixa alta do texto ao lado, nao contra a
+   baseline nem contra a altura-x.
+
+   `vertical-align: middle` centraria o icone em baseline + metade da
+   altura-x. Mas a navegacao e toda em maiuscula, e a caixa alta e mais alta
+   que a altura-x: medido no navegador, isso deixava o icone 1,11px abaixo do
+   centro optico do texto.
+
+   Um comprimento negativo desce a borda inferior do icone abaixo da baseline,
+   e o valor sai de uma conta, nao de tentativa: metade da capitular menos
+   metade do icone. A capitular desta mono e 0,75em (9px em 12px) e o icone
+   tem 18px, entao 4,5 - 9 = -4,5px, que em em do botao e -0.375em. */
+.theme-toggle svg {
+  height: 1.125rem;
+  vertical-align: -0.375em;
+  width: 1.125rem;
+}
+
 .theme-toggle:hover { color: var(--accent); }
+
+/* Mostra o destino do clique, nao o estado atual: no tema claro aparece a lua.
+
+   As tres condicoes sao as mesmas do tokens.css, na mesma ordem — o claro
+   como base, a escolha explicita em data-theme, e o prefers-color-scheme
+   para quem nunca clicou. Se divergirem, o icone passa a mentir sobre o que
+   o clique vai fazer. */
+.theme-toggle .icone-sol { display: none; }
+
+:root[data-theme="dark"] .theme-toggle .icone-lua { display: none; }
+:root[data-theme="dark"] .theme-toggle .icone-sol { display: inline-block; }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-toggle .icone-lua { display: none; }
+  :root:not([data-theme="light"]) .theme-toggle .icone-sol { display: inline-block; }
+}
 
 /* ---- O cartao da home ----------------------------------------------- */
 
