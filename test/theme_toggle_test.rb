@@ -108,7 +108,7 @@ class ThemeToggleTest < Minitest::Test
 
     assert_includes css, ":root[data-theme=dark] .theme-toggle .icone-lua{display:none}",
       "quem escolheu o tema escuro continua vendo a lua"
-    assert_includes css, ":root[data-theme=dark] .theme-toggle .icone-sol{display:block}",
+    assert_includes css, ":root[data-theme=dark] .theme-toggle .icone-sol{display:inline-block}",
       "quem escolheu o tema escuro nao ve o sol"
   end
 
@@ -123,7 +123,7 @@ class ThemeToggleTest < Minitest::Test
       ":root:not([data-theme=light]) .theme-toggle .icone-lua{display:none}",
       "no sistema escuro, sem escolha salva, a lua continua aparecendo"
     assert_includes css,
-      ":root:not([data-theme=light]) .theme-toggle .icone-sol{display:block}",
+      ":root:not([data-theme=light]) .theme-toggle .icone-sol{display:inline-block}",
       "no sistema escuro, sem escolha salva, o sol nao aparece"
   end
 end
