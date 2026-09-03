@@ -58,6 +58,25 @@ code, pre {
   font-size: 0.9em;
 }
 
+/* O primeiro bloco de codigo do site chegou com o post do assembly, e ate
+   entao `pre` so tinha a fonte: sem recuo, sem margem e — o que quebrava de
+   verdade — sem overflow. Linha de assembly nao quebra sozinha, entao no
+   celular o bloco empurrava a pagina inteira para o lado. O tratamento segue
+   o mesmo vocabulario do `hr` logo abaixo: uma linha a esquerda, nao uma
+   caixa cinza. Cor nenhuma e fixada aqui, so tokens, para o bloco acompanhar
+   o tema claro e o escuro. */
+pre {
+  overflow-x: auto;
+  margin: calc(var(--space) * 1.5) 0;
+  padding: 0 0 0 var(--space);
+  border-left: 2px solid var(--border);
+  line-height: 1.5;
+}
+
+/* O `code` dentro do `pre` ja herda a fonte; sem isto ele aplicaria 0.9em
+   uma segunda vez sobre o `pre`, e o bloco sairia menor que o texto inline. */
+pre code { font-size: inherit; }
+
 /* Regra fina em vez de caixa: o vocabulario do tema editorial e a linha,
    nao o retangulo. */
 hr {
