@@ -8,7 +8,7 @@ tags: [assembly, emulation, webassembly]
 ---
 
 My tic-tac-toe game is written in 16-bit x86 real mode assembly. There is no
-compiler that turns that into WebAssembly — the instruction set, the segmented
+compiler that turns that into WebAssembly. The instruction set, the segmented
 memory model and the DOS interrupts have no equivalent target.
 
 So the plan is emulation: assemble the original source with NASM, link it into a
@@ -31,7 +31,7 @@ tabuleiro    db    '         '
 ```
 
 Nine ASCII spaces. A move overwrites one of them with `X` or `C`, and a new game
-is nine spaces again. There is no struct, no bitboard, no packing — the board is
+is nine spaces again. There is no struct, no bitboard, no packing. The board is
 literally the string you would draw on paper.
 
 Win detection is fully unrolled. Eight winning lines, two players, sixteen
@@ -77,8 +77,8 @@ long and two vertical lines 297 pixels long: about 1,220 BIOS calls before a
 single move is played. A circle of radius 40 is another 250 or so. In the
 browser every one of those traps into the emulator instead of into real ROM.
 
-It does not matter — a tic-tac-toe board is a few thousand pixels, and the thing
-draws instantly — but it does clarify what emulation is buying here. Not speed.
+It does not matter (a tic-tac-toe board is a few thousand pixels, and the thing
+draws instantly), but it does clarify what emulation is buying here. Not speed.
 Fidelity of a BIOS that has not existed in hardware for decades.
 
 ## The shape of the bundle
@@ -89,7 +89,7 @@ machine as `vgaonly`, mount the bundle as `C:` and run the executable. That is
 the entire packaging step.
 
 The whole bundle is 2,236 bytes. The emulator that runs it is 1.4 MB of
-`wdosbox.wasm` plus another 315 KB of loader — the WebAssembly alone is 450 times
+`wdosbox.wasm` plus another 315 KB of loader. The WebAssembly alone is 450 times
 the size of the 3,244-byte program it exists to run. That asymmetry is why the
 demo loads on a click and not on page load: someone who came to read about the
 project should not pay for a DOS box they never asked to boot.
@@ -101,11 +101,11 @@ downloads 1.4 MB of WebAssembly from someone else's server, which is exactly the
 thing this site is built not to do. The failure is silent: everything works, and
 the page just is not what I said it was. My existing check for third-party
 requests read `src` and `href` attributes out of the built HTML, so it was blind
-by construction — this request is born at runtime, inside JavaScript. The new
+by construction: this request is born at runtime, inside JavaScript. The new
 check scans the published JavaScript for off-origin URLs instead.
 
 The second one was louder. js-dos ships a stylesheet, and that stylesheet opens
-with a full Tailwind reset — `h1..h6{font-size:inherit}`, `a{color:inherit;
+with a full Tailwind reset: `h1..h6{font-size:inherit}`, `a{color:inherit;
 text-decoration:inherit}`. It loads after mine, at the same specificity. Clicking
 "Play" flattened every heading and drained the colour out of every link on the
 page, all at once. The fix was to stop serving those 118 KB entirely and
@@ -123,4 +123,4 @@ readme followed the half that was easier to see.
 So the demo documents `C`, and there is a test that fails if anyone helpfully
 "corrects" it back to `O` by reading the readme. It is a small thing, but it is
 the kind of thing that only surfaces when you actually run the program instead of
-describing it — which, seven years later, is most of what this port was for.
+describing it. Seven years later, that is most of what this port was for.
