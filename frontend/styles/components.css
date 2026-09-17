@@ -13,6 +13,7 @@
   margin: 0 auto;
   max-width: var(--measure);
   padding: calc(var(--space) * 1.75) var(--space);
+  padding-bottom: 4px;
 }
 
 .site-title {
