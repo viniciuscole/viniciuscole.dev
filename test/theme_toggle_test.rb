@@ -99,16 +99,16 @@ class ThemeToggleTest < Minitest::Test
   end
 
   def test_o_css_publicado_esconde_o_sol_no_tema_claro
-    assert_includes css_comprimido, ".theme-toggle .icone-sol{display:none}",
+    assert_includes css_comprimido, ".theme-toggle .icone-sol{opacity:0}",
       "o sol deixou de ser escondido no tema claro — os dois icones aparecem juntos"
   end
 
   def test_o_css_publicado_troca_os_icones_na_escolha_explicita
     css = css_comprimido
 
-    assert_includes css, ":root[data-theme=dark] .theme-toggle .icone-lua{display:none}",
+    assert_includes css, ":root[data-theme=dark] .theme-toggle .icone-lua{opacity:0}",
       "quem escolheu o tema escuro continua vendo a lua"
-    assert_includes css, ":root[data-theme=dark] .theme-toggle .icone-sol{display:inline-block}",
+    assert_includes css, ":root[data-theme=dark] .theme-toggle .icone-sol{opacity:1}",
       "quem escolheu o tema escuro nao ve o sol"
   end
 
@@ -120,10 +120,10 @@ class ThemeToggleTest < Minitest::Test
     assert_match(/@media\s*\(prefers-color-scheme:dark\)/, css,
       "o CSS publicado nao tem a media query de tema escuro")
     assert_includes css,
-      ":root:not([data-theme=light]) .theme-toggle .icone-lua{display:none}",
+      ":root:not([data-theme=light]) .theme-toggle .icone-lua{opacity:0}",
       "no sistema escuro, sem escolha salva, a lua continua aparecendo"
     assert_includes css,
-      ":root:not([data-theme=light]) .theme-toggle .icone-sol{display:inline-block}",
+      ":root:not([data-theme=light]) .theme-toggle .icone-sol{opacity:1}",
       "no sistema escuro, sem escolha salva, o sol nao aparece"
   end
 end
