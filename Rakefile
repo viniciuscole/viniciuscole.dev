@@ -222,6 +222,34 @@ namespace :demo2d do
   end
 end
 
+namespace :routes do
+  REPO_ROUTES = "https://github.com/viniciuscole/car-routes-optimazing".freeze
+  SHA_ROUTES  = "eed710fe57c00679bd3165ad5e29a635cdf289a7".freeze
+
+  desc "Reconstroi o simulador de rotas em WebAssembly a partir do fonte (exige Docker)"
+  task :build do
+    require "fileutils"
+    require "tmpdir"
+
+    destino = File.expand_path("src/demos/car-routes")
+    receita = File.expand_path("build/routes")
+    FileUtils.mkdir_p(destino)
+
+    Dir.mktmpdir do |tmp|
+      fonte = "#{tmp}/routes"
+      sh "git clone #{REPO_ROUTES} #{fonte}"
+      sh "git -C #{fonte} checkout --detach #{SHA_ROUTES}"
+      sh "docker build -t viniciuscole-routes-build #{receita}"
+      sh "docker run --rm " \
+         "--user #{Process.uid}:#{Process.gid} " \
+         "-e SHA_ESPERADO=#{SHA_ROUTES} " \
+         "-v #{fonte}:/src " \
+         "-v #{destino}:/out " \
+         "viniciuscole-routes-build"
+    end
+  end
+end
+
 #
 # Add your own Rake tasks here! You can use `environment` as a prerequisite
 # in order to write automations or other commands requiring a loaded site.
