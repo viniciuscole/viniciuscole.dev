@@ -248,6 +248,21 @@ namespace :routes do
          "viniciuscole-routes-build"
     end
   end
+
+  desc "Verifica em navegador de verdade que a simulacao roda na pagina (exige Docker e output/)"
+  task :verify do
+    saida = File.expand_path("output")
+    receita = File.expand_path("build/routes")
+    raise "output/ nao existe — rode `bin/bridgetown build` primeiro." unless File.directory?(saida)
+
+    sh "docker run --rm --network host " \
+       "--user #{Process.uid}:#{Process.gid} " \
+       "-v #{saida}:/site:ro -v #{receita}:/work:ro -w /tmp " \
+       "-e ALVO=http://localhost:4124/projects/car-routes/ " \
+       "#{IMAGEM_PLAYWRIGHT} " \
+       "bash -c 'cp /work/verify.js . && npm install --silent playwright@1.56.0 && " \
+       "(python3 -m http.server 4124 --directory /site &) && sleep 2 && node verify.js'"
+  end
 end
 
 #
