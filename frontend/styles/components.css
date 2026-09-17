@@ -86,10 +86,20 @@
    e o valor sai de uma conta, nao de tentativa: metade da capitular menos
    metade do icone. A capitular desta mono e 0,75em (9px em 12px) e o icone
    tem 18px, entao 4,5 - 9 = -4,5px, que em em do botao e -0.375em. */
-.theme-toggle svg {
+.theme-toggle-icones {
+  display: inline-block;
   height: 1.125rem;
+  position: relative;
   vertical-align: -0.375em;
   width: 1.125rem;
+}
+
+.theme-toggle svg {
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
 }
 
 .theme-toggle:hover { color: var(--accent); }
@@ -100,14 +110,48 @@
    como base, a escolha explicita em data-theme, e o prefers-color-scheme
    para quem nunca clicou. Se divergirem, o icone passa a mentir sobre o que
    o clique vai fazer. */
-.theme-toggle .icone-sol { display: none; }
+.theme-toggle .icone-sol { opacity: 0; }
 
-:root[data-theme="dark"] .theme-toggle .icone-lua { display: none; }
-:root[data-theme="dark"] .theme-toggle .icone-sol { display: inline-block; }
+:root[data-theme="dark"] .theme-toggle .icone-lua { opacity: 0; }
+:root[data-theme="dark"] .theme-toggle .icone-sol { opacity: 1; }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .theme-toggle .icone-lua { display: none; }
-  :root:not([data-theme="light"]) .theme-toggle .icone-sol { display: inline-block; }
+  :root:not([data-theme="light"]) .theme-toggle .icone-lua { opacity: 0; }
+  :root:not([data-theme="light"]) .theme-toggle .icone-sol { opacity: 1; }
+}
+
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease,
+    fill 0.3s ease,
+    stroke 0.3s ease;
+}
+
+html.theme-transition .theme-toggle svg {
+  transition: opacity 0.3s ease;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .theme-toggle .icone-sol { transform: rotate(90deg); }
+
+  :root[data-theme="dark"] .theme-toggle .icone-lua { transform: rotate(-90deg); }
+  :root[data-theme="dark"] .theme-toggle .icone-sol { transform: rotate(0deg); }
+
+  html.theme-transition .theme-toggle svg {
+    transition:
+      opacity 0.3s ease,
+      transform 0.3s ease;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) and (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-toggle .icone-lua { transform: rotate(-90deg); }
+  :root:not([data-theme="light"]) .theme-toggle .icone-sol { transform: rotate(0deg); }
 }
 
 /* ---- O cartao da home ----------------------------------------------- */

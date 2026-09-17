@@ -39,12 +39,25 @@ function syncThemeColor() {
   document.head.appendChild(meta)
 }
 
+const TRANSITION_MS = 300 + 50
+let transitionTimer = 0
+
+function animateThemeChange() {
+  const html = document.documentElement
+  html.classList.add("theme-transition")
+  clearTimeout(transitionTimer)
+  transitionTimer = setTimeout(() => {
+    html.classList.remove("theme-transition")
+  }, TRANSITION_MS)
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const button = document.querySelector(".theme-toggle")
   if (!button) return
 
   button.addEventListener("click", () => {
     const next = activeTheme() === "dark" ? "light" : "dark"
+    animateThemeChange()
     document.documentElement.setAttribute("data-theme", next)
     syncThemeColor()
     try {
