@@ -1,7 +1,7 @@
 import { gerarEntrada, chaveAresta } from "./routes-entrada.js"
 import { analisar, estadoInicial, reduzir, duracaoMs } from "./routes-trace.js"
 import { criarSimulador, carregarScriptNoNavegador } from "./routes-wasm.js"
-import { desenhar } from "./routes-desenho.js"
+import { desenhar, arestaMaisProxima } from "./routes-desenho.js"
 
 const simulador = criarSimulador({ carregarScript: carregarScriptNoNavegador })
 let cenariosPromessa = null
@@ -34,6 +34,90 @@ function botao(texto, aoClicar) {
 function relogioTexto(segundos) {
   const s = Math.max(0, Math.round(segundos))
   return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`
+}
+
+function montarEditor(raiz, canvas, t) {
+  const original = structuredClone(raiz.__rotas.cenarioAtual())
+  let cenario = structuredClone(original)
+  let selecionada = null
+
+  const caixa = document.createElement("div")
+  caixa.className = "rotas-editor"
+  const dica = document.createElement("p")
+  dica.textContent = t.editor_hint
+  const form = document.createElement("form")
+  form.setAttribute("data-rotas-editor-form", "")
+  form.hidden = true
+  const rotulo = document.createElement("strong")
+  const campo = (nome, texto, valor) => {
+    const label = document.createElement("label")
+    label.textContent = texto
+    const input = document.createElement("input")
+    input.name = nome
+    input.type = "number"
+    input.min = "0"
+    input.step = "1"
+    input.value = valor
+    input.required = true
+    label.append(input)
+    return label
+  }
+  const instante = campo("instante", t.instant, "0")
+  const kmh = campo("kmh", t.kmh, "5")
+  const btAplicar = document.createElement("button")
+  btAplicar.type = "submit"
+  btAplicar.textContent = t.apply
+  form.append(rotulo, instante, kmh, btAplicar)
+  const lista = document.createElement("ul")
+  lista.setAttribute("data-rotas-editor-lista", "")
+  const btRodar = botao(t.run, () => aplicar())
+  btRodar.setAttribute("data-rotas-editor-rodar", "")
+  const btRestaurar = botao(t.reset, () => { cenario = structuredClone(original); renderLista(); aplicar() })
+  btRestaurar.setAttribute("data-rotas-editor-restaurar", "")
+  const erroEditor = document.createElement("p")
+  erroEditor.className = "rotas-erro"
+  erroEditor.setAttribute("data-rotas-editor-erro", "")
+  caixa.append(dica, form, lista, btRodar, btRestaurar, erroEditor)
+  raiz.append(caixa)
+
+  canvas.addEventListener("click", (evento) => {
+    const r = canvas.getBoundingClientRect()
+    const aresta = arestaMaisProxima(cenario, evento.clientX - r.left, evento.clientY - r.top, r.width, r.height)
+    if (!aresta) return
+    selecionada = aresta
+    rotulo.textContent = `${aresta.de} → ${aresta.para}`
+    form.hidden = false
+    instante.querySelector("input").focus()
+  })
+
+  form.addEventListener("submit", (evento) => {
+    evento.preventDefault()
+    const tI = Number(instante.querySelector("input").value)
+    const v = Number(kmh.querySelector("input").value)
+    if (!selecionada || !(tI >= 0) || !(v > 0)) { erroEditor.textContent = `${t.instant} ≥ 0, ${t.kmh} > 0`; return }
+    erroEditor.textContent = ""
+    cenario.atualizacoes = cenario.atualizacoes.filter((u) => !(u.de === selecionada.de && u.para === selecionada.para && u.t === tI))
+    cenario.atualizacoes.push({ t: tI, de: selecionada.de, para: selecionada.para, kmh: v })
+    cenario.atualizacoes.sort((a, b) => a.t - b.t)
+    form.hidden = true
+    renderLista()
+  })
+
+  function renderLista() {
+    lista.replaceChildren(...cenario.atualizacoes.map((u, i) => {
+      const li = document.createElement("li")
+      li.textContent = `t=${u.t}s: ${u.de} → ${u.para} @ ${u.kmh} km/h `
+      li.append(botao(t.remove, () => { cenario.atualizacoes.splice(i, 1); renderLista() }))
+      return li
+    }))
+  }
+
+  function aplicar() {
+    raiz.__rotas.definirCenario(structuredClone(cenario))
+    raiz.__rotas.rodar()
+  }
+
+  renderLista()
 }
 
 export function montar(raiz) {
@@ -196,6 +280,7 @@ export function montar(raiz) {
   }
 
   async function passo() {
+    if (carregando) return
     if (!(await garantirTrace())) return
     pausar()
     avancar()
@@ -248,6 +333,7 @@ export function montar(raiz) {
     .then((cenarios) => {
       if (!cenarios[id]) throw new Error(`cenario ${id} nao existe`)
       definirCenario(structuredClone(cenarios[id]))
+      if (raiz.hasAttribute("data-rotas-editor")) montarEditor(raiz, canvas, t)
     })
     .catch((motivo) => {
       console.error("[rotas]", motivo)
