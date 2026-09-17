@@ -102,8 +102,9 @@ desse tamanho.
 
 ### Instrumentação vive no repo upstream, em branch própria
 
-PR em `car-routes-optimazing` (branch `trace-mode`). O site fixa o SHA do
-merge, como faz com o 2D — mas **sem patches**: tudo que o build precisa já
+Branch `trace-mode` em `car-routes-optimazing`, mantida de propósito fora
+da `main` (o trabalho original fica intacto). O site fixa um SHA dessa
+branch, como faz com o 2D — mas **sem patches**: tudo que o build precisa já
 está no fonte. O projeto original melhora (README, bug de formatação, modo
 trace) em vez de o site carregar um diff de 800 linhas de C.
 
