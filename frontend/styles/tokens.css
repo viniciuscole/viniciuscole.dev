@@ -41,20 +41,35 @@
 }
 
 /* Tema claro — papel quente, tinta quase preta, terracota como unico acento.
-   O contraste do acento sobre o fundo e 7,2:1, bem acima do minimo AA. */
+
+   O papel ja foi #faf8f4. Aquele valor tinha 96,9% de luminosidade e so 6/255
+   de diferenca entre o canal vermelho e o azul: a intencao era papel quente,
+   mas nessa claridade o calor fica abaixo do limiar do olho e o site saia
+   branco. Este esta em 92,4% com 17/255 de calor — o tom passa a ser visivel
+   sem virar creme.
+
+   Contrastes sobre este fundo: texto 15,17:1, acento 6,67:1, --muted 5,08:1.
+   O acento caiu dos 7,2:1 do papel antigo, mas segue bem acima do AA de 4,5:1.
+
+   color-scheme e o que faz o navegador desenhar barra de rolagem, controles de
+   formulario e area de overscroll no tema certo. Sem ele o cromo do navegador
+   fica no branco padrao em volta da pagina, o que somava ao "branco demais" —
+   e no tema escuro estava simplesmente errado. */
 :root,
 :root[data-theme="light"] {
-  --bg: #faf8f4;
-  --bg-sutil: #f3efe7;
+  color-scheme: light;
+  --bg: #f4efe3;
+  --bg-sutil: #ece5d6;
   --fg: #1a1a1a;
   --muted: #6b645c;
   --accent: #8b3a2f;
-  --border: #e2dcd2;
+  --border: #ddd5c5;
 }
 
 /* Tema escuro — nao e preto puro: e um marrom muito escuro, para o papel
    continuar parecendo papel a noite. O acento clareia para manter 7:1. */
 :root[data-theme="dark"] {
+  color-scheme: dark;
   --bg: #14120f;
   --bg-sutil: #1c1917;
   --fg: #ebe6dd;
@@ -65,6 +80,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
+    color-scheme: dark;
     --bg: #14120f;
     --bg-sutil: #1c1917;
     --fg: #ebe6dd;

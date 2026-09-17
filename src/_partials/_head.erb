@@ -71,6 +71,16 @@
 
 <link rel="icon" href="<%= relative_url "favicon.svg" %>" type="image/svg+xml" />
 
+<%# Pinta o cromo do navegador no mobile com o papel do tema, para a barra de
+    endereco nao emendar um branco alheio em cima da pagina. Sao os mesmos
+    valores de --bg em frontend/styles/tokens.css.
+
+    Estas duas seguem o `prefers-color-scheme`. Quem clica no botao de tema
+    escolhe contra o sistema, e ai nenhuma das duas descreve a pagina: o
+    index.js troca as duas por uma sem media depois do clique. %>
+<meta name="theme-color" content="#f4efe3" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#14120f" media="(prefers-color-scheme: dark)" />
+
 <%# Bloqueante e inline de proposito: aplica o tema salvo antes do primeiro
     paint. O bundle e `defer`, entao aplicar o tema la deixaria um flash
     branco em quem escolheu dark num sistema light. Inline e mesma origem,

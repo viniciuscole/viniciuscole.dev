@@ -58,6 +58,25 @@ code, pre {
   font-size: 0.9em;
 }
 
+/* A unica segunda superficie do tema, e o motivo de --bg-sutil existir. Ela
+   nao contradiz a regra da linha logo abaixo: codigo e material diferente do
+   texto ao redor, nao uma secao da pagina que precisou de moldura.
+
+   O seletor exclui code dentro de pre — senao o bloco ganharia o fundo e cada
+   trecho colorido dentro dele ganharia outro por cima. */
+:not(pre) > code {
+  background: var(--bg-sutil);
+  border-radius: var(--radius);
+  padding: 0.15em 0.4em;
+}
+
+pre {
+  background: var(--bg-sutil);
+  border-radius: var(--radius);
+  overflow-x: auto;
+  padding: var(--space);
+}
+
 /* Regra fina em vez de caixa: o vocabulario do tema editorial e a linha,
    nao o retangulo. */
 hr {
