@@ -1,0 +1,24 @@
+<% textos = %w[play pause step speed restart clock queue km apply run reset remove instant kmh editor_hint unreachable legend_open legend_closed legend_planned legend_driven]
+     .to_h { |chave| [chave, t("demo.routes.textos.#{chave}")] } %>
+<section class="demo demo-routes" aria-label="<%= t("demo.routes.label") %>">
+  <div class="rotas"
+       data-rotas="engarrafamento"
+       data-rotas-editor
+       data-rotas-base="/demos/car-routes"
+       data-rotas-textos="<%= textos.to_json %>">
+    <canvas data-rotas-canvas></canvas>
+    <div class="rotas-controles" data-rotas-controles></div>
+    <aside class="rotas-painel" data-rotas-painel></aside>
+    <p class="demo-weight"><%= t("demo.routes.weight") %></p>
+    <p class="demo-error" data-rotas-erro hidden>
+      <%= t("demo.routes.failed") %>
+      <a href="<%= resource.data.repo %>"><%= resource.data.repo.to_s.sub("https://", "") %></a>
+    </p>
+    <noscript>
+      <p class="demo-weight">
+        <%= t("demo.noscript") %>
+        <a href="<%= resource.data.repo %>"><%= resource.data.repo.to_s.sub("https://", "") %></a>
+      </p>
+    </noscript>
+  </div>
+</section>

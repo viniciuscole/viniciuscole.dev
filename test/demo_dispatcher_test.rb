@@ -128,4 +128,8 @@ class DemoDispatcherTest < Minitest::Test
   def test_video_is_a_known_demo_type
     assert_includes Builders::DemoHelper::DEMO_TYPES, "video"
   end
+
+  def test_routes_is_a_known_demo_type
+    assert_includes ALLOWED_TYPES, "routes"
+  end
 end

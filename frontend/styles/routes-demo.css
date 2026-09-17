@@ -1,0 +1,79 @@
+.rotas {
+  display: grid;
+  gap: var(--space);
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.rotas canvas {
+  aspect-ratio: 3 / 2;
+  background: var(--bg-sutil);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: block;
+  width: 100%;
+}
+
+.rotas-controles {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+  font-size: var(--texto-meta);
+  gap: 0.5rem;
+}
+
+.rotas-controles button,
+.rotas-editor button {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--fg);
+  cursor: pointer;
+  font: inherit;
+  padding: 0.25rem 0.6rem;
+}
+
+.rotas-controles button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.rotas-controles button:disabled { color: var(--muted); cursor: default; }
+
+.rotas-painel {
+  display: grid;
+  font-family: var(--font-mono);
+  font-size: var(--texto-meta);
+  gap: 0.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+}
+
+.rotas-painel dt { color: var(--muted); }
+.rotas-painel dd { margin: 0; }
+.rotas-fila { display: flex; flex-wrap: wrap; gap: 0.25rem 0.75rem; }
+
+.rotas-legenda { color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; }
+.rotas-legenda span::before {
+  border-radius: 50%;
+  content: "";
+  display: inline-block;
+  height: 0.6em;
+  margin-right: 0.3em;
+  width: 0.6em;
+}
+.rotas-legenda .aberto::before { border: 2px solid var(--accent); }
+.rotas-legenda .fechado::before { background: var(--muted); }
+.rotas-legenda .planejado::before { border-bottom: 2px dashed var(--accent); border-radius: 0; height: 0; }
+.rotas-legenda .percorrido::before { border-bottom: 2px solid var(--fg); border-radius: 0; height: 0; }
+
+.rotas-editor {
+  align-items: end;
+  display: flex;
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+  font-size: var(--texto-meta);
+  gap: 0.5rem;
+}
+.rotas-editor label { display: grid; gap: 0.15rem; }
+.rotas-editor input { font: inherit; padding: 0.2rem 0.4rem; width: 7rem; }
+.rotas-editor ul { list-style: none; margin: 0; padding: 0; width: 100%; }
+.rotas-editor li { display: flex; gap: 0.5rem; }
+.rotas-editor .rotas-erro { color: var(--accent); width: 100%; }
+
+.project-body .rotas { margin-block: calc(var(--space) * 2); }

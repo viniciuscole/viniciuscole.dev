@@ -2,7 +2,7 @@ class Builders::DemoHelper < SiteBuilder
   # Tipos de demo suportados. Acrescentar um tipo aqui e criar o partial
   # correspondente em src/_partials/demos/_<tipo>.erb e tudo que e preciso
   # para um projeto novo embutir uma demo.
-  DEMO_TYPES = %w[none jsdos wasm video].freeze
+  DEMO_TYPES = %w[none jsdos wasm video routes].freeze
 
   def build
     helper :demo_partial_for do |resource|
