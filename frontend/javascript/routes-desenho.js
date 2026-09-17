@@ -1,5 +1,3 @@
-import { chaveAresta } from "./routes-entrada.js"
-
 const MARGEM = 24
 const RAIO_NO = 9
 const RAIO_CARRO = 6

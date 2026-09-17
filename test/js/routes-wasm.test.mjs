@@ -41,6 +41,19 @@ test("entrada invalida rejeita", async () => {
   await assert.rejects(sim.rodar("0;0\n1;1\n0\n"))
 })
 
+test("uma instanciacao rejeitada nao fica em cache para sempre", async () => {
+  let chamadas = 0
+  const falhaUmaVez = async (url) => {
+    chamadas++
+    if (chamadas === 1) throw new Error("falha simulada de carregamento")
+    return carregarScript(url)
+  }
+  const sim = criarSimulador({ carregarScript: falhaUmaVez })
+  await assert.rejects(sim.rodar(gerarEntrada(cenarios.engarrafamento)))
+  const trace = await sim.rodar(gerarEntrada(cenarios.engarrafamento))
+  assert.equal(trace.trim().split("\n").at(-1), "done 240.000 4.000")
+})
+
 test("duas rodadas concorrentes instanciam o modulo uma vez so", async () => {
   let instancias = 0
   const contando = async () => {

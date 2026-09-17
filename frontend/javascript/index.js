@@ -2,6 +2,7 @@ import "$styles/index.css"
 import "$styles/syntax-highlighting.css"
 import "./jsdos-player.js"
 import "./wasm-player.js"
+import "./routes-player.js"
 
 // Import all JavaScript & CSS files from src/_components
 import components from "$components/**/*.{js,jsx,js.rb,css}"

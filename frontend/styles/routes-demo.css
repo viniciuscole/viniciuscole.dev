@@ -48,6 +48,8 @@
 .rotas-painel dd { margin: 0; }
 .rotas-fila { display: flex; flex-wrap: wrap; gap: 0.25rem 0.75rem; }
 
+.rotas-aviso { color: var(--accent); font-family: var(--font-mono); font-size: var(--texto-meta); }
+
 .rotas-legenda { color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; }
 .rotas-legenda span::before {
   border-radius: 50%;

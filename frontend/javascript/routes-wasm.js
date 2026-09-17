@@ -14,7 +14,12 @@ export function criarSimulador({ carregarScript }) {
 
   return {
     async rodar(entrada, base = "/demos/car-routes") {
-      if (!moduloPromessa) moduloPromessa = instanciar(base)
+      if (!moduloPromessa) {
+        moduloPromessa = instanciar(base).catch((motivo) => {
+          moduloPromessa = null
+          throw motivo
+        })
+      }
       const modulo = await moduloPromessa
       saida = []
       const codigo = modulo.ccall("run_trace", "number", ["string"], [entrada])
