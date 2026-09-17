@@ -20,6 +20,25 @@ function activeTheme() {
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
 }
 
+// As duas <meta name="theme-color"> de _head.erb seguem o prefers-color-scheme.
+// Depois de um clique nenhuma das duas descreve mais a pagina, entao trocamos
+// as duas por uma sem media, que vale sempre.
+//
+// A cor sai do --bg ja computado em vez de uma tabela aqui: os tokens continuam
+// sendo a fonte unica, e mudar o papel no CSS nao exige lembrar deste arquivo.
+function syncThemeColor() {
+  const cor = getComputedStyle(document.documentElement)
+    .getPropertyValue("--bg")
+    .trim()
+  if (!cor) return
+
+  document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.remove())
+  const meta = document.createElement("meta")
+  meta.setAttribute("name", "theme-color")
+  meta.setAttribute("content", cor)
+  document.head.appendChild(meta)
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const button = document.querySelector(".theme-toggle")
   if (!button) return
@@ -27,6 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
   button.addEventListener("click", () => {
     const next = activeTheme() === "dark" ? "light" : "dark"
     document.documentElement.setAttribute("data-theme", next)
+    syncThemeColor()
     try {
       localStorage.setItem(STORAGE_KEY, next)
     } catch (e) {

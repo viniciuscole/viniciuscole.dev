@@ -175,17 +175,17 @@
 
      A borda ja foi --crt-phosphor: o verde VGA cru cumpria o 3:1 de sinal
      nao-textual por margem minima (3,003:1) sobre o fundo antigo. O tema
-     editorial clareou o papel para #faf8f4 e isso derrubou a razao para
-     2,93:1, abaixo do limiar. --accent da 7,2:1 e ainda amarra o foco a cor
-     do resto do site. O verde continua onde e legitimo: sobre o preto da
-     moldura do emulador. */
+     editorial trocou aquele fundo por papel e isso derrubou a razao para
+     abaixo do limiar — no papel de hoje (#f4efe3) o verde da 2,71:1.
+     --accent da 6,67:1 e ainda amarra o foco a cor do resto do site. O verde
+     continua onde e legitimo: sobre o preto da moldura do emulador. */
   border-color: var(--accent);
   color: var(--accent);
 }
 
 /* A marca selecionada fica preenchida no acento do site, nao no verde do
    jogo: o teclado e cromo da pagina, e a pagina agora tem um acento so.
-   Texto em --bg sobre --accent da 7,2:1 no claro e 6,9:1 no escuro. */
+   Texto em --bg sobre --accent da 6,67:1 no claro e 6,94:1 no escuro. */
 .demo-keypad button[aria-pressed="true"] {
   background: var(--accent);
   border-color: var(--accent);

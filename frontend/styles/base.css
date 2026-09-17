@@ -58,23 +58,25 @@ code, pre {
   font-size: 0.9em;
 }
 
-/* O primeiro bloco de codigo do site chegou com o post do assembly, e ate
-   entao `pre` so tinha a fonte: sem recuo, sem margem e — o que quebrava de
-   verdade — sem overflow. Linha de assembly nao quebra sozinha, entao no
-   celular o bloco empurrava a pagina inteira para o lado. O tratamento segue
-   o mesmo vocabulario do `hr` logo abaixo: uma linha a esquerda, nao uma
-   caixa cinza. Cor nenhuma e fixada aqui, so tokens, para o bloco acompanhar
-   o tema claro e o escuro. */
-pre {
-  overflow-x: auto;
-  margin: calc(var(--space) * 1.5) 0;
-  padding: 0 0 0 var(--space);
-  border-left: 2px solid var(--border);
-  line-height: 1.5;
+/* A unica segunda superficie do tema, e o motivo de --bg-sutil existir. Ela
+   nao contradiz a regra da linha logo abaixo: codigo e material diferente do
+   texto ao redor, nao uma secao da pagina que precisou de moldura.
+
+   O seletor exclui code dentro de pre — senao o bloco ganharia o fundo e cada
+   trecho colorido dentro dele ganharia outro por cima. */
+:not(pre) > code {
+  background: var(--bg-sutil);
+  border-radius: var(--radius);
+  padding: 0.15em 0.4em;
 }
 
-/* O `code` dentro do `pre` ja herda a fonte; sem isto ele aplicaria 0.9em
-   uma segunda vez sobre o `pre`, e o bloco sairia menor que o texto inline. */
+pre {
+  background: var(--bg-sutil);
+  border-radius: var(--radius);
+  overflow-x: auto;
+  padding: var(--space);
+}
+
 pre code { font-size: inherit; }
 
 /* Regra fina em vez de caixa: o vocabulario do tema editorial e a linha,
