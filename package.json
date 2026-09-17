@@ -8,7 +8,8 @@
   },
   "scripts": {
     "esbuild": "node esbuild.config.js --minify",
-    "esbuild-dev": "node esbuild.config.js --watch"
+    "esbuild-dev": "node esbuild.config.js --watch",
+    "test": "node --test 'test/js/**/*.test.mjs'"
   },
   "devDependencies": {
     "esbuild": "^0.25.11",

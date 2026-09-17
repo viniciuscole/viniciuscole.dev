@@ -269,6 +269,11 @@ Rake::TestTask.new(:minitest) do |t|
   t.warning = false
 end
 
+desc "Roda os testes dos modulos JavaScript puros"
+task :jstest do
+  sh "npm test"
+end
+
 desc "Verifica links internos e imagens no HTML gerado"
 task :proof do
   require "html_proofer"
@@ -293,5 +298,6 @@ task :check => :clean do
   Rake::Task["frontend:build"].invoke
   sh "bin/bridgetown build"
   Rake::Task["minitest"].invoke
+  Rake::Task["jstest"].invoke
   Rake::Task["proof"].invoke
 end
