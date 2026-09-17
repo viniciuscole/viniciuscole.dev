@@ -1,6 +1,6 @@
 import { test } from "node:test"
 import assert from "node:assert/strict"
-import { analisar, estadoInicial, reduzir, duracaoMs } from "../../frontend/javascript/routes-trace.js"
+import { analisar, estadoInicial, reduzir, duracaoMs, eventosVisiveis } from "../../frontend/javascript/routes-trace.js"
 
 const TRACE = `graph 3 2
 edge 1 2 1000 60.000
@@ -89,6 +89,13 @@ test("reduzir nao muta o estado anterior", () => {
   const a = estadoInicial(ev)
   reduzir(a, ev[11])
   assert.equal(a.arestas.get("2-3").kmh, 60)
+})
+
+test("eventosVisiveis descarta graph e edge", () => {
+  const ev = analisar(TRACE)
+  const visiveis = eventosVisiveis(ev)
+  assert.equal(visiveis.length, 16)
+  assert.equal(visiveis[0].tipo, "replan")
 })
 
 test("duracaoMs", () => {

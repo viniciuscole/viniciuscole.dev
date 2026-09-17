@@ -1,5 +1,6 @@
 <% textos = %w[play pause step speed restart clock queue km apply run reset remove instant kmh editor_hint unreachable legend_open legend_closed legend_planned legend_driven]
-     .to_h { |chave| [chave, t("demo.routes.textos.#{chave}")] } %>
+     .to_h { |chave| [chave, t("demo.routes.textos.#{chave}")] }
+     .merge("failed" => t("demo.routes.failed")) %>
 <section class="demo demo-routes" aria-label="<%= t("demo.routes.label") %>">
   <div class="rotas"
        data-rotas="engarrafamento"
@@ -16,7 +17,7 @@
     </p>
     <noscript>
       <p class="demo-weight">
-        <%= t("demo.noscript") %>
+        <%= t("demo.routes.noscript") %>
         <a href="<%= resource.data.repo %>"><%= resource.data.repo.to_s.sub("https://", "") %></a>
       </p>
     </noscript>

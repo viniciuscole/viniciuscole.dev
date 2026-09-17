@@ -31,6 +31,10 @@ export function analisar(texto) {
     .filter((e) => e.tipo !== "ignorado")
 }
 
+export function eventosVisiveis(eventos) {
+  return eventos.filter((e) => e.tipo !== "graph" && e.tipo !== "edge")
+}
+
 export function estadoInicial(eventos) {
   const arestas = new Map()
   for (const e of eventos) {

@@ -111,7 +111,7 @@ Sometimes there isn't time. In this scenario the same road jams at
 90 seconds — and the car entered it at 60. The model doesn't interrupt a
 road partway through: the update is only applied when the car reaches the
 next node, at 4, at 120 seconds. By then it no longer matters: `4 6` is
-the only path left. Traffic changed and the car paid for it with no
+the fastest of what's left. Traffic changed and the car paid for it with no
 chance to react. It's the model's most honest limitation, and its most
 real one.
 

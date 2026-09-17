@@ -105,7 +105,7 @@ aplica todas as vencidas e replaneja de onde está.
 Nem sempre dá tempo. Neste cenário a mesma via trava aos 90 segundos — e o
 carro entrou nela aos 60. O modelo não interrompe uma via no meio: a
 atualização só é aplicada quando o carro chega ao próximo nó, em 4, aos 120
-segundos. Aí já não importa: `4 6` é o único caminho que resta. O trânsito
+segundos. Aí já não importa: `4 6` é o mais rápido do que resta. O trânsito
 mudou e o carro pagou por ele sem chance de reagir. É a limitação mais
 honesta do modelo, e a mais real.
 

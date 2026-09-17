@@ -17,7 +17,9 @@ function confere(descricao, condicao) {
   const page = await browser.newPage()
   const erros = []
   page.on("pageerror", (e) => erros.push(String(e)))
-  page.on("console", (m) => { if (m.type() === "error") erros.push(m.text()) })
+  // O build de desenvolvimento injeta um poller em /_bridgetown/live_reload que nao existe no
+  // servidor estatico; o texto da mensagem de erro de recurso nao carrega a URL, so location().url
+  page.on("console", (m) => { if (m.type() === "error" && !m.location().url.includes("/_bridgetown/live_reload")) erros.push(m.text()) })
 
   await page.goto(ALVO, { waitUntil: "networkidle" })
   const principal = page.locator("[data-rotas-editor]")

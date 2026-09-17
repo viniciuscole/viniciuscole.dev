@@ -91,6 +91,7 @@ pt:
       label: "Simulação interativa"
       weight: "Carrega o simulador em WebAssembly, cerca de 60 KB."
       failed: "O simulador não carregou. O código está no repositório:"
+      noscript: "Esta simulação precisa de JavaScript. O código está no repositório:"
       textos:
         play: "Rodar"
         pause: "Pausar"

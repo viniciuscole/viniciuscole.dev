@@ -1,5 +1,5 @@
 import { gerarEntrada, chaveAresta } from "./routes-entrada.js"
-import { analisar, estadoInicial, reduzir, duracaoMs } from "./routes-trace.js"
+import { analisar, estadoInicial, reduzir, duracaoMs, eventosVisiveis } from "./routes-trace.js"
 import { criarSimulador, carregarScriptNoNavegador } from "./routes-wasm.js"
 import { desenhar, arestaMaisProxima } from "./routes-desenho.js"
 
@@ -36,7 +36,7 @@ function relogioTexto(segundos) {
   return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`
 }
 
-function montarEditor(raiz, canvas, t) {
+function montarEditor(raiz, canvas, painel, t) {
   const original = structuredClone(raiz.__rotas.cenarioAtual())
   let cenario = structuredClone(original)
   let selecionada = null
@@ -78,7 +78,7 @@ function montarEditor(raiz, canvas, t) {
   erroEditor.className = "rotas-erro"
   erroEditor.setAttribute("data-rotas-editor-erro", "")
   caixa.append(dica, form, lista, btRodar, btRestaurar, erroEditor)
-  raiz.append(caixa)
+  painel.after(caixa)
 
   canvas.addEventListener("click", (evento) => {
     const r = canvas.getBoundingClientRect()
@@ -150,6 +150,7 @@ export function montar(raiz) {
   let carregando = false
   let ultimoQuadro = 0
   let geracao = 0
+  let quadroPendente = 0
 
   const btRodar = botao(t.play, () => (rodando ? pausar() : rodar()))
   btRodar.disabled = true
@@ -187,9 +188,9 @@ export function montar(raiz) {
     const dpr = window.devicePixelRatio || 1
     const largura = canvas.clientWidth
     const altura = Math.round(largura * 2 / 3)
-    if (canvas.width !== largura * dpr || canvas.height !== altura * dpr) {
-      canvas.width = largura * dpr
-      canvas.height = altura * dpr
+    if (canvas.width !== Math.round(largura * dpr) || canvas.height !== Math.round(altura * dpr)) {
+      canvas.width = Math.round(largura * dpr)
+      canvas.height = Math.round(altura * dpr)
     }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     return { largura, altura }
@@ -247,7 +248,7 @@ export function montar(raiz) {
       if (!rodando) return
     }
     quadro()
-    requestAnimationFrame(laco)
+    quadroPendente = requestAnimationFrame(laco)
   }
 
   async function garantirTrace() {
@@ -260,6 +261,7 @@ export function montar(raiz) {
       console.error("[rotas]", motivo)
       raiz.setAttribute("data-rotas-estado", "erro")
       if (erro) erro.hidden = false
+      else { aviso.textContent = t.failed; aviso.hidden = false }
       return false
     } finally {
       carregando = false
@@ -276,7 +278,7 @@ export function montar(raiz) {
     btRodar.setAttribute("aria-pressed", "true")
     raiz.setAttribute("data-rotas-estado", "rodando")
     ultimoQuadro = performance.now()
-    requestAnimationFrame(laco)
+    quadroPendente = requestAnimationFrame(laco)
   }
 
   async function passo() {
@@ -288,6 +290,7 @@ export function montar(raiz) {
 
   function pausar() {
     rodando = false
+    cancelAnimationFrame(quadroPendente)
     btRodar.textContent = t.play
     btRodar.setAttribute("aria-pressed", "false")
     if (eventos.length) raiz.setAttribute("data-rotas-estado", "pausado")
@@ -308,8 +311,9 @@ export function montar(raiz) {
     const minha = geracao
     const trace = await simulador.rodar(gerarEntrada(cenario), base)
     if (minha !== geracao) return false
-    eventos = analisar(trace)
-    estados = [estadoInicial(eventos)]
+    const todos = analisar(trace)
+    eventos = eventosVisiveis(todos)
+    estados = [estadoInicial(todos)]
     for (const e of eventos) estados.push(reduzir(estados.at(-1), e))
     indice = 0
     decorrido = 0
@@ -328,17 +332,20 @@ export function montar(raiz) {
 
   raiz.__rotas = { rodar, pausar, passo, reiniciar, definirCenario, cenarioAtual: () => cenario }
   window.addEventListener("resize", quadro)
+  new MutationObserver(() => quadro()).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] })
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => quadro())
 
   carregarCenarios(base)
     .then((cenarios) => {
       if (!cenarios[id]) throw new Error(`cenario ${id} nao existe`)
       definirCenario(structuredClone(cenarios[id]))
-      if (raiz.hasAttribute("data-rotas-editor")) montarEditor(raiz, canvas, t)
+      if (raiz.hasAttribute("data-rotas-editor")) montarEditor(raiz, canvas, painel, t)
     })
     .catch((motivo) => {
       console.error("[rotas]", motivo)
       raiz.setAttribute("data-rotas-estado", "erro")
       if (erro) erro.hidden = false
+      else { aviso.textContent = t.failed; aviso.hidden = false }
     })
 }
 

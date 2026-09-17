@@ -91,6 +91,7 @@ en:
       label: "Interactive simulation"
       weight: "Loads the WebAssembly simulator, about 60 KB."
       failed: "The simulator could not load. The code lives in the repository:"
+      noscript: "This simulation needs JavaScript. The code lives in the repository:"
       textos:
         play: "Run"
         pause: "Pause"
