@@ -145,7 +145,7 @@ ls -l /out/
 ```ruby
 namespace :routes do
   REPO_ROUTES = "https://github.com/viniciuscole/car-routes-optimazing".freeze
-  SHA_ROUTES  = "<SHA da ponta de trace-mode, registrado no plano 1 Task 7>".freeze
+  SHA_ROUTES  = "eed710fe57c00679bd3165ad5e29a635cdf289a7".freeze
 
   desc "Reconstroi o simulador de rotas em WebAssembly a partir do fonte (exige Docker)"
   task :build do
