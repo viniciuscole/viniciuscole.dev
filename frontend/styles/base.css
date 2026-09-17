@@ -77,6 +77,8 @@ pre {
   padding: var(--space);
 }
 
+pre code { font-size: inherit; }
+
 /* Regra fina em vez de caixa: o vocabulario do tema editorial e a linha,
    nao o retangulo. */
 hr {
