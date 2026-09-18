@@ -1,13 +1,20 @@
 import { gerarEntrada, chaveAresta } from "./routes-entrada.js"
 import { analisar, estadoInicial, reduzir, duracaoMs, eventosVisiveis } from "./routes-trace.js"
 import { criarSimulador, carregarScriptNoNavegador } from "./routes-wasm.js"
-import { desenhar, arestaMaisProxima } from "./routes-desenho.js"
+import { desenhar, arestaMaisProxima, posicao } from "./routes-desenho.js"
 
 const simulador = criarSimulador({ carregarScript: carregarScriptNoNavegador })
 let cenariosPromessa = null
 
 function carregarCenarios(base) {
-  if (!cenariosPromessa) cenariosPromessa = fetch(`${base}/cenarios.json`).then((r) => r.json())
+  if (!cenariosPromessa) {
+    cenariosPromessa = fetch(`${base}/cenarios.json`)
+      .then((r) => {
+        if (!r.ok) throw new Error(`cenarios.json: HTTP ${r.status}`)
+        return r.json()
+      })
+      .catch((motivo) => { cenariosPromessa = null; throw motivo })
+  }
   return cenariosPromessa
 }
 
@@ -102,8 +109,49 @@ function montarEditor(raiz, canvas, mapa, painel, t) {
   const dica = document.createElement("p")
   dica.className = "rotas-dica"
   dica.textContent = t.editor_hint
-  mudancas.append(cabecalho, lista, dica)
+  const escolha = document.createElement("div")
+  escolha.className = "rotas-escolha"
+  const rotuloEscolha = document.createElement("label")
+  rotuloEscolha.textContent = t.road
+  const seletor = document.createElement("select")
+  seletor.setAttribute("data-rotas-editor-seletor", "")
+  for (const a of cenario.arestas) {
+    const opcao = document.createElement("option")
+    opcao.value = `${a.de}-${a.para}`
+    opcao.textContent = `${a.de} → ${a.para} · ${a.m} m`
+    seletor.append(opcao)
+  }
+  rotuloEscolha.append(seletor)
+  const btEscolher = botao(t.edit, () => {
+    const [de, para] = seletor.value.split("-").map(Number)
+    abrir({ de, para }, null, btEscolher)
+  })
+  escolha.append(rotuloEscolha, btEscolher)
+  mudancas.append(cabecalho, lista, dica, escolha)
   painel.after(mudancas)
+
+  canvas.tabIndex = 0
+  canvas.setAttribute("aria-label", `${t.editor_hint} ${t.keyboard_hint}`)
+  let foco = null
+  const indiceDe = (aresta) => cenario.arestas.findIndex((a) => aresta && a.de === aresta.de && a.para === aresta.para)
+  canvas.addEventListener("keydown", (evento) => {
+    const n = cenario.arestas.length
+    if (["ArrowRight", "ArrowDown"].includes(evento.key)) {
+      foco = cenario.arestas[(indiceDe(foco) + 1) % n]
+    } else if (["ArrowLeft", "ArrowUp"].includes(evento.key)) {
+      foco = cenario.arestas[(indiceDe(foco) - 1 + n) % n]
+    } else if (["Enter", " "].includes(evento.key) && foco) {
+      evento.preventDefault()
+      abrir({ de: foco.de, para: foco.para }, null, canvas)
+      return
+    } else {
+      return
+    }
+    evento.preventDefault()
+    seletor.value = `${foco.de}-${foco.para}`
+    raiz.__rotas.definirSobreposicao({ hover: { de: foco.de, para: foco.para } })
+  })
+  canvas.addEventListener("blur", () => { foco = null; raiz.__rotas.definirSobreposicao({ hover: null }) })
 
   const arestaEm = (evento) => {
     const r = canvas.getBoundingClientRect()
@@ -132,8 +180,10 @@ function montarEditor(raiz, canvas, mapa, painel, t) {
     abrir(aresta, evento)
   })
 
-  function abrir(aresta, evento) {
+  let devolverFoco = null
+  function abrir(aresta, evento, origem = null) {
     selecionada = aresta
+    devolverFoco = origem
     const dados = dadosDa(aresta)
     via.textContent = `${t.road} ${aresta.de} → ${aresta.para}`
     meta.textContent = `${dados.m} m · ${t.now} ${velocidadeAtual(aresta)} km/h`
@@ -150,8 +200,16 @@ function montarEditor(raiz, canvas, mapa, painel, t) {
   function posicionar(evento) {
     const r = mapa.getBoundingClientRect()
     if (r.width < 640) { cartao.style.left = ""; cartao.style.top = ""; return }
-    const x = evento.clientX - r.left
-    const y = evento.clientY - r.top
+    let x, y
+    if (evento) {
+      x = evento.clientX - r.left
+      y = evento.clientY - r.top
+    } else {
+      const a = posicao(cenario, selecionada.de, r.width, r.height)
+      const b = posicao(cenario, selecionada.para, r.width, r.height)
+      x = (a.x + b.x) / 2
+      y = (a.y + b.y) / 2
+    }
     const largura = cartao.offsetWidth
     const altura = cartao.offsetHeight
     const esquerda = x + 16 + largura > r.width ? x - 16 - largura : x + 16
@@ -165,8 +223,10 @@ function montarEditor(raiz, canvas, mapa, painel, t) {
     cartao.hidden = true
     selecionada = null
     raiz.__rotas.definirSobreposicao({ selecionada: null })
+    if (devolverFoco) { devolverFoco.focus(); devolverFoco = null }
   }
 
+  cartao.addEventListener("keydown", (evento) => { if (evento.key === "Escape") { evento.stopPropagation(); fechar() } })
   document.addEventListener("keydown", (evento) => { if (evento.key === "Escape") fechar() })
   document.addEventListener("pointerdown", (evento) => {
     if (cartao.hidden || cartao.contains(evento.target) || evento.target === canvas) return

@@ -14,7 +14,7 @@ class RoutesPlayerTest < Minitest::Test
     %w[data-rotas data-rotas-canvas data-rotas-controles data-rotas-painel data-rotas-erro
        data-rotas-textos data-rotas-base data-rotas-estado data-rotas-caminho data-rotas-rodar data-rotas-relogio
        data-rotas-aviso run_trace
-       data-rotas-editor data-rotas-editor-form data-rotas-editor-lista data-rotas-editor-cancelar
+       data-rotas-editor data-rotas-editor-form data-rotas-editor-lista data-rotas-editor-cancelar data-rotas-editor-seletor
        data-rotas-editor-restaurar data-rotas-editor-erro].each do |gancho|
       assert_includes bundle, gancho, "o bundle nao referencia #{gancho}"
     end

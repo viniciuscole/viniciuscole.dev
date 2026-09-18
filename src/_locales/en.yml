@@ -119,3 +119,5 @@ en:
         road: "Road"
         invalid: "Instant from 0 s and speed above 0 km/h."
         legend_edited: "changed road"
+        edit: "Edit"
+        keyboard_hint: "Keyboard: arrows pick a road, Enter opens the adjustment."

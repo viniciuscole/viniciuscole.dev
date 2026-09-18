@@ -1,4 +1,4 @@
-<% textos = %w[play pause step speed restart clock queue arrival in_time apply reset remove instant kmh editor_hint unreachable legend_open legend_closed legend_planned legend_driven cancel changes now road invalid legend_edited]
+<% textos = %w[play pause step speed restart clock queue arrival in_time apply reset remove instant kmh editor_hint unreachable legend_open legend_closed legend_planned legend_driven cancel changes now road invalid legend_edited edit keyboard_hint]
      .to_h { |chave| [chave, t("demo.routes.textos.#{chave}")] }
      .merge("failed" => t("demo.routes.failed")) %>
 <section class="demo demo-routes" aria-label="<%= t("demo.routes.label") %>">

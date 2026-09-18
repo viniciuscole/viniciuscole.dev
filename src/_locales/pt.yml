@@ -119,3 +119,5 @@ pt:
         road: "Via"
         invalid: "Instante a partir de 0 s e velocidade acima de 0 km/h."
         legend_edited: "via alterada"
+        edit: "Alterar"
+        keyboard_hint: "Com o teclado: setas escolhem a via, Enter abre o ajuste."

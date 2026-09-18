@@ -208,5 +208,18 @@
 .rotas-mudancas li span { flex: 1; }
 .rotas-mudancas li.rotas-original::before { border-bottom-style: solid; border-color: var(--muted); }
 .rotas-dica { color: var(--muted); margin: 0; }
+.rotas-escolha { align-items: center; display: flex; flex-wrap: wrap; gap: 0.5rem 0.75rem; }
+.rotas-escolha label { align-items: center; color: var(--muted); display: inline-flex; gap: 0.5rem; }
+.rotas-escolha select {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--fg);
+  font: inherit;
+  padding: 0.25rem 0.4rem;
+}
+.rotas-escolha select:focus-visible,
+.rotas-campo input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.rotas canvas:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .project-body .rotas { margin-block: calc(var(--space) * 2); }
