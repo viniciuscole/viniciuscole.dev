@@ -27,7 +27,7 @@ function confere(descricao, condicao) {
   confere("player principal pronto", (await principal.getAttribute("data-rotas-estado")) === "pronto")
   confere("quatro players inline + principal", (await page.locator("[data-rotas]").count()) === 5)
 
-  await principal.locator("button").first().click()
+  await principal.locator("[data-rotas-rodar]").click()
   await page.locator("[data-rotas-editor][data-rotas-estado='fim']").waitFor({ timeout: 120000 })
   confere("caminho final desvia por 5", (await principal.getAttribute("data-rotas-caminho")) === "1 2 5 6")
   confere("relogio termina em 240 s", (await principal.getAttribute("data-rotas-relogio")) === "240")

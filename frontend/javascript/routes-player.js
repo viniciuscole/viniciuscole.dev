@@ -36,83 +36,182 @@ function relogioTexto(segundos) {
   return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`
 }
 
-function montarEditor(raiz, canvas, painel, t) {
+function montarEditor(raiz, canvas, mapa, painel, t) {
   const original = structuredClone(raiz.__rotas.cenarioAtual())
   let cenario = structuredClone(original)
   let selecionada = null
 
-  const caixa = document.createElement("div")
-  caixa.className = "rotas-editor"
-  const dica = document.createElement("p")
-  dica.textContent = t.editor_hint
-  const form = document.createElement("form")
-  form.setAttribute("data-rotas-editor-form", "")
-  form.hidden = true
-  const rotulo = document.createElement("strong")
-  const campo = (nome, texto, valor) => {
+  const cartao = document.createElement("form")
+  cartao.className = "rotas-cartao"
+  cartao.setAttribute("data-rotas-editor-form", "")
+  cartao.hidden = true
+  const titulo = document.createElement("p")
+  titulo.className = "rotas-cartao-titulo"
+  const via = document.createElement("strong")
+  const meta = document.createElement("span")
+  titulo.append(via, meta)
+  const campo = (nome, texto, unidade) => {
     const label = document.createElement("label")
-    label.textContent = texto
+    const nomeSpan = document.createElement("span")
+    nomeSpan.textContent = texto
+    const grupo = document.createElement("span")
+    grupo.className = "rotas-campo"
     const input = document.createElement("input")
     input.name = nome
     input.type = "number"
-    input.min = "0"
+    input.min = nome === "kmh" ? "1" : "0"
     input.step = "1"
-    input.value = valor
     input.required = true
-    label.append(input)
-    return label
+    input.inputMode = "numeric"
+    const un = document.createElement("span")
+    un.textContent = unidade
+    grupo.append(input, un)
+    label.append(nomeSpan, grupo)
+    return { label, input }
   }
-  const instante = campo("instante", t.instant, "0")
-  const kmh = campo("kmh", t.kmh, "5")
+  const instante = campo("instante", t.instant, "s")
+  const kmh = campo("kmh", t.kmh, "km/h")
+  const erroEditor = document.createElement("p")
+  erroEditor.className = "rotas-cartao-erro"
+  erroEditor.setAttribute("data-rotas-editor-erro", "")
+  erroEditor.hidden = true
+  const acoes = document.createElement("div")
+  acoes.className = "rotas-cartao-acoes"
   const btAplicar = document.createElement("button")
   btAplicar.type = "submit"
+  btAplicar.className = "rotas-primario"
   btAplicar.textContent = t.apply
-  form.append(rotulo, instante, kmh, btAplicar)
+  const btCancelar = botao(t.cancel, () => fechar())
+  btCancelar.setAttribute("data-rotas-editor-cancelar", "")
+  acoes.append(btAplicar, btCancelar)
+  cartao.append(titulo, instante.label, kmh.label, erroEditor, acoes)
+  mapa.append(cartao)
+
+  const mudancas = document.createElement("section")
+  mudancas.className = "rotas-mudancas"
+  const cabecalho = document.createElement("div")
+  cabecalho.className = "rotas-mudancas-cabecalho"
+  const tituloMudancas = document.createElement("p")
+  tituloMudancas.textContent = t.changes
+  const btRestaurar = botao(t.reset, () => { cenario = structuredClone(original); fechar(); aplicar() })
+  btRestaurar.className = "rotas-texto"
+  btRestaurar.setAttribute("data-rotas-editor-restaurar", "")
+  cabecalho.append(tituloMudancas, btRestaurar)
   const lista = document.createElement("ul")
   lista.setAttribute("data-rotas-editor-lista", "")
-  const btRodar = botao(t.run, () => aplicar())
-  btRodar.setAttribute("data-rotas-editor-rodar", "")
-  const btRestaurar = botao(t.reset, () => { cenario = structuredClone(original); renderLista(); aplicar() })
-  btRestaurar.setAttribute("data-rotas-editor-restaurar", "")
-  const erroEditor = document.createElement("p")
-  erroEditor.className = "rotas-erro"
-  erroEditor.setAttribute("data-rotas-editor-erro", "")
-  caixa.append(dica, form, lista, btRodar, btRestaurar, erroEditor)
-  painel.after(caixa)
+  const dica = document.createElement("p")
+  dica.className = "rotas-dica"
+  dica.textContent = t.editor_hint
+  mudancas.append(cabecalho, lista, dica)
+  painel.after(mudancas)
+
+  const arestaEm = (evento) => {
+    const r = canvas.getBoundingClientRect()
+    return arestaMaisProxima(cenario, evento.clientX - r.left, evento.clientY - r.top, r.width, r.height)
+  }
+  const dadosDa = (aresta) => cenario.arestas.find((a) => a.de === aresta.de && a.para === aresta.para)
+  const velocidadeAtual = (aresta) => {
+    const edicoes = cenario.atualizacoes.filter((u) => u.de === aresta.de && u.para === aresta.para)
+    return edicoes.length ? edicoes[edicoes.length - 1].kmh : cenario.kmh
+  }
+
+  let hoverAtual = null
+  canvas.addEventListener("mousemove", (evento) => {
+    const aresta = arestaEm(evento)
+    const chave = aresta ? `${aresta.de}-${aresta.para}` : null
+    if (chave === hoverAtual) return
+    hoverAtual = chave
+    canvas.style.cursor = aresta ? "pointer" : ""
+    raiz.__rotas.definirSobreposicao({ hover: aresta })
+  })
+  canvas.addEventListener("mouseleave", () => { hoverAtual = null; raiz.__rotas.definirSobreposicao({ hover: null }) })
 
   canvas.addEventListener("click", (evento) => {
-    const r = canvas.getBoundingClientRect()
-    const aresta = arestaMaisProxima(cenario, evento.clientX - r.left, evento.clientY - r.top, r.width, r.height)
-    if (!aresta) return
-    selecionada = aresta
-    rotulo.textContent = `${aresta.de} → ${aresta.para}`
-    form.hidden = false
-    instante.querySelector("input").focus()
+    const aresta = arestaEm(evento)
+    if (!aresta) { fechar(); return }
+    abrir(aresta, evento)
   })
 
-  form.addEventListener("submit", (evento) => {
+  function abrir(aresta, evento) {
+    selecionada = aresta
+    const dados = dadosDa(aresta)
+    via.textContent = `${t.road} ${aresta.de} → ${aresta.para}`
+    meta.textContent = `${dados.m} m · ${t.now} ${velocidadeAtual(aresta)} km/h`
+    instante.input.value = String(Math.round(raiz.__rotas.relogioAtual()))
+    kmh.input.value = String(velocidadeAtual(aresta))
+    erroEditor.hidden = true
+    cartao.hidden = false
+    posicionar(evento)
+    raiz.__rotas.definirSobreposicao({ selecionada: aresta })
+    kmh.input.focus()
+    kmh.input.select()
+  }
+
+  function posicionar(evento) {
+    const r = mapa.getBoundingClientRect()
+    if (r.width < 640) { cartao.style.left = ""; cartao.style.top = ""; return }
+    const x = evento.clientX - r.left
+    const y = evento.clientY - r.top
+    const largura = cartao.offsetWidth
+    const altura = cartao.offsetHeight
+    const esquerda = x + 16 + largura > r.width ? x - 16 - largura : x + 16
+    const topo = Math.min(Math.max(8, y - altura / 2), r.height - altura - 8)
+    cartao.style.left = `${Math.max(8, esquerda)}px`
+    cartao.style.top = `${topo}px`
+  }
+
+  function fechar() {
+    if (cartao.hidden) return
+    cartao.hidden = true
+    selecionada = null
+    raiz.__rotas.definirSobreposicao({ selecionada: null })
+  }
+
+  document.addEventListener("keydown", (evento) => { if (evento.key === "Escape") fechar() })
+  document.addEventListener("pointerdown", (evento) => {
+    if (cartao.hidden || cartao.contains(evento.target) || evento.target === canvas) return
+    fechar()
+  })
+
+  cartao.addEventListener("submit", (evento) => {
     evento.preventDefault()
-    const tI = Number(instante.querySelector("input").value)
-    const v = Number(kmh.querySelector("input").value)
-    if (!selecionada || !(tI >= 0) || !(v > 0)) { erroEditor.textContent = `${t.instant} ≥ 0, ${t.kmh} > 0`; return }
-    erroEditor.textContent = ""
+    const tI = Number(instante.input.value)
+    const v = Number(kmh.input.value)
+    if (!selecionada || instante.input.value === "" || !(tI >= 0) || !(v > 0)) {
+      erroEditor.textContent = t.invalid
+      erroEditor.hidden = false
+      return
+    }
     cenario.atualizacoes = cenario.atualizacoes.filter((u) => !(u.de === selecionada.de && u.para === selecionada.para && u.t === tI))
     cenario.atualizacoes.push({ t: tI, de: selecionada.de, para: selecionada.para, kmh: v })
     cenario.atualizacoes.sort((a, b) => a.t - b.t)
-    form.hidden = true
-    renderLista()
+    fechar()
+    aplicar()
   })
 
   function renderLista() {
+    const chave = (u) => `${u.t}-${u.de}-${u.para}-${u.kmh}`
+    const originais = new Set(original.atualizacoes.map(chave))
     lista.replaceChildren(...cenario.atualizacoes.map((u, i) => {
       const li = document.createElement("li")
-      li.textContent = `t=${u.t}s: ${u.de} → ${u.para} @ ${u.kmh} km/h `
-      li.append(botao(t.remove, () => { cenario.atualizacoes.splice(i, 1); renderLista() }))
+      if (originais.has(chave(u))) li.className = "rotas-original"
+      const texto = document.createElement("span")
+      texto.textContent = `t=${u.t} s · ${u.de} → ${u.para} · ${u.kmh} km/h`
+      const btRemover = botao("×", () => { cenario.atualizacoes.splice(i, 1); aplicar() })
+      btRemover.className = "rotas-texto"
+      btRemover.setAttribute("aria-label", t.remove)
+      btRemover.title = t.remove
+      li.append(texto, btRemover)
       return li
     }))
+    const mudou = JSON.stringify(cenario.atualizacoes) !== JSON.stringify(original.atualizacoes)
+    btRestaurar.hidden = !mudou
+    dica.hidden = mudou
+    raiz.__rotas.definirSobreposicao({ editadas: cenario.atualizacoes.map((u) => ({ de: u.de, para: u.para, kmh: u.kmh })) })
   }
 
   function aplicar() {
+    renderLista()
     raiz.__rotas.definirCenario(structuredClone(cenario))
     raiz.__rotas.rodar()
   }
@@ -134,6 +233,10 @@ export function montar(raiz) {
     return el
   }
   const canvas = garantir("data-rotas-canvas", "canvas")
+  const mapa = document.createElement("div")
+  mapa.className = "rotas-mapa"
+  canvas.replaceWith(mapa)
+  mapa.append(canvas)
   const controles = garantir("data-rotas-controles", "div", "rotas-controles")
   const painel = garantir("data-rotas-painel", "aside", "rotas-painel")
   const erro = raiz.querySelector("[data-rotas-erro]")
@@ -153,31 +256,39 @@ export function montar(raiz) {
   let quadroPendente = 0
 
   const btRodar = botao(t.play, () => (rodando ? pausar() : rodar()))
+  btRodar.setAttribute("data-rotas-rodar", "")
   btRodar.disabled = true
   const btPasso = botao(t.step, () => passo())
   const btVelocidade = botao(`${t.speed} 1×`, () => { escala = escala === 1 ? 4 : 1; btVelocidade.textContent = `${t.speed} ${escala}×` })
   const btReiniciar = botao(t.restart, () => reiniciar())
   controles.replaceChildren(btRodar, btPasso, btVelocidade, btReiniciar)
 
+  const relogioMostrador = document.createElement("output")
+  relogioMostrador.className = "rotas-relogio"
+  relogioMostrador.setAttribute("aria-label", t.clock)
+  relogioMostrador.textContent = "00:00"
+  mapa.append(relogioMostrador)
+
   const dl = document.createElement("dl")
-  const ddRelogio = document.createElement("dd")
   const ddFila = document.createElement("dd")
   ddFila.className = "rotas-fila"
-  const ddKm = document.createElement("dd")
-  for (const [rotulo, dd] of [[t.clock, ddRelogio], [t.queue, ddFila], [t.km, ddKm]]) {
-    const dt = document.createElement("dt")
+  const ddChegada = document.createElement("dd")
+  const dtChegada = document.createElement("dt")
+  for (const [rotulo, dt, dd] of [[t.queue, document.createElement("dt"), ddFila], [t.arrival, dtChegada, ddChegada]]) {
     dt.textContent = rotulo
     dl.append(dt, dd)
   }
   const legenda = document.createElement("p")
   legenda.className = "rotas-legenda"
-  for (const [classe, texto] of [["aberto", t.legend_open], ["fechado", t.legend_closed], ["planejado", t.legend_planned], ["percorrido", t.legend_driven]]) {
+  for (const [classe, texto] of [["aberto", t.legend_open], ["fechado", t.legend_closed], ["planejado", t.legend_planned], ["percorrido", t.legend_driven], ["alterada", t.legend_edited]]) {
     const span = document.createElement("span")
     span.className = classe
-    span.textContent = texto
+    const amostra = document.createElement("i")
+    span.append(amostra, texto)
     legenda.append(span)
   }
-  painel.replaceChildren(dl, legenda)
+  controles.after(legenda)
+  painel.replaceChildren(dl)
   const aviso = document.createElement("p")
   aviso.className = "rotas-aviso"
   aviso.setAttribute("data-rotas-aviso", "")
@@ -200,6 +311,9 @@ export function montar(raiz) {
     return estados[Math.min(indice, estados.length - 1)]
   }
 
+  let sobreposicao = { hover: null, selecionada: null, editadas: [] }
+  let relogioAtual = 0
+
   function quadro() {
     if (!cenario) return
     const { largura, altura } = tamanho()
@@ -208,16 +322,18 @@ export function montar(raiz) {
     const progresso = e && e.tipo === "move" && dur > 0 ? Math.min(1, decorrido / dur) : 1
     const s = estadoAtual()
     const visivel = e && e.tipo === "move" ? { ...s, carro: { de: e.de, para: e.para, t0: e.t0, t1: e.t1 } } : s
-    desenhar(ctx, cenario, visivel, progresso, tema(), largura, altura)
+    desenhar(ctx, cenario, visivel, progresso, tema(), largura, altura, sobreposicao)
     const relogio = e && e.tipo === "move" ? e.t0 + (e.t1 - e.t0) * progresso : s.relogio
-    ddRelogio.textContent = relogioTexto(relogio)
+    relogioAtual = relogio
+    relogioMostrador.textContent = relogioTexto(relogio)
     raiz.setAttribute("data-rotas-relogio", String(Math.round(relogio)))
     ddFila.replaceChildren(...[...s.abertos].sort((a, b) => a[1] - b[1]).map(([no, tempo]) => {
       const span = document.createElement("span")
       span.textContent = `${no}: ${relogioTexto(s.base + tempo)}`
       return span
     }))
-    ddKm.textContent = s.fim ? `${s.fim.km.toFixed(1)} · ${relogioTexto(s.fim.t)}` : ""
+    ddChegada.textContent = s.fim ? `${s.fim.km.toFixed(1)} km ${t.in_time} ${relogioTexto(s.fim.t)}` : ""
+    dtChegada.hidden = ddChegada.hidden = !s.fim
   }
 
   function avancar() {
@@ -330,7 +446,12 @@ export function montar(raiz) {
     btRodar.disabled = false
   }
 
-  raiz.__rotas = { rodar, pausar, passo, reiniciar, definirCenario, cenarioAtual: () => cenario }
+  raiz.__rotas = {
+    rodar, pausar, passo, reiniciar, definirCenario,
+    cenarioAtual: () => cenario,
+    relogioAtual: () => relogioAtual,
+    definirSobreposicao: (nova) => { sobreposicao = { ...sobreposicao, ...nova }; quadro() },
+  }
   window.addEventListener("resize", quadro)
   new MutationObserver(() => quadro()).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] })
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => quadro())
@@ -339,7 +460,7 @@ export function montar(raiz) {
     .then((cenarios) => {
       if (!cenarios[id]) throw new Error(`cenario ${id} nao existe`)
       definirCenario(structuredClone(cenarios[id]))
-      if (raiz.hasAttribute("data-rotas-editor")) montarEditor(raiz, canvas, painel, t)
+      if (raiz.hasAttribute("data-rotas-editor")) montarEditor(raiz, canvas, mapa, painel, t)
     })
     .catch((motivo) => {
       console.error("[rotas]", motivo)

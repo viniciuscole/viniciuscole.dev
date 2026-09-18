@@ -29,7 +29,7 @@ class RoutesPartialTest < Minitest::Test
       bruto = page_body(pagina)[/data-rotas-textos="([^"]+)"/, 1]
       refute_nil bruto, "#{pagina} sem data-rotas-textos"
       textos = JSON.parse(CGI.unescapeHTML(bruto))
-      %w[play pause step speed restart clock queue km apply run reset remove instant kmh editor_hint unreachable legend_open legend_closed legend_planned legend_driven failed].each do |chave|
+      %w[play pause step speed restart clock queue arrival in_time apply reset remove instant kmh editor_hint unreachable legend_open legend_closed legend_planned legend_driven failed cancel changes now road invalid legend_edited].each do |chave|
         assert textos.key?(chave), "#{pagina}: falta o texto #{chave}"
       end
     end

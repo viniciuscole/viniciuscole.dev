@@ -40,7 +40,29 @@ function pares(caminho) {
   return caminho.slice(1).map((para, i) => [caminho[i], para])
 }
 
-export function desenhar(ctx, cenario, estado, progresso, tema, largura, altura) {
+const SEM_SOBREPOSICAO = { hover: null, selecionada: null, editadas: [] }
+
+function mesmaAresta(a, b) {
+  return Boolean(a && b && a.de === b.de && a.para === b.para)
+}
+
+function rotuloDaVia(ctx, a, b, texto, cor, fundo) {
+  const x = a.x + (b.x - a.x) * 0.5
+  const y = a.y + (b.y - a.y) * 0.5
+  const ang = Math.atan2(b.y - a.y, b.x - a.x)
+  const dx = -Math.sin(ang) * 11
+  const dy = Math.cos(ang) * 11
+  ctx.font = "11px ui-monospace, monospace"
+  ctx.textAlign = "center"
+  ctx.textBaseline = "middle"
+  const larguraTexto = ctx.measureText(texto).width + 8
+  ctx.fillStyle = fundo
+  ctx.fillRect(x + dx - larguraTexto / 2, y + dy - 8, larguraTexto, 16)
+  ctx.fillStyle = cor
+  ctx.fillText(texto, x + dx, y + dy)
+}
+
+export function desenhar(ctx, cenario, estado, progresso, tema, largura, altura, sobreposicao = SEM_SOBREPOSICAO) {
   const p = (id) => posicao(cenario, id, largura, altura)
   ctx.clearRect(0, 0, largura, altura)
 
@@ -52,8 +74,20 @@ export function desenhar(ctx, cenario, estado, progresso, tema, largura, altura)
     seta(ctx, p(a.de), p(a.para), cor)
   }
 
+  for (const e of sobreposicao.editadas) linha(ctx, p(e.de), p(e.para), tema.accent, 1.5, true)
+  if (sobreposicao.hover && !mesmaAresta(sobreposicao.hover, sobreposicao.selecionada)) {
+    linha(ctx, p(sobreposicao.hover.de), p(sobreposicao.hover.para), tema.fg, 5, false)
+  }
+  if (sobreposicao.selecionada) {
+    const sel = sobreposicao.selecionada
+    linha(ctx, p(sel.de), p(sel.para), tema.accent, 6, false)
+    seta(ctx, p(sel.de), p(sel.para), tema.accent)
+  }
+
   for (const [de, para] of pares(estado.planejado)) linha(ctx, p(de), p(para), tema.accent, 2, true)
   for (const [de, para] of pares(estado.percorrido)) linha(ctx, p(de), p(para), tema.fg, 3, false)
+
+  for (const e of sobreposicao.editadas) rotuloDaVia(ctx, p(e.de), p(e.para), `${e.kmh} km/h`, tema.accent, tema.bgSutil)
 
   ctx.font = "12px ui-monospace, monospace"
   ctx.textAlign = "center"
