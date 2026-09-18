@@ -1,0 +1,225 @@
+.rotas {
+  display: grid;
+  gap: var(--space);
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.rotas canvas {
+  aspect-ratio: 3 / 2;
+  background: var(--bg-sutil);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: block;
+  width: 100%;
+}
+
+.rotas-controles {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+  font-size: var(--texto-meta);
+  gap: 0.5rem;
+}
+
+.rotas-controles button {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--fg);
+  cursor: pointer;
+  font: inherit;
+  padding: 0.25rem 0.6rem;
+}
+
+.rotas-controles button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.rotas-controles button:disabled { color: var(--muted); cursor: default; }
+
+.rotas-painel {
+  display: grid;
+  font-family: var(--font-mono);
+  font-size: var(--texto-meta);
+  gap: 0.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+}
+
+.rotas-painel dt { color: var(--muted); }
+.rotas-painel dd { margin: 0; }
+.rotas-fila { display: flex; flex-wrap: wrap; gap: 0.25rem 0.75rem; }
+
+.rotas-aviso { color: var(--accent); font-family: var(--font-mono); font-size: var(--texto-meta); }
+
+.rotas-legenda {
+  color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+  font-size: var(--texto-meta);
+  gap: 0.4rem 1.25rem;
+  margin: 0;
+}
+.rotas-legenda span { align-items: center; display: inline-flex; gap: 0.45rem; }
+.rotas-legenda i { display: inline-block; flex: none; }
+.rotas-legenda .aberto i,
+.rotas-legenda .fechado i { border-radius: 50%; height: 0.85em; width: 0.85em; }
+.rotas-legenda .aberto i { border: 2px solid var(--accent); }
+.rotas-legenda .fechado i { background: var(--muted); }
+.rotas-legenda .planejado i,
+.rotas-legenda .percorrido i,
+.rotas-legenda .alterada i { height: 0; width: 1.6em; }
+.rotas-legenda .planejado i { border-top: 2px dashed var(--accent); }
+.rotas-legenda .percorrido i { border-top: 3px solid var(--fg); }
+.rotas-legenda .alterada i { border-top: 1.5px dashed var(--accent); }
+
+.rotas-mapa { position: relative; }
+
+.rotas-relogio {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  padding: 0.4rem 0.6rem;
+  pointer-events: none;
+  position: absolute;
+  right: 0.75rem;
+  top: 0.75rem;
+}
+
+.rotas-cartao {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px -12px rgb(0 0 0 / 0.35);
+  display: grid;
+  font-family: var(--font-mono);
+  font-size: var(--texto-meta);
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0.75rem 0.85rem;
+  position: absolute;
+  width: 15.5rem;
+  z-index: 2;
+}
+
+.rotas-cartao-titulo { display: grid; gap: 0.1rem; margin: 0; }
+.rotas-cartao-titulo strong { color: var(--fg); font-size: var(--texto-pequeno); }
+.rotas-cartao-titulo span { color: var(--muted); }
+
+.rotas-cartao label {
+  align-items: center;
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: 1fr auto;
+}
+
+.rotas-campo {
+  align-items: baseline;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: inline-flex;
+  gap: 0.3rem;
+  padding: 0.2rem 0.5rem;
+}
+.rotas-campo:focus-within { border-color: var(--accent); }
+.rotas-campo input {
+  appearance: textfield;
+  -moz-appearance: textfield;
+  background: none;
+  border: 0;
+  color: var(--fg);
+  font: inherit;
+  outline: none;
+  padding: 0;
+  text-align: right;
+  width: 3.5rem;
+}
+.rotas-campo input::-webkit-inner-spin-button,
+.rotas-campo input::-webkit-outer-spin-button { appearance: none; margin: 0; }
+.rotas-campo span { color: var(--muted); }
+
+.rotas-cartao-erro { color: var(--accent); margin: 0; }
+
+.rotas-cartao-acoes { align-items: center; display: flex; gap: 0.75rem; }
+
+.rotas-cartao button,
+.rotas-mudancas button {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--fg);
+  cursor: pointer;
+  font: inherit;
+  padding: 0.3rem 0.7rem;
+}
+.rotas-primario,
+.rotas-cartao button.rotas-primario {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+.rotas-cartao button.rotas-texto,
+.rotas-mudancas button.rotas-texto {
+  border: 0;
+  color: var(--muted);
+  padding: 0.2rem 0.3rem;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.rotas-cartao button.rotas-texto:hover,
+.rotas-mudancas button.rotas-texto:hover { color: var(--accent); }
+.rotas-cartao button:focus-visible,
+.rotas-mudancas button:focus-visible,
+.rotas-controles button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@media (max-width: 40rem) {
+  .rotas-cartao {
+    box-shadow: none;
+    margin-top: 0.5rem;
+    position: static;
+    width: auto;
+  }
+}
+
+.rotas-mudancas {
+  display: grid;
+  font-family: var(--font-mono);
+  font-size: var(--texto-meta);
+  gap: 0.35rem;
+}
+.rotas-mudancas-cabecalho { align-items: baseline; display: flex; gap: 1rem; justify-content: space-between; }
+.rotas-mudancas-cabecalho p { color: var(--muted); margin: 0; }
+.rotas-mudancas ul { display: grid; gap: 0.2rem; list-style: none; margin: 0; padding: 0; }
+.rotas-mudancas li {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
+}
+.rotas-mudancas li::before {
+  border-bottom: 2px dashed var(--accent);
+  content: "";
+  display: inline-block;
+  width: 0.9em;
+}
+.rotas-mudancas li span { flex: 1; }
+.rotas-mudancas li.rotas-original::before { border-bottom-style: solid; border-color: var(--muted); }
+.rotas-dica { color: var(--muted); margin: 0; }
+.rotas-escolha { align-items: center; display: flex; flex-wrap: wrap; gap: 0.5rem 0.75rem; }
+.rotas-escolha label { align-items: center; color: var(--muted); display: inline-flex; gap: 0.5rem; }
+.rotas-escolha select {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--fg);
+  font: inherit;
+  padding: 0.25rem 0.4rem;
+}
+.rotas-escolha select:focus-visible,
+.rotas-campo input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.rotas canvas:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.project-body .rotas { margin-block: calc(var(--space) * 2); }

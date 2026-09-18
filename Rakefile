@@ -222,6 +222,49 @@ namespace :demo2d do
   end
 end
 
+namespace :routes do
+  REPO_ROUTES = "https://github.com/viniciuscole/car-routes-optimazing".freeze
+  SHA_ROUTES  = "eed710fe57c00679bd3165ad5e29a635cdf289a7".freeze
+
+  desc "Reconstroi o simulador de rotas em WebAssembly a partir do fonte (exige Docker)"
+  task :build do
+    require "fileutils"
+    require "tmpdir"
+
+    destino = File.expand_path("src/demos/car-routes")
+    receita = File.expand_path("build/routes")
+    FileUtils.mkdir_p(destino)
+
+    Dir.mktmpdir do |tmp|
+      fonte = "#{tmp}/routes"
+      sh "git clone #{REPO_ROUTES} #{fonte}"
+      sh "git -C #{fonte} checkout --detach #{SHA_ROUTES}"
+      sh "docker build -t viniciuscole-routes-build #{receita}"
+      sh "docker run --rm " \
+         "--user #{Process.uid}:#{Process.gid} " \
+         "-e SHA_ESPERADO=#{SHA_ROUTES} " \
+         "-v #{fonte}:/src " \
+         "-v #{destino}:/out " \
+         "viniciuscole-routes-build"
+    end
+  end
+
+  desc "Verifica em navegador de verdade que a simulacao roda na pagina (exige Docker e output/)"
+  task :verify do
+    saida = File.expand_path("output")
+    receita = File.expand_path("build/routes")
+    raise "output/ nao existe — rode `bin/bridgetown build` primeiro." unless File.directory?(saida)
+
+    sh "docker run --rm --network host " \
+       "--user #{Process.uid}:#{Process.gid} " \
+       "-v #{saida}:/site:ro -v #{receita}:/work:ro -w /tmp " \
+       "-e ALVO=http://localhost:4124/projects/car-routes/ " \
+       "#{IMAGEM_PLAYWRIGHT} " \
+       "bash -c 'cp /work/verify.js . && npm install --silent playwright@1.56.0 && " \
+       "(python3 -m http.server 4124 --directory /site &) && sleep 2 && node verify.js'"
+  end
+end
+
 #
 # Add your own Rake tasks here! You can use `environment` as a prerequisite
 # in order to write automations or other commands requiring a loaded site.
@@ -239,6 +282,11 @@ Rake::TestTask.new(:minitest) do |t|
   t.libs << "test"
   t.test_files = FileList["test/**/*_test.rb"]
   t.warning = false
+end
+
+desc "Roda os testes dos modulos JavaScript puros"
+task :jstest do
+  sh "npm test"
 end
 
 desc "Verifica links internos e imagens no HTML gerado"
@@ -265,5 +313,6 @@ task :check => :clean do
   Rake::Task["frontend:build"].invoke
   sh "bin/bridgetown build"
   Rake::Task["minitest"].invoke
+  Rake::Task["jstest"].invoke
   Rake::Task["proof"].invoke
 end
