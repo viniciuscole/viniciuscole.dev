@@ -66,6 +66,43 @@ function marcarOcupado(ocupado) {
   }
 }
 
+function blocoDe(no) {
+  let el = no.parentElement
+  while (el && getComputedStyle(el).display.startsWith("inline")) el = el.parentElement
+  return el
+}
+
+// Mesmo com glifos da mesma largura, um texto no limite da linha estoura
+// por alguns pixels no meio da animacao e tudo abaixo pula. A altura de
+// cada bloco fica travada enquanto anima — uma quebra transitoria e clipada
+// em vez de empurrar a pagina — e, quando o texto final tem mais ou menos
+// linhas, o CSS leva a altura de uma para a outra no tempo da animacao.
+function acomodar(itens) {
+  const candidatos = new Set(itens.map((it) => blocoDe(it.no)).filter(Boolean))
+  const blocos = [...candidatos].filter((b) => !b.matches(RAIZES) && ![...candidatos].some((outro) => outro !== b && b.contains(outro)))
+
+  const antes = blocos.map((b) => b.getBoundingClientRect().height)
+  for (const it of itens) it.no.nodeValue = it.novo
+  const depois = blocos.map((b) => b.getBoundingClientRect().height)
+  for (const it of itens) it.no.nodeValue = it.antigo
+
+  const estilos = blocos.map((b) => [b.style.height, b.style.overflow, b.style.transition])
+  blocos.forEach((b, i) => {
+    b.style.height = `${antes[i]}px`
+    b.style.overflow = "hidden"
+  })
+  void document.body.offsetHeight
+  blocos.forEach((b, i) => {
+    if (antes[i] === depois[i]) return
+    b.style.transition = `height ${DURACAO_MS}ms ease`
+    b.style.height = `${depois[i]}px`
+  })
+
+  return () => blocos.forEach((b, i) => {
+    ;[b.style.height, b.style.overflow, b.style.transition] = estilos[i]
+  })
+}
+
 function animar(itens) {
   return new Promise((resolver) => {
     const inicio = performance.now()
@@ -109,13 +146,15 @@ async function trocar(url, { empurrar }) {
   for (const { textos } of pares) {
     for (const [no, novo] of textos) {
       if (no.nodeValue === novo) continue
-      if (naTela(no)) itens.push({ no, quadro: criarEmbaralhador(no.nodeValue, novo) })
+      if (naTela(no)) itens.push({ no, antigo: no.nodeValue, novo, quadro: criarEmbaralhador(no.nodeValue, novo) })
       else no.nodeValue = novo
     }
   }
 
   marcarOcupado(true)
+  const soltar = acomodar(itens)
   await animar(itens)
+  soltar()
   marcarOcupado(false)
 }
 
