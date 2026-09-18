@@ -95,6 +95,21 @@
   })();
 </script>
 
+<%# Mesma razao do bloco acima. O alternador de idioma grava esta chave antes
+    de navegar; aqui ela vira a classe que o CSS usa para segurar o texto
+    escondido ate lang-scramble.js troca-lo por glifos. A chave e consumida na
+    hora para um F5 nao embaralhar de novo. %>
+<script>
+  (function () {
+    try {
+      if (!sessionStorage.getItem("lang-scramble")) return;
+      sessionStorage.removeItem("lang-scramble");
+      if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      document.documentElement.classList.add("lang-scramble");
+    } catch (e) {}
+  })();
+</script>
+
 <link rel="stylesheet" href="<%= asset_path :css %>" />
 <script src="<%= asset_path :js %>" defer></script>
 <%= live_reload_dev_js %>
