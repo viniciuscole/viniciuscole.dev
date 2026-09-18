@@ -14,7 +14,7 @@ pt:
     en: "English"
     pt: "Português"
   home:
-    intro: "Eu construo software. Parte dele roda aqui mesmo nesta página."
+    intro: "Eu construo software. Alguns rodam aqui mesmo nesta página."
     photo_alt: "Retrato de Vinicius Cole"
     featured: "Projetos em destaque"
     latest_posts: "Últimos posts"
