@@ -1,21 +1,12 @@
 require "test_helper"
 
-# A troca de idioma embaralha o texto em duas pontas: a pagina que sai (JS no
-# clique) e a pagina que chega. A chegada depende de tres pecas que vivem em
-# arquivos diferentes e falham em silencio quando uma se perde: o script
-# inline de _head.erb (le a chave e poe a classe), o CSS (segura o texto
-# escondido ate o bundle rodar) e o bundle (troca o texto e tira a classe).
+# A troca de idioma acontece sem recarregar: o bundle busca a pagina irma,
+# pareia os nos de texto das duas arvores (mesmo template, idiomas
+# diferentes) e morfa cada texto no lugar. O pareamento so funciona se a
+# pagina irma existir e tiver a mesma estrutura; se nao, o JS cai na
+# navegacao normal e o efeito some em silencio.
 class LangScrambleTest < Minitest::Test
   include OutputHelpers
-  include StylesheetHelpers
-
-  CHAVE = "lang-scramble"
-
-  def css_comprimido
-    published_stylesheets
-      .gsub(/\s+/, " ")
-      .gsub(/\s*([{};:,])\s*/, '\1')
-  end
 
   def bundle_js
     corpo = page_body("index.html")
@@ -26,44 +17,46 @@ class LangScrambleTest < Minitest::Test
     caminho.read
   end
 
-  # O script precisa vir antes da folha de estilo e do bundle: e ele que
-  # decide, antes do primeiro paint, se o texto nasce escondido.
-  def test_toda_pagina_le_a_chave_antes_do_primeiro_paint
+  # So as tags, na ordem, fora de <noscript> (o JS pula o que esta la dentro
+  # porque o documento vivo e o do DOMParser discordam sobre o conteudo).
+  def esqueleto(html, classe_ou_tag)
+    trecho =
+      if classe_ou_tag == "main"
+        html[%r{<main[\s>].*?</main>}m]
+      else
+        html[%r{<(\w+)[^>]*class="#{classe_ou_tag}".*?</\1>}m]
+      end
+    refute_nil trecho, "nao achei #{classe_ou_tag}"
+    trecho.gsub(%r{<noscript>.*?</noscript>}m, "").scan(/<(\w+)[\s>\/]/).flatten
+  end
+
+  def test_o_bundle_publicado_traz_a_troca_sem_recarregar
+    js = bundle_js
+    assert_includes js, ".locale-switcher a", "o bundle nao escuta o alternador de idioma"
+    assert_includes js, "pushState", "o bundle nao atualiza a URL ao trocar de idioma"
+    assert_includes js, "popstate", "voltar no historico deixaria a pagina no idioma errado"
+  end
+
+  # O que o JS exige em tempo de execucao, verificado no build: cada pagina
+  # com irma traduzida aponta para ela no alternador, e as duas tem o mesmo
+  # esqueleto de tags no cabecalho, no main e no rodape. Paginas sem irma
+  # (404, 500) mandam o alternador para a home do outro idioma; la o JS
+  # desiste do pareamento e navega normal, e e isso mesmo.
+  def test_toda_pagina_pareia_com_a_irma
     html_pages.each do |caminho|
       corpo = Pathname.new(caminho).read
-      head = corpo[%r{<head>.*?</head>}m]
-      refute_nil head, "#{caminho}: sem <head>"
+      next unless corpo.include?('rel="alternate" hreflang=')
+      link = corpo[%r{<nav class="locale-switcher".*?href="([^"]+)"}m, 1]
+      refute_nil link, "#{caminho}: tem irma traduzida mas nao tem alternador"
 
-      inline = head.index(%(sessionStorage.getItem("#{CHAVE}")))
-      folha = head.index(%(rel="stylesheet"))
-      refute_nil inline, "#{caminho}: o <head> nao le a chave #{CHAVE}"
-      refute_nil folha, "#{caminho}: o <head> nao linka a folha de estilo"
-      assert inline < folha, "#{caminho}: o script da chave vem depois da folha de estilo"
+      irma = OUTPUT.join(link.sub(%r{\A/}, ""), "index.html")
+      assert irma.file?, "#{caminho}: o alternador aponta para #{link}, que nao foi gerado"
+      corpo_irma = irma.read
 
-      assert_includes head, %(sessionStorage.removeItem("#{CHAVE}")),
-        "#{caminho}: a chave nao e consumida — um F5 embaralharia de novo"
-      assert_includes head, %(classList.add("#{CHAVE}")),
-        "#{caminho}: o script nao poe a classe que o CSS usa"
-      assert_includes head, "prefers-reduced-motion: reduce",
-        "#{caminho}: quem pediu menos movimento tambem seria embaralhado"
+      %w[site-header main site-footer].each do |raiz|
+        assert_equal esqueleto(corpo, raiz), esqueleto(corpo_irma, raiz),
+          "#{caminho}: #{raiz} tem estrutura diferente da irma #{link}; a troca de idioma cairia na navegacao normal"
+      end
     end
-  end
-
-  def test_o_css_publicado_segura_o_texto_ate_o_bundle_rodar
-    css = css_comprimido
-
-    %w[.site-header main .site-footer].each do |alvo|
-      assert_match(/html\.lang-scramble [^{]*#{Regexp.escape(alvo)}[^{]*\{[^}]*animation:lang-scramble-espera 1s step-end both/, css,
-        "#{alvo} nao fica escondido enquanto a pagina chega embaralhada")
-    end
-
-    assert_match(/@keyframes lang-scramble-espera\{(from|0%)\{visibility:hidden\}(to|100%)\{visibility:visible\}\}/, css,
-      "a espera precisa comecar escondida e terminar visivel — e o que devolve o texto se o bundle nunca rodar")
-  end
-
-  def test_o_bundle_publicado_traz_o_embaralhador
-    js = bundle_js
-    assert_includes js, %("#{CHAVE}"), "o bundle nao conhece a chave #{CHAVE}"
-    assert_includes js, ".locale-switcher a", "o bundle nao escuta o alternador de idioma"
   end
 end

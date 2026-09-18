@@ -154,24 +154,6 @@ html.theme-transition .theme-toggle svg {
   :root:not([data-theme="light"]) .theme-toggle .icone-sol { transform: rotate(0deg); }
 }
 
-/* ---- Troca de idioma ------------------------------------------------ */
-
-/* A classe e posta pelo script inline de _head.erb quando a pagina chega de
-   uma troca de idioma, e tirada por lang-scramble.js no mesmo tick em que
-   ele troca o texto por glifos — sem isso o texto final piscaria antes de
-   embaralhar. E uma animacao, e nao `visibility: hidden` direto, para o
-   texto reaparecer sozinho em 1s se o bundle nunca rodar. */
-html.lang-scramble .site-header,
-html.lang-scramble main,
-html.lang-scramble .site-footer {
-  animation: lang-scramble-espera 1s step-end both;
-}
-
-@keyframes lang-scramble-espera {
-  from { visibility: hidden; }
-  to { visibility: visible; }
-}
-
 /* ---- O cartao da home ----------------------------------------------- */
 
 .card {
