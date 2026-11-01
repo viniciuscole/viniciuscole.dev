@@ -8,6 +8,7 @@ order: 3
 summary: The three-dimensional evolution of the previous game, with a flashlight, a minimap and the same SVG arena — shown here on video, because the browser's OpenGL emulation cannot carry its lighting.
 tech: [C++, OpenGL, GLUT, GLU]
 repo: https://github.com/viniciuscole/3D-Computer-Graphics
+image: /demos/3d-graphics/jogo3d.jpg
 demo:
   type: video
   base: /demos/3d-graphics/jogo3d

@@ -68,6 +68,18 @@
 <% siblings.each do |sibling| %>
 <meta property="og:locale:alternate" content="<%= og_locale.call(sibling.data.locale) %>" />
 <% end %>
+<% own_image = resource.data.image.to_s %>
+<% if own_image.empty? %>
+<meta property="og:image" content="<%= absolute.call("/images/og/card.#{locale}.png") %>" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<% else %>
+<meta property="og:image" content="<%= absolute.call(own_image) %>" />
+<% end %>
+<meta property="og:image:alt" content="<%= full_title %>" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<link rel="alternate" type="application/atom+xml" title="<%= site_title %> (<%= locale %>)" href="<%= absolute.call(feed_url(locale)) %>" />
 
 <link rel="icon" href="<%= relative_url "favicon.svg" %>" type="image/svg+xml" />
 

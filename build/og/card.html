@@ -1,0 +1,35 @@
+<!doctype html>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: Newsreader; src: url(../../src/fonts/newsreader.woff2) format("woff2"); font-weight: 200 800; }
+  * { margin: 0; box-sizing: border-box; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
+  body {
+    background: #f4efe3; color: #1a1a1a; font-family: Newsreader, Georgia, serif;
+    display: grid; grid-template-columns: 300px 1fr; gap: 72px; align-items: center;
+    padding: 0 96px; position: relative;
+  }
+  body::before { content: ""; position: absolute; inset: 28px; border: 1px solid #ddd5c5; }
+  img { width: 300px; height: 300px; object-fit: cover; border-radius: 2px; }
+  .rule { width: 72px; height: 4px; background: #8b3a2f; margin-bottom: 32px; }
+  h1 { font-size: 96px; font-weight: 500; letter-spacing: -0.02em; line-height: 1; }
+  .tag { font-size: 40px; font-style: italic; color: #6b645c; margin-top: 16px; }
+  .what { font-size: 28px; line-height: 1.35; margin-top: 36px; max-width: 30ch; }
+  .url { position: absolute; right: 96px; bottom: 56px; font: 600 22px ui-monospace, "DejaVu Sans Mono", monospace; color: #8b3a2f; }
+</style>
+<img src="../../src/images/vinicius.jpeg" alt="">
+<div>
+  <div class="rule"></div>
+  <h1>Vinicius Cole</h1>
+  <p class="tag" id="tag"></p>
+  <p class="what" id="what"></p>
+</div>
+<p class="url">viniciuscole.com</p>
+<script>
+  const text = {
+    en: ["Software developer", "Projects that run in your browser, from x86 assembly to C++ on WebAssembly."],
+    pt: ["Desenvolvedor de software", "Projetos que rodam no seu navegador, de assembly x86 a C++ em WebAssembly."],
+  }[location.search.slice(1) || "en"];
+  document.getElementById("tag").textContent = text[0];
+  document.getElementById("what").textContent = text[1];
+</script>

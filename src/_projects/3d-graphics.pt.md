@@ -8,6 +8,7 @@ order: 3
 summary: A evolução em três dimensões do jogo anterior, com lanterna, minimapa e a mesma arena em SVG — mostrada aqui em vídeo, porque a emulação de OpenGL do navegador não sustenta sua iluminação.
 tech: [C++, OpenGL, GLUT, GLU]
 repo: https://github.com/viniciuscole/3D-Computer-Graphics
+image: /demos/3d-graphics/jogo3d.jpg
 demo:
   type: video
   base: /demos/3d-graphics/jogo3d

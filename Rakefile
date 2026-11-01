@@ -316,3 +316,21 @@ task :check => :clean do
   Rake::Task["jstest"].invoke
   Rake::Task["proof"].invoke
 end
+
+namespace :og do
+  desc "Gera os cartoes de preview (og:image) de build/og/card.html (exige Docker)"
+  task :build do
+    require "fileutils"
+    require "tmpdir"
+
+    Dir.mktmpdir do |tmp|
+      FileUtils.cp("build/og/render.mjs", tmp)
+      sh "docker run --rm " \
+         "--user #{Process.uid}:#{Process.gid} " \
+         "-v #{tmp}:/tools -w /tools " \
+         "-v #{Dir.pwd}:/site " \
+         "mcr.microsoft.com/playwright:v1.56.0-noble " \
+         "bash -c 'npm install --silent playwright@1.56.0 && node render.mjs /site'"
+    end
+  end
+end

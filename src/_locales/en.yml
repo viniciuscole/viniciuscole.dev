@@ -2,7 +2,7 @@ en:
   site:
     title: "Vinicius Cole"
     tagline: "Software developer"
-    description: "Personal site of Vinicius Cole, a software developer, with the projects he builds — starting with a tic-tac-toe game written in 16-bit x86 assembly for DOS."
+    description: "Personal site of Vinicius Cole, a software developer. Projects that run right in your browser, from 16-bit x86 assembly to C and C++ compiled to WebAssembly, and notes on how they were built."
   nav:
     main: "Main"
     home: "Home"
@@ -25,6 +25,7 @@ en:
     title: "Blog"
     intro: "Notes on things I build."
     empty: "Nothing here yet"
+    feed: "Follow via RSS"
   tags:
     index_title: "Tags"
     index_intro: "Browse posts by subject."
