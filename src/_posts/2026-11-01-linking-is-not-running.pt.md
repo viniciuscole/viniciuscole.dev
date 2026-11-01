@@ -31,19 +31,18 @@ Aborted(unsupported immediate mode 9)
 ```
 
 Modo 9 é `GL_POLYGON`, que o jogo usa para desenhar a cabeça de cada personagem.
-A emulação do OpenGL antigo no Emscripten não implementa esse modo. A correção é
-uma palavra, `GL_TRIANGLE_FAN`, que desenha a mesma coisa para uma forma
-convexa.
+A emulação do OpenGL antigo no Emscripten não implementa esse modo. Trocar por
+`GL_TRIANGLE_FAN` desenha a mesma coisa para uma forma convexa, então o patch é
+de uma palavra.
 
-Corrigir foi fácil. O que ficou comigo é que nenhuma verificação, tirando rodar
-o programa, teria pegado o bug. O compilador aceitou. O linker aceitou. Os
-arquivos de saída existiam e tinham tamanhos plausíveis. Tudo que eu conseguia
-checar sem navegador passava, num programa que não desenhava um quadro sequer.
+O patch não me incomodou. O que me incomodou foi que o compilador, o linker e
+uma olhada no tamanho dos arquivos tinham dado sinal verde para um programa que
+não desenhava um quadro sequer. Só rodando de verdade para pegar aquilo.
 
 Então montei uma bancada: um script que abre o jogo num Chromium de verdade
 (headless, dentro da imagem Docker do Playwright), aperta teclas, clica o mouse
-e confere o que aparece na tela. Quase tudo que aprendi com esse port veio de a
-bancada estar errada.
+e confere o que aparece na tela. Quase tudo que aprendi com esse port veio dos
+erros da própria bancada.
 
 ## Não dá para ler um canvas WebGL
 
@@ -52,7 +51,7 @@ pixels do canvas. Isso devolve preto, sempre, porque o WebGL joga fora o buffer
 de desenho assim que o quadro vai para a tela, a menos que você peça o
 contrário.
 
-O que funciona é dar a volta longa. Tira um screenshot pelo Playwright, carrega
+O que funciona é dar a volta. Tira um screenshot pelo Playwright, carrega
 num `<img>`, desenha num canvas 2D e chama `getImageData`. Toda medida da
 bancada passa por esse caminho.
 
@@ -68,13 +67,13 @@ quaisquer, com ou sem teclado. O teste passaria com a entrada completamente
 quebrada, o que é pior do que não ter teste, já que tudo depois dele confiava
 nele.
 
-A correção foi medir a coisa que deveria se mexer. O herói é o único verde na
-tela, então a bancada acha o centro horizontal dos pixels verdes e afirma que D
+No lugar disso, a bancada mede a coisa que deveria se mexer. O herói é a única coisa
+verde na tela, então a bancada acha o centro horizontal dos pixels verdes e afirma que D
 empurra ele mais de 20 px para a direita e A traz de volta. E tem que medir
 perto do ponto de partida: a câmera acompanha o herói, e depois de alguns
 passos ele fica centralizado e o deslocamento na tela quase some.
 
-O pulo tinha a própria armadilha de tempo. Um toque rápido no W levanta o herói
+O pulo era um problema de tempo. Um toque rápido no W levanta o herói
 21 px e ele aterrissa em menos de 90 ms. Minha primeira medida rodava 250 ms
 depois de soltar a tecla, via o herói no chão e acusava uma falha que não
 existia. Segurar W por 900 ms chega a 147 px. Hoje a bancada tira três amostras
@@ -107,18 +106,15 @@ então qualquer altura passava.
 
 ## O que o jogo fez com a página
 
-Alguns bugs iam no sentido contrário: era o jogo quebrando a página em volta
-dele.
-
 O GLUT do Emscripten escuta `keydown` e `keyup` na janela inteira e chama
 `preventDefault` em Tab, Enter e Espaço. O jogo não usa nenhuma das três.
 Depois que alguém clicava em Jogar, quem navega por teclado ficava preso no
 canvas: o Tab não chegava ao rodapé, nem ao botão de tema, nem ao "jogar de
-novo" da tela de fim do próprio jogo. A correção é um listener em captura na
-janela, registrado antes de o módulo do jogo carregar, que segura essas três
-teclas antes de o GLUT ver.
+novo" da tela de fim do próprio jogo. Agora um listener em captura na janela,
+registrado antes de o módulo do jogo carregar, segura essas três teclas antes
+de o GLUT ver.
 
-A tela de fim tinha um bug próprio. As fontes bitmap do GLUT não existem no
+E essa tela de fim também estava quebrada. As fontes bitmap do GLUT não existem no
 Emscripten, então "Você venceu" e "Você perdeu" agora são HTML por cima do
 canvas. O C++ chama a página a cada quadro enquanto o jogo está acabado. Quando
 o R reinicia, ele simplesmente para de chamar, e nada avisava a página para
@@ -135,11 +131,8 @@ diretório único não tem como ver esse tipo de bug.
 
 ## Três patches, e muita bancada
 
-O jogo em si quase não mudou. São três patches pequenos, aplicados sobre um
-commit fixo do repositório original, e o próprio `make` do trabalho ainda gera
-a versão de desktop com o texto original do GLUT. Quase todo o trabalho foi
-provar que a versão do navegador roda de verdade.
+O jogo em si quase não mudou: três patches pequenos sobre um commit fixo do
+repositório original, e o próprio `make` do trabalho ainda gera a versão de
+desktop com o texto original do GLUT.
 
-Entrei achando que a parte difícil seria o OpenGL. A maior parte do tempo foi
-em testes que passavam quando não deviam. Hoje eu não confio numa checagem até
-ver ela falhar.
+Entrei achando que a parte difícil seria o OpenGL. Foi a bancada.
