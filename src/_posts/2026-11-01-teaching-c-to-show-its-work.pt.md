@@ -17,10 +17,9 @@ para nada. Eu queria que o leitor visse o Dijkstra abrindo e fechando nós, o
 carro saindo, uma via travando e o carro mudando de ideia. O C sabia tudo isso
 enquanto rodava. Só nunca falava.
 
-Vi três jeitos de colocar isso na página. Reescrever o algoritmo em JavaScript,
-e o C viraria só um link para o repositório. Rodar o C antes e publicar
-animações gravadas, e ninguém poderia criar o próprio engarrafamento. Ou
-ensinar o C a narrar. Fiquei com o terceiro.
+Reescrever o algoritmo em JavaScript transformaria o C num link para o
+repositório, e animações gravadas tirariam do leitor a chance de criar o
+próprio engarrafamento. Então o C ia ter que aprender a narrar.
 
 ## Ganchos que não custam nada quando ninguém escuta
 
@@ -56,8 +55,8 @@ Dois minutos e sessenta segundos. A rota está certa, são exatamente 180
 segundos. Em ponto flutuante a soma dá algo como 179,99999, o código trunca com
 `(int)` para tirar os minutos, chega em 2, e imprime o resto, que o `printf`
 arredonda de volta para 60. Isso vinha sendo impresso desde 2023. A correção
-arredonda para milissegundos antes de quebrar o tempo em partes. Essa linha da
-base foi a única que o projeto inteiro teve permissão de mudar.
+arredonda para milissegundos antes de quebrar o tempo em partes. Foi a única
+linha da base que o projeto teve permissão de mudar.
 
 ## Uma linha por evento
 
@@ -120,9 +119,9 @@ a página monta uma entrada nova e chama o C de novo.
 
 ## Entrada de desconhecidos
 
-O editor de trânsito mudou uma coisa que ninguém tinha previsto. Até ali, a
-única entrada que esse programa já tinha lido eram arquivos que nós três
-escrevemos. Agora ele lê o que qualquer leitor monta clicando. Três coisas
+Antes do editor de trânsito, a única entrada que esse programa já tinha lido
+eram arquivos que nós três escrevemos. Agora ele lê o que qualquer leitor
+monta clicando. Três coisas
 quebraram na hora:
 
 - o `read_updates` lia cada linha num `char aux[50]`, então uma linha comprida
@@ -149,6 +148,5 @@ passo e mudar a velocidade são só uma posição num array. O canvas lê as cor
 das variáveis CSS do site a cada quadro, e é por isso que o grafo acompanha a
 troca de tema claro/escuro no meio da animação sem código extra.
 
-O programa em C faz exatamente o que fazia em 2023. Só que agora ele fala
-enquanto trabalha. E ainda imprime três minutos como `00:03:0.000000`, com os
-segundos sem o zero à esquerda. O README documenta isso. Vou deixar assim.
+O C em si ainda imprime três minutos como `00:03:0.000000`, com os segundos
+sem o zero à esquerda. O README documenta isso agora, e vou deixar assim.

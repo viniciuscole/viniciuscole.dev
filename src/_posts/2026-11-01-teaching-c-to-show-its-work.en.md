@@ -17,11 +17,9 @@ readers to watch Dijkstra open and close nodes, see the car leave, see a road
 jam and the car change its mind. The C knew all of that while it ran. It just
 never said any of it out loud.
 
-I saw three ways to get it onto the page. I could rewrite the algorithm in
-JavaScript, but then the C would be reduced to a link to the repo. I could run
-the C offline and ship pre-recorded animations, but then nobody could cause
-their own traffic jam. Or I could teach the C to narrate. I went with the
-third.
+Rewriting the algorithm in JavaScript would have turned the C into a link to
+the repo, and pre-recorded animations would have meant nobody could cause
+their own traffic jam. So the C had to learn to narrate.
 
 ## Hooks that cost nothing when nobody listens
 
@@ -118,9 +116,8 @@ again.
 
 ## Input from strangers
 
-The traffic editor changed one thing nobody planned for. Until then, the
-only input this program had ever read was files the three of us wrote. Now
-it reads whatever a reader clicks together. Three things broke right away:
+Before the traffic editor, the only input this program had ever read was
+files the three of us wrote. Now it reads whatever a reader clicks together. Three things broke right away:
 
 - `read_updates` read each line into `char aux[50]`, so a long line wrote past
   the end of the buffer.
@@ -145,6 +142,5 @@ are just a position in an array. The canvas reads its colours from the site's
 CSS variables on every frame, which is why the graph follows the light/dark
 toggle mid-animation without any extra code.
 
-The C program does exactly what it did in 2023. It just talks while it works.
-It also still prints three minutes as `00:03:0.000000`, with the seconds not
-zero-padded. The README documents that now. I'm leaving it.
+The C itself still prints three minutes as `00:03:0.000000`, with the
+seconds not zero-padded. The README documents it now, and I'm leaving it.
