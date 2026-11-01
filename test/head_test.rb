@@ -132,6 +132,23 @@ class HeadTest < Minitest::Test
     end
   end
 
+  def test_every_page_has_a_preview_image_that_exists
+    html_pages.each do |path|
+      image = File.read(path)[/<meta property="og:image" content="([^"]+)" \/>/, 1]
+      refute_nil image, "#{path}: falta og:image"
+      assert output(image.delete_prefix("https://viniciuscole.com/")).file?,
+        "#{path}: og:image aponta para #{image}, que nao existe em output/"
+    end
+  end
+
+  def test_preview_card_follows_the_page_locale_unless_the_page_has_its_own
+    assert_includes page_body("index.html"), "/images/og/card.en.png"
+    assert_includes page_body("pt/blog/index.html"), "/images/og/card.pt.png"
+    assert_includes page_body("projects/3d-graphics/index.html"),
+      '<meta property="og:image" content="https://viniciuscole.com/demos/3d-graphics/jogo3d.jpg" />'
+    assert_includes page_body("index.html"), '<meta name="twitter:card" content="summary_large_image" />'
+  end
+
   def test_error_pages_are_not_indexable
     assert_includes page_body("404.html"), '<meta name="robots" content="noindex" />'
     assert_includes page_body("500.html"), '<meta name="robots" content="noindex" />'

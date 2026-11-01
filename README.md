@@ -136,6 +136,25 @@ página nunca grava nada, senão o tema do primeiro acesso ficaria congelado
 para sempre. Um script inline e bloqueante no `<head>` aplica o tema salvo
 antes do primeiro paint, para não piscar branco.
 
+## Feed, sitemap e preview de compartilhamento
+
+`plugins/builders/feeds.rb` escreve um feed Atom por idioma (`/feed.xml` e
+`/pt/feed.xml`) com o post inteiro, e `plugins/builders/sitemap.rb` escreve o
+`/sitemap.xml` com as alternativas `hreflang` de cada página. Os dois rodam
+depois do build, então nenhum template precisa mudar quando um post ou projeto
+novo entra. Páginas com `noindex: true` (ou `sitemap: false`) ficam de fora do
+sitemap.
+
+Toda página publica um `og:image`. O padrão é o cartão do idioma,
+`src/images/og/card.{en,pt}.png`; um post ou projeto pode trocar pelo seu
+próprio com `image: /caminho/da/imagem` no front matter.
+
+    bundle exec rake og:build
+
+Regera os dois cartões a partir de `build/og/card.html` num Chromium de verdade
+(exige Docker). Rode quando mudar a foto, o texto do cartão ou as cores do
+tema; os PNGs são versionados.
+
 ## Configuração
 
 Toda a configuração do site vive em `config/initializers.rb`. O Bridgetown 2

@@ -2,7 +2,7 @@ pt:
   site:
     title: "Vinicius Cole"
     tagline: "Desenvolvedor de software"
-    description: "Site pessoal do Vinicius Cole, desenvolvedor de software, com as coisas que ele constrói — a começar por um jogo da velha em assembly x86 de 16 bits, escrito para DOS."
+    description: "Site pessoal do Vinicius Cole, desenvolvedor de software. Projetos que rodam direto no seu navegador, de assembly x86 de 16 bits a C e C++ compilados para WebAssembly, e notas sobre como foram feitos."
   nav:
     main: "Principal"
     home: "Início"
@@ -25,6 +25,7 @@ pt:
     title: "Blog"
     intro: "Notas sobre as coisas que eu construo."
     empty: "Nenhum post por aqui ainda"
+    feed: "Acompanhe por RSS"
   tags:
     index_title: "Tags"
     index_intro: "Navegue pelos posts por assunto."
