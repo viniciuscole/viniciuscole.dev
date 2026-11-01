@@ -37,6 +37,8 @@ pt:
       assembly: "Assembly"
       emulation: "Emulação"
       webassembly: "WebAssembly"
+      opengl: "OpenGL"
+      testing: "Testes"
   errors:
     not_found:
       title: "Página não encontrada"
