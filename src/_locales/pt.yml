@@ -39,6 +39,8 @@ pt:
       webassembly: "WebAssembly"
       opengl: "OpenGL"
       testing: "Testes"
+      c: "C"
+      algorithms: "Algoritmos"
   errors:
     not_found:
       title: "Página não encontrada"
