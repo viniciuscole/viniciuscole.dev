@@ -41,6 +41,10 @@ pt:
       testing: "Testes"
       c: "C"
       algorithms: "Algoritmos"
+      video: "Vídeo"
+      webcodecs: "WebCodecs"
+      audio: "Áudio"
+      agents: "Agentes de IA"
   errors:
     not_found:
       title: "Página não encontrada"
