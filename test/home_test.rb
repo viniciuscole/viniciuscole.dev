@@ -43,15 +43,15 @@ class HomeTest < Minitest::Test
     body = page_body("index.html")
 
     assert_includes body, "Latest posts"
-    assert_includes body, "Porting DOS assembly to the browser"
+    assert_match %r{<ul class="post-list">\s*<li>\s*<a href="/\d{4}/\d\d/\d\d/}, body
   end
 
   def test_pt_home_lists_the_recent_posts_in_portuguese
     body = page_body("pt/index.html")
 
     assert_includes body, "Últimos posts"
-    assert_includes body, "Portando assembly de DOS para o navegador"
-    refute_includes body, "Porting DOS assembly to the browser"
+    assert_match %r{<ul class="post-list">\s*<li>\s*<a href="/pt/\d{4}/\d\d/\d\d/}, body
+    refute_match %r{href="/\d{4}/\d\d/\d\d/}, body
   end
 
   # Contato e servido pelo footer, em toda pagina. Se voltar uma chave

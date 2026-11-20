@@ -41,6 +41,10 @@ en:
       testing: "Testing"
       c: "C"
       algorithms: "Algorithms"
+      video: "Video"
+      webcodecs: "WebCodecs"
+      audio: "Audio"
+      agents: "AI agents"
   errors:
     not_found:
       title: "Page not found"
