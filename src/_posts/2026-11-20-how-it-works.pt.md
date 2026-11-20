@@ -3,7 +3,7 @@ layout: post
 title: Como funciona o editor de vídeo no navegador
 locale: pt
 slug: how-it-works
-date: 2026-11-20
+date: 2026-11-20 00:00:40 -03:00
 tags: [video, webcodecs, agents]
 ---
 
@@ -86,7 +86,7 @@ pixels e o fallback para Canvas2D funcionando num alvo só. No modo `auto` o
 editor recusa um adaptador WebGPU por software, porque WebGPU em software é
 mais lento que Canvas2D.
 
-A perda de device foi a parte interessante. Entre o momento em que um device
+A perda de device precisou de uma proteção própria. Entre o momento em que um device
 de GPU morre e o momento em que `device.lost` resolve, um desenho devolve um
 quadro preto e não lança nada. No preview, é um quadro ruim. Numa exportação,
 que roda mais rápido que o tempo real, são vários quadros pretos gravados no
@@ -98,8 +98,8 @@ O CI não tem GPU, então os testes de WebGPU rodam no SwiftShader, uma
 implementação em software. A primeira configuração que funcionou gastava uns
 110 segundos de um timeout de 120, cerca de 6× mais lento que localmente,
 e o revisor recusou até os timeouts ganharem folga. O primeiro
-efeito, uma correção de cor escrita em WGSL, está em revisão enquanto escrevo.
-No Canvas2D, os clipes saem sem os efeitos e o painel de exportação avisa.
+efeito, uma correção de cor escrita em WGSL, entrou com o último ticket da
+spec. No Canvas2D, os clipes saem sem os efeitos e o painel de exportação avisa.
 
 ## Quem escreveu
 
@@ -143,5 +143,5 @@ Nem tudo está resolvido. Alguns testes medem reprodução em tempo real a 4K, e
 eles falham quando a máquina está ocupada. Estão marcados como instáveis
 conhecidos nos PRs, não corrigidos.
 
-Se eu tivesse que guardar uma regra de tudo isso, seria a do revisor: teste
-que continua passando com a funcionalidade removida é bug no teste.
+O esquema inteiro se apoia na regra do revisor: teste que continua passando
+com a funcionalidade removida é bug no teste.

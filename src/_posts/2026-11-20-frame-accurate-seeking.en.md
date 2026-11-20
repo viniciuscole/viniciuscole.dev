@@ -3,7 +3,7 @@ layout: post
 title: Frame-accurate seeking with WebCodecs
 locale: en
 slug: frame-accurate-seeking
-date: 2026-11-20
+date: 2026-11-20 00:00:30 -03:00
 tags: [video, webcodecs, testing]
 ---
 
@@ -133,5 +133,4 @@ share the other three, so the total never goes above 4. The
 Most of these bugs surfaced because a reviewer went looking for the bad
 timing: a shifted clip, a second seek 7 ms after the first, a scrub right
 after a seek inside a GOP. The seek and scrub PRs each took three review
-rounds. Decoding the right frame was never the problem. Making sure nothing
-else ever reached the screen was.
+rounds.

@@ -3,7 +3,7 @@ layout: post
 title: How the browser video editor works
 locale: en
 slug: how-it-works
-date: 2026-11-20
+date: 2026-11-20 00:00:40 -03:00
 tags: [video, webcodecs, agents]
 ---
 
@@ -85,7 +85,7 @@ zero-copy end to end. That copy keeps pixel readback and the fallback to
 Canvas2D working on one target. In `auto` mode the editor refuses a software
 WebGPU adapter, because a software WebGPU is slower than Canvas2D.
 
-Device loss was the interesting part. Between the moment a GPU device dies and
+Device loss needed its own guard. Between the moment a GPU device dies and
 the moment `device.lost` resolves, a draw returns a black frame and throws
 nothing. In the preview that is one bad frame. In an export, running faster
 than real time, it is several black frames written into the file. Now each
@@ -97,7 +97,7 @@ CI has no GPU, so the WebGPU tests run on SwiftShader, a software
 implementation. The first working setup used about 110 seconds of a
 120-second timeout, roughly 6× slower than locally, and the reviewer refused
 it until the timeouts had room. The first effect, a colour grade written in
-WGSL, is in review as I write this. On Canvas2D, clips render without their
+WGSL, landed with the last ticket of the spec. On Canvas2D, clips render without their
 effects and the export panel says so.
 
 ## Who wrote it
@@ -141,5 +141,5 @@ Not everything is solved. A few tests measure real-time playback at 4K, and
 they fail when the machine is busy. They are marked as known flakes in the
 PRs, not fixed.
 
-If I had to keep one rule from all of this, it's the reviewer's: a test that
-still passes with the feature removed is a bug in the test.
+The whole setup rests on the reviewer's rule: a test that still passes with
+the feature removed is a bug in the test.

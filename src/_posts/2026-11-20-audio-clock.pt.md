@@ -3,7 +3,7 @@ layout: post
 title: Sincronizando o vídeo com o relógio do áudio entre threads
 locale: pt
 slug: audio-clock
-date: 2026-11-20
+date: 2026-11-20 00:00:00 -03:00
 tags: [video, audio, testing]
 ---
 
@@ -95,7 +95,7 @@ retoma ele.
 
 ## Play, pause, play
 
-Esse `resume()` rendeu os dois bugs de que eu mais gosto nesta parte.
+Esse `resume()` estava por trás de dois bugs.
 
 O primeiro: no app, o `resume()` pode levar até 500 ms. Aperte Play, Pause,
 Play antes de ele terminar, e o áudio do primeiro play começa mesmo assim
@@ -145,5 +145,4 @@ Não tem limitador. Duas trilhas altas, ou um clipe a 200%, podem passar de
 velocidade diferente de 1× ficam mudos, como a spec permite por enquanto.
 
 Como preview e exportação rodam o mesmo plano, "a exportação soa igual ao
-preview" vale por construção. O que os testes precisam conferir é o plano, e
-isso era uma coisa bem menor para acertar.
+preview" vale por construção. O que os testes precisam conferir é o plano.

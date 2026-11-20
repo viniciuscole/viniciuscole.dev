@@ -3,7 +3,7 @@ layout: post
 title: Edição na timeline com desfazer e refazer
 locale: pt
 slug: timeline-editing
-date: 2026-11-20
+date: 2026-11-20 00:00:20 -03:00
 tags: [video, testing]
 ---
 

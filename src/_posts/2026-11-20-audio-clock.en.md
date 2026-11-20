@@ -3,7 +3,7 @@ layout: post
 title: Syncing video to the audio clock across threads
 locale: en
 slug: audio-clock
-date: 2026-11-20
+date: 2026-11-20 00:00:00 -03:00
 tags: [video, audio, testing]
 ---
 
@@ -92,7 +92,7 @@ path. In the app, the context starts suspended and the first Play resumes it.
 
 ## Play, pause, play
 
-That `resume()` gave the two bugs I like most in this part.
+That `resume()` was behind two bugs.
 
 The first: in the app, `resume()` can take up to 500 ms. Press Play, Pause,
 Play before it finishes, and the first play's audio still starts when it
@@ -141,5 +141,4 @@ clip, but they clip identically in the preview and in the file. Clips at a
 speed other than 1× are silent, as the spec allows for now.
 
 Because preview and export run the same plan, "the export sounds like the
-preview" holds by construction. What the tests have to check is the plan, and
-that was a much smaller thing to get right.
+preview" holds by construction. What the tests have to check is the plan.

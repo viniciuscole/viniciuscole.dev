@@ -3,7 +3,7 @@ layout: post
 title: Seek com precisão de quadro no WebCodecs
 locale: pt
 slug: frame-accurate-seeking
-date: 2026-11-20
+date: 2026-11-20 00:00:30 -03:00
 tags: [video, webcodecs, testing]
 ---
 
@@ -140,5 +140,4 @@ lanes da exportação dividem os outros três, então o total nunca passa de 4. 
 A maioria desses bugs apareceu porque um revisor foi atrás do momento ruim:
 um clipe deslocado, um segundo seek 7 ms depois do primeiro, um scrub logo
 depois de um seek no meio de um GOP. Os PRs de seek e de scrub levaram três
-rodadas de revisão cada. Decodificar o quadro certo nunca foi o problema.
-Garantir que nada além dele chegasse à tela foi.
+rodadas de revisão cada.
